@@ -20,7 +20,6 @@
   --navy3: #3d6494;
   --navy-light: #e8eef6;
   --navy-mid: #b8cce0;
-  --accent: #1e3a5f;
   --red: #c0392b;
   --red-light: #fdf0ee;
   --amber: #d68910;
@@ -40,16 +39,16 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .topbar-left { display: flex; align-items: center; gap: 2rem; }
 .logo { font-family: var(--mono); font-size: 12px; color: #a8c4e0; letter-spacing: 0.1em; font-weight: 500; }
 .nav { display: flex; }
-.nav-btn { font-family: var(--sans); font-size: 12px; padding: 0 16px; height: 52px; background: transparent; border: none; border-bottom: 2px solid transparent; color: rgba(255,255,255,0.55); cursor: pointer; letter-spacing: 0.02em; transition: color 0.15s; }
+.nav-btn { font-family: var(--sans); font-size: 12px; padding: 0 16px; height: 52px; background: transparent; border: none; border-bottom: 2px solid transparent; color: rgba(255,255,255,0.55); cursor: pointer; transition: color 0.15s; }
 .nav-btn:hover { color: rgba(255,255,255,0.85); }
-.nav-btn.active { color: #ffffff; border-bottom-color: #a8c4e0; }
+.nav-btn.active { color: #fff; border-bottom-color: #a8c4e0; }
 .topbar-right { display: flex; align-items: center; gap: 12px; }
 .sync-status { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.4); }
 .sync-status.ok { color: #6fcf97; }
 .sync-status.err { color: #eb5757; }
 .main { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
 
-.btn { font-family: var(--sans); font-size: 12px; padding: 7px 16px; border: 1px solid var(--border2); border-radius: 4px; background: var(--surface); color: var(--text2); cursor: pointer; transition: all 0.15s; letter-spacing: 0.01em; }
+.btn { font-family: var(--sans); font-size: 12px; padding: 7px 16px; border: 1px solid var(--border2); border-radius: 4px; background: var(--surface); color: var(--text2); cursor: pointer; transition: all 0.15s; }
 .btn:hover { border-color: var(--navy3); color: var(--navy); }
 .btn-navy { background: var(--navy); border-color: var(--navy); color: #fff; }
 .btn-navy:hover { background: var(--navy2); border-color: var(--navy2); color: #fff; }
@@ -61,7 +60,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .view.active { display: block; }
 
 .tracker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
-.tracker-header h2 { font-size: 15px; font-weight: 500; color: var(--text); }
+.tracker-header h2 { font-size: 15px; font-weight: 500; }
 .filters { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
 .filter-btn { font-family: var(--mono); font-size: 10px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text3); letter-spacing: 0.04em; transition: all 0.15s; }
 .filter-btn:hover { border-color: var(--navy-mid); color: var(--navy2); }
@@ -101,10 +100,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
   border-radius: 4px; color: var(--text); width: 100%;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.field input:focus, .field select:focus, .field textarea:focus {
-  outline: none; border-color: var(--navy3);
-  box-shadow: 0 0 0 3px rgba(30,58,95,0.08);
-}
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--navy3); box-shadow: 0 0 0 3px rgba(30,58,95,0.08); }
 .field input:disabled { opacity: 0.4; cursor: not-allowed; background: var(--surface2); }
 .field textarea { resize: vertical; min-height: 52px; line-height: 1.5; }
 
@@ -115,10 +111,15 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 
 .subcon-block { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px; margin-bottom: 8px; position: relative; }
 .subcon-num { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 500; }
-.subcon-remove { position: absolute; top: 12px; right: 12px; font-size: 10px; color: var(--text3); cursor: pointer; background: none; border: none; font-family: var(--mono); }
+.subcon-remove { position: absolute; top: 12px; right: 12px; font-size: 11px; color: var(--text3); cursor: pointer; background: none; border: none; font-family: var(--mono); }
 .subcon-remove:hover { color: var(--red); }
 .add-subcon { width: 100%; padding: 8px; border: 1px dashed var(--border2); border-radius: 4px; background: transparent; color: var(--text3); font-size: 11px; cursor: pointer; text-align: left; margin-top: 4px; transition: all 0.15s; }
 .add-subcon:hover { border-color: var(--navy3); color: var(--navy); background: var(--navy-light); }
+
+.db-block { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px; margin-bottom: 8px; position: relative; }
+.db-num { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 500; }
+.db-remove { position: absolute; top: 12px; right: 12px; font-size: 11px; color: var(--text3); cursor: pointer; background: none; border: none; font-family: var(--mono); }
+.db-remove:hover { color: var(--red); }
 
 .billing-sub { margin-top: 8px; padding: 12px 14px; background: var(--navy-light); border: 1px solid var(--navy-mid); border-radius: 4px; }
 .billing-sub p { font-size: 11px; color: var(--navy2); margin-bottom: 8px; }
@@ -128,8 +129,6 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .save-indicator.saving { color: var(--amber); }
 .save-indicator.saved { color: var(--green); }
 
-.dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-.dash-header h2 { font-size: 15px; font-weight: 500; }
 .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
 .dash-card.full { grid-column: 1 / -1; }
@@ -146,7 +145,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .tl-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--surface2); border-radius: 4px; border: 1px solid var(--border); }
 .tl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .tl-name { flex: 1; font-size: 12px; color: var(--text); }
-.tl-type { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.04em; }
+.tl-type { font-family: var(--mono); font-size: 9px; color: var(--text3); }
 .tl-date { font-family: var(--mono); font-size: 10px; color: var(--text2); }
 .tl-days { font-family: var(--mono); font-size: 10px; font-weight: 500; white-space: nowrap; }
 
@@ -173,10 +172,10 @@ tr:hover td { background: #fafbfc; }
 .digest-info { font-size: 12px; color: rgba(255,255,255,0.7); }
 .digest-info strong { color: #a8c4e0; font-weight: 400; }
 .digest-btn { font-size: 12px; padding: 7px 16px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; background: transparent; color: #fff; transition: all 0.15s; }
-.digest-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+.digest-btn:hover { background: rgba(255,255,255,0.1); }
 .digest-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); border-radius: 4px; padding: 10px 18px; font-size: 12px; color: #fff; z-index: 999; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; font-family: var(--mono); letter-spacing: 0.02em; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); border-radius: 4px; padding: 10px 18px; font-size: 12px; color: #fff; z-index: 999; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; font-family: var(--mono); }
 .toast.show { opacity: 1; transform: translateY(0); }
 
 @media (max-width: 768px) {
@@ -205,9 +204,7 @@ tr:hover td { background: #fafbfc; }
 
   <div class="main">
     <div class="view active" id="view-tracker">
-      <div class="tracker-header">
-        <h2>Active engagements</h2>
-      </div>
+      <div class="tracker-header"><h2>Active engagements</h2></div>
       <div class="filters">
         <button class="filter-btn active" onclick="setFilter('all',this)">ALL</button>
         <button class="filter-btn" onclick="setFilter('Proposal',this)">PROPOSAL</button>
@@ -227,7 +224,6 @@ tr:hover td { background: #fafbfc; }
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -237,9 +233,12 @@ let nextId = 1;
 let currentFilter = 'all';
 let saveTimers = {};
 
+function parseJSON(val, fallback) {
+  try { return JSON.parse(val) || fallback; } catch(e) { return fallback; }
+}
+
 async function apiFetch(params) {
-  const url = API + '?' + new URLSearchParams(params);
-  const r = await fetch(url);
+  const r = await fetch(API + '?' + new URLSearchParams(params));
   return r.json();
 }
 
@@ -249,40 +248,43 @@ async function apiPost(body) {
 }
 
 async function loadAll() {
-  setSyncStatus('syncing...', '');
+  setSyncStatus('syncing...','');
   try {
     const data = await apiFetch({ action:'getAll' });
     projects = data.map(fixTypes);
     if (projects.length) nextId = Math.max(...projects.map(p=>Number(p.id)||0)) + 1;
-    setSyncStatus('synced', 'ok');
+    setSyncStatus('synced','ok');
     render();
     if (document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
   } catch(e) {
-    setSyncStatus('offline', 'err');
+    setSyncStatus('offline','err');
     render();
   }
 }
 
 function fixTypes(p) {
-  const bools = ['sharepointMade','sc1Briefed','sc1InvReceived','sc1InvProcessed','sc2Briefed','sc2InvReceived','sc2InvProcessed','dbUsed','dbPoRequired','billingReady','invoiceInitiated'];
+  const bools = ['sharepointMade','billingReady','invoiceInitiated'];
   bools.forEach(k => { p[k] = p[k]==='TRUE'||p[k]===true||p[k]==='true'; });
+  p.subcontractors = parseJSON(p.subcontractors, []);
+  p.databases = parseJSON(p.databases, []);
   return p;
 }
 
 function setSyncStatus(msg, cls) {
   const el = document.getElementById('syncStatus');
-  el.textContent = msg; el.className = 'sync-status' + (cls ? ' '+cls : '');
+  el.textContent = msg; el.className = 'sync-status'+(cls?' '+cls:'');
 }
 
 async function saveProject(id) {
   const p = projects.find(x=>x.id==id);
   if (!p) return;
   const ind = document.getElementById('save-'+id);
-  if (ind) { ind.textContent = 'saving...'; ind.className = 'save-indicator saving'; }
+  if (ind) { ind.textContent='saving...'; ind.className='save-indicator saving'; }
   setSyncStatus('saving...','');
   try {
-    await apiPost({ action:'save', data:p });
-    if (ind) { ind.textContent = 'saved'; ind.className = 'save-indicator saved'; setTimeout(()=>{ if(ind){ind.textContent='';ind.className='save-indicator';}},2000); }
+    const payload = { ...p, subcontractors: JSON.stringify(p.subcontractors), databases: JSON.stringify(p.databases) };
+    await apiPost({ action:'save', data:payload });
+    if (ind) { ind.textContent='saved'; ind.className='save-indicator saved'; setTimeout(()=>{ if(ind){ind.textContent='';ind.className='save-indicator';}},2000); }
     setSyncStatus('synced','ok');
   } catch(e) {
     if (ind) { ind.textContent='save failed'; ind.className='save-indicator'; }
@@ -299,26 +301,62 @@ async function deleteProject(id) {
   if (!confirm('Delete this engagement?')) return;
   projects = projects.filter(x=>x.id!=id);
   render();
-  try {
-    await apiPost({ action:'delete', id:String(id) });
-    setSyncStatus('synced','ok');
-  } catch(e) { setSyncStatus('offline','err'); }
+  try { await apiPost({ action:'delete', id:String(id) }); setSyncStatus('synced','ok'); }
+  catch(e) { setSyncStatus('offline','err'); }
 }
 
 function blankProject(id) {
-  return { id, name:'', client:'', stage:'Proposal', projectCode:'', slCode:'', sharepointMade:false, clientLastContact:'', interimDeadline:'', interimStatus:'Not started', finalDeadline:'', finalStatus:'Not started', nextAction:'', originator:'', clientManager:'', projectLeader:'', researcher:'', sc1Name:'', sc1Briefed:false, sc1Deliverable:'', sc1Deadline:'', sc1PO:'', sc1InvReceived:false, sc1InvProcessed:false, sc2Name:'', sc2Briefed:false, sc2Deliverable:'', sc2Deadline:'', sc2PO:'', sc2InvReceived:false, sc2InvProcessed:false, dbUsed:false, dbName:'', dbCost:'', dbPoRequired:false, dbPoNumber:'', billingReady:false, invoiceInitiated:false, notes:'' };
+  return { id, name:'', client:'', stage:'Proposal', projectCode:'', slCode:'', sharepointMade:false, clientLastContact:'', interimDeadline:'', interimStatus:'Not started', finalDeadline:'', finalStatus:'Not started', nextAction:'', originator:'', clientManager:'', projectLeader:'', researcher:'', subcontractors:[], databases:[], billingReady:false, invoiceInitiated:false, notes:'' };
 }
 
 function addProject() {
   const p = blankProject(nextId++);
   projects.unshift(p);
   render();
-  setTimeout(()=>{ const card=document.getElementById('card-'+p.id); if(card){ card.scrollIntoView({behavior:'smooth'}); setTimeout(()=>toggleCard(p.id),300); }},100);
+  setTimeout(()=>{ const c=document.getElementById('card-'+p.id); if(c){ c.scrollIntoView({behavior:'smooth'}); setTimeout(()=>toggleCard(p.id),300); }},100);
 }
 
 function uf(id, field, value) {
   const p = projects.find(x=>x.id==id);
   if (p) { p[field]=value; scheduleSave(id); }
+}
+
+function updateSubcon(id, idx, field, value) {
+  const p = projects.find(x=>x.id==id);
+  if (p && p.subcontractors[idx]) { p.subcontractors[idx][field]=value; scheduleSave(id); }
+}
+
+function addSubcon(id) {
+  const p = projects.find(x=>x.id==id);
+  if (!p) return;
+  p.subcontractors.push({ name:'', briefed:false, deliverable:'', deadline:'', po:'', invoiceReceived:false, invoiceProcessed:false });
+  scheduleSave(id); reRender(id);
+}
+
+function removeSubcon(id, idx) {
+  const p = projects.find(x=>x.id==id);
+  if (!p) return;
+  p.subcontractors.splice(idx,1);
+  scheduleSave(id); reRender(id);
+}
+
+function updateDb(id, idx, field, value) {
+  const p = projects.find(x=>x.id==id);
+  if (p && p.databases[idx]) { p.databases[idx][field]=value; scheduleSave(id); }
+}
+
+function addDb(id) {
+  const p = projects.find(x=>x.id==id);
+  if (!p) return;
+  p.databases.push({ name:'', cost:'', poRequired:false, poNumber:'' });
+  scheduleSave(id); reRender(id);
+}
+
+function removeDb(id, idx) {
+  const p = projects.find(x=>x.id==id);
+  if (!p) return;
+  p.databases.splice(idx,1);
+  scheduleSave(id); reRender(id);
 }
 
 function daysFrom(d) { return d ? Math.ceil((new Date(d)-new Date())/86400000) : null; }
@@ -330,64 +368,59 @@ function stageOpts(c) { return ['Proposal','Active','Delivery','Closed'].map(s=>
 
 function chk(id, field, val, label) {
   const on = val===true||val==='TRUE'||val==='true';
-  return `<label class="check ${on?'on':''}">
-    <input type="checkbox" ${on?'checked':''} onchange="uf(${id},'${field}',this.checked);this.parentElement.className='check '+(this.checked?'on':'')">
-    ${label}</label>`;
+  return `<label class="check ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="uf(${id},'${field}',this.checked);this.parentElement.className='check '+(this.checked?'on':'')">${label}</label>`;
+}
+
+function chkSc(id, idx, field, val, label) {
+  const on = val===true||val==='TRUE'||val==='true';
+  return `<label class="check ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="updateSubcon(${id},${idx},'${field}',this.checked);this.parentElement.className='check '+(this.checked?'on':'')">${label}</label>`;
+}
+
+function chkDb(id, idx, field, val, label) {
+  const on = val===true||val==='TRUE'||val==='true';
+  return `<label class="check ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="updateDb(${id},${idx},'${field}',this.checked);reRender(${id})">${label}</label>`;
+}
+
+function renderSubcons(p) {
+  const blocks = p.subcontractors.map((sc,i)=>`
+    <div class="subcon-block">
+      <div class="subcon-num">EXTERNAL RESOURCE ${String(i+1).padStart(2,'0')}</div>
+      <button class="subcon-remove" onclick="removeSubcon(${p.id},${i})">remove</button>
+      <div class="fg fg-2">
+        <div class="field"><label>NAME / VENDOR</label><input value="${sc.name||''}" onchange="updateSubcon(${p.id},${i},'name',this.value)"></div>
+        <div class="field"><label>DELIVERABLE</label><input value="${sc.deliverable||''}" onchange="updateSubcon(${p.id},${i},'deliverable',this.value)"></div>
+      </div>
+      <div class="fg fg-2">
+        <div class="field"><label>DEADLINE</label><input type="date" value="${sc.deadline||''}" onchange="updateSubcon(${p.id},${i},'deadline',this.value)"></div>
+        <div class="field"><label>PO NUMBER</label><input value="${sc.po||''}" placeholder="e.g. PO-4421" onchange="updateSubcon(${p.id},${i},'po',this.value)"></div>
+      </div>
+      <div class="checks">
+        ${chkSc(p.id,i,'briefed',sc.briefed,'Briefed & confirmed')}
+        ${chkSc(p.id,i,'invoiceReceived',sc.invoiceReceived,'Invoice received')}
+        ${chkSc(p.id,i,'invoiceProcessed',sc.invoiceProcessed,'Invoice processed')}
+      </div>
+    </div>`).join('');
+  return blocks + `<button class="add-subcon" onclick="addSubcon(${p.id})">+ Add external resource</button>`;
+}
+
+function renderDatabases(p) {
+  const blocks = p.databases.map((db,i)=>`
+    <div class="db-block">
+      <div class="db-num">DATABASE ${String(i+1).padStart(2,'0')}</div>
+      <button class="db-remove" onclick="removeDb(${p.id},${i})">remove</button>
+      <div class="fg fg-3">
+        <div class="field"><label>DATABASE NAME</label><input value="${db.name||''}" placeholder="e.g. World-Check" onchange="updateDb(${p.id},${i},'name',this.value)"></div>
+        <div class="field"><label>COST (USD)</label><input value="${db.cost||''}" placeholder="0.00" onchange="updateDb(${p.id},${i},'cost',this.value)"></div>
+        <div class="field"><label>PO NUMBER</label><input value="${db.poNumber||''}" placeholder="${db.poRequired?'Required':'N/A'}" ${!db.poRequired?'disabled':''} onchange="updateDb(${p.id},${i},'poNumber',this.value)"></div>
+      </div>
+      <div class="checks">${chkDb(p.id,i,'poRequired',db.poRequired,'PO required')}</div>
+    </div>`).join('');
+  return blocks + `<button class="add-subcon" onclick="addDb(${p.id})">+ Add database</button>`;
 }
 
 function renderCard(p) {
   const days = daysFrom(p.finalDeadline);
-  const sc1Section = p.sc1Name ? `<div class="subcon-block">
-    <div class="subcon-num">EXTERNAL RESOURCE 01</div>
-    <button class="subcon-remove" onclick="uf(${p.id},'sc1Name','');reRender(${p.id})">remove</button>
-    <div class="fg fg-2">
-      <div class="field"><label>NAME / VENDOR</label><input value="${p.sc1Name||''}" onchange="uf(${p.id},'sc1Name',this.value)"></div>
-      <div class="field"><label>DELIVERABLE</label><input value="${p.sc1Deliverable||''}" onchange="uf(${p.id},'sc1Deliverable',this.value)"></div>
-    </div>
-    <div class="fg fg-2">
-      <div class="field"><label>DEADLINE</label><input type="date" value="${p.sc1Deadline||''}" onchange="uf(${p.id},'sc1Deadline',this.value)"></div>
-      <div class="field"><label>PO NUMBER</label><input value="${p.sc1PO||''}" placeholder="e.g. PO-4421" onchange="uf(${p.id},'sc1PO',this.value)"></div>
-    </div>
-    <div class="checks">
-      ${chk(p.id,'sc1Briefed',p.sc1Briefed,'Briefed & confirmed')}
-      ${chk(p.id,'sc1InvReceived',p.sc1InvReceived,'Invoice received')}
-      ${chk(p.id,'sc1InvProcessed',p.sc1InvProcessed,'Invoice processed')}
-    </div>
-  </div>` : '';
-
-  const sc2Section = p.sc1Name ? `<div class="subcon-block">
-    <div class="subcon-num">EXTERNAL RESOURCE 02</div>
-    <button class="subcon-remove" onclick="uf(${p.id},'sc2Name','');reRender(${p.id})">remove</button>
-    <div class="fg fg-2">
-      <div class="field"><label>NAME / VENDOR</label><input value="${p.sc2Name||''}" onchange="uf(${p.id},'sc2Name',this.value)"></div>
-      <div class="field"><label>DELIVERABLE</label><input value="${p.sc2Deliverable||''}" onchange="uf(${p.id},'sc2Deliverable',this.value)"></div>
-    </div>
-    <div class="fg fg-2">
-      <div class="field"><label>DEADLINE</label><input type="date" value="${p.sc2Deadline||''}" onchange="uf(${p.id},'sc2Deadline',this.value)"></div>
-      <div class="field"><label>PO NUMBER</label><input value="${p.sc2PO||''}" placeholder="e.g. PO-4421" onchange="uf(${p.id},'sc2PO',this.value)"></div>
-    </div>
-    <div class="checks">
-      ${chk(p.id,'sc2Briefed',p.sc2Briefed,'Briefed & confirmed')}
-      ${chk(p.id,'sc2InvReceived',p.sc2InvReceived,'Invoice received')}
-      ${chk(p.id,'sc2InvProcessed',p.sc2InvProcessed,'Invoice processed')}
-    </div>
-  </div>` : '';
-
-  const addSc = !p.sc1Name ? `<button class="add-subcon" onclick="uf(${p.id},'sc1Name',' ');reRender(${p.id})">+ Add external resource</button>` :
-    !p.sc2Name ? `<button class="add-subcon" onclick="uf(${p.id},'sc2Name',' ');reRender(${p.id})">+ Add second external resource</button>` : '';
-
-  const dbFields = p.dbUsed ? `<div class="fg fg-3" style="margin-top:8px">
-    <div class="field"><label>DATABASE NAME</label><input value="${p.dbName||''}" placeholder="e.g. World-Check" onchange="uf(${p.id},'dbName',this.value)"></div>
-    <div class="field"><label>COST (USD)</label><input value="${p.dbCost||''}" placeholder="0.00" onchange="uf(${p.id},'dbCost',this.value)"></div>
-    <div class="field"><label>PO NUMBER</label><input value="${p.dbPoNumber||''}" ${!p.dbPoRequired?'disabled':''} placeholder="${p.dbPoRequired?'Required':'N/A'}" onchange="uf(${p.id},'dbPoNumber',this.value)"></div>
-  </div>
-  <div class="checks" style="margin-top:6px">${chk(p.id,'dbPoRequired',p.dbPoRequired,'PO required')}</div>` : '';
-
-  const billingFields = p.billingReady ? `<div class="billing-sub">
-    <p>Billing is ready — has invoice preparation been initiated with finance?</p>
-    <div class="checks">${chk(p.id,'invoiceInitiated',p.invoiceInitiated,'Invoice preparation initiated with finance')}</div>
-  </div>` : '';
-
+  const billingFields = p.billingReady ? `<div class="billing-sub"><p>Billing is ready — has invoice preparation been initiated with finance?</p><div class="checks">${chk(p.id,'invoiceInitiated',p.invoiceInitiated,'Invoice preparation initiated with finance')}</div></div>` : '';
   return `<div class="project-card" id="card-${p.id}">
     <div class="card-header" onclick="toggleCard(${p.id})">
       <span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>
@@ -411,10 +444,7 @@ function renderCard(p) {
         </div>
         <div class="fg fg-2">
           <div class="field"><label>CLIENT LAST CONTACTED</label><input type="date" value="${p.clientLastContact||''}" onchange="uf(${p.id},'clientLastContact',this.value)"></div>
-          <div class="field" style="justify-content:flex-end;padding-bottom:2px">
-            <label style="visibility:hidden;font-size:9px">.</label>
-            <div class="checks">${chk(p.id,'sharepointMade',p.sharepointMade,'SharePoint entry made')}</div>
-          </div>
+          <div class="field" style="justify-content:flex-end;padding-bottom:2px"><label style="visibility:hidden;font-size:9px">.</label><div class="checks">${chk(p.id,'sharepointMade',p.sharepointMade,'SharePoint entry made')}</div></div>
         </div>
       </div>
 
@@ -449,13 +479,12 @@ function renderCard(p) {
 
       <div class="sec">
         <div class="sec-label">EXTERNAL RESOURCES</div>
-        ${sc1Section}${sc2Section}${addSc}
+        ${renderSubcons(p)}
       </div>
 
       <div class="sec">
         <div class="sec-label">DATABASE USAGE</div>
-        <div class="checks">${chk(p.id,'dbUsed',p.dbUsed,'Database used on this engagement')}</div>
-        ${dbFields}
+        ${renderDatabases(p)}
       </div>
 
       <div class="sec">
@@ -529,20 +558,18 @@ function renderDashboard() {
     if(!p.projectCode) flags.push({eng:p.name,text:'Project code missing'});
     if(!p.slCode) flags.push({eng:p.name,text:'SL code missing'});
     if(p.billingReady&&!p.invoiceInitiated) flags.push({eng:p.name,text:'Billing ready — invoice not initiated with finance'});
-    if(p.dbUsed&&p.dbPoRequired&&!p.dbPoNumber) flags.push({eng:p.name,text:'Database PO required but missing'});
-    if(p.sc1Name&&!p.sc1Briefed) flags.push({eng:p.name,text:`${p.sc1Name} — not briefed`});
-    if(p.sc1Name&&!p.sc1PO) flags.push({eng:p.name,text:`${p.sc1Name} — no PO`});
-    if(p.sc1InvReceived&&!p.sc1InvProcessed) flags.push({eng:p.name,text:`${p.sc1Name} — invoice not processed`});
-    if(p.sc2Name&&!p.sc2Briefed) flags.push({eng:p.name,text:`${p.sc2Name} — not briefed`});
-    if(p.sc2Name&&!p.sc2PO) flags.push({eng:p.name,text:`${p.sc2Name} — no PO`});
-    if(p.sc2InvReceived&&!p.sc2InvProcessed) flags.push({eng:p.name,text:`${p.sc2Name} — invoice not processed`});
+    p.subcontractors.forEach(sc=>{
+      if(!sc.briefed) flags.push({eng:p.name,text:`${sc.name||'Subcontractor'} — not briefed`});
+      if(!sc.po) flags.push({eng:p.name,text:`${sc.name||'Subcontractor'} — no PO`});
+      if(sc.invoiceReceived&&!sc.invoiceProcessed) flags.push({eng:p.name,text:`${sc.name||'Subcontractor'} — invoice not processed`});
+    });
+    p.databases.forEach(db=>{
+      if(db.poRequired&&!db.poNumber) flags.push({eng:p.name,text:`${db.name||'Database'} — PO required but missing`});
+    });
   });
 
   const allScs=[];
-  active.forEach(p=>{
-    if(p.sc1Name) allScs.push({eng:p.name,name:p.sc1Name,del:p.sc1Deliverable,dl:p.sc1Deadline,po:p.sc1PO,briefed:p.sc1Briefed,invR:p.sc1InvReceived,invP:p.sc1InvProcessed});
-    if(p.sc2Name) allScs.push({eng:p.name,name:p.sc2Name,del:p.sc2Deliverable,dl:p.sc2Deadline,po:p.sc2PO,briefed:p.sc2Briefed,invR:p.sc2InvReceived,invP:p.sc2InvProcessed});
-  });
+  active.forEach(p=>p.subcontractors.forEach(sc=>allScs.push({eng:p.name,sc})));
 
   document.getElementById('dashGrid').innerHTML=`
     <div class="dash-card">
@@ -553,7 +580,7 @@ function renderDashboard() {
     </div>
     <div class="dash-card">
       <div class="dash-card-title">OUTSTANDING FLAGS</div>
-      ${flags.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">All clear — no outstanding items</div>`:`<div class="flag-list">${flags.map(f=>`<div class="flag-item"><div class="flag-dot"></div><div class="flag-text">${f.text}<br><span class="flag-eng">${f.eng.length>42?f.eng.slice(0,42)+'…':f.eng}</span></div></div>`).join('')}</div>`}
+      ${flags.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">All clear</div>`:`<div class="flag-list">${flags.map(f=>`<div class="flag-item"><div class="flag-dot"></div><div class="flag-text">${f.text}<br><span class="flag-eng">${f.eng.length>42?f.eng.slice(0,42)+'…':f.eng}</span></div></div>`).join('')}</div>`}
     </div>
     <div class="dash-card full">
       <div class="dash-card-title">DEADLINE TIMELINE</div>
@@ -561,7 +588,7 @@ function renderDashboard() {
     </div>
     <div class="dash-card full">
       <div class="dash-card-title">SUBCONTRACTOR STATUS</div>
-      ${allScs.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active engagements</div>`:`<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>ENGAGEMENT</th><th>DELIVERABLE</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(s=>`<tr><td>${s.name||'—'}</td><td style="color:var(--text3)">${s.eng.length>28?s.eng.slice(0,28)+'…':s.eng}</td><td style="color:var(--text3)">${s.del||'—'}</td><td>${fmtDate(s.dl)}</td><td><span class="sc-pill ${s.briefed?'sc-yes':'sc-no'}">${s.briefed?'YES':'NO'}</span></td><td>${s.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${s.invR?'sc-yes':'sc-no'}">${s.invR?'YES':'NO'}</span></td><td><span class="sc-pill ${s.invP?'sc-yes':'sc-no'}">${s.invP?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`}
+      ${allScs.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active engagements</div>`:`<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>ENGAGEMENT</th><th>DELIVERABLE</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="color:var(--text3)">${sc.deliverable||'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">${sc.invoiceReceived?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">${sc.invoiceProcessed?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`}
     </div>`;
 }
 
