@@ -7,85 +7,88 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0f0f0f;
-  --surface: #171717;
-  --surface2: #1f1f1f;
-  --border: #2a2a2a;
-  --border2: #333;
-  --text: #e8e8e8;
-  --text2: #888;
-  --text3: #555;
-  --accent: #c8b88a;
-  --accent2: #8a9eb8;
-  --red: #c0504d;
-  --amber: #c8923a;
-  --green: #5a8a5a;
-  --purple: #7a6a9a;
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface2: #f0f2f5;
+  --border: #e2e6ed;
+  --border2: #c8d0db;
+  --text: #1a2332;
+  --text2: #4a5568;
+  --text3: #8a96a8;
+  --navy: #1e3a5f;
+  --navy2: #2a4f7c;
+  --navy3: #3d6494;
+  --navy-light: #e8eef6;
+  --navy-mid: #b8cce0;
+  --accent: #1e3a5f;
+  --red: #c0392b;
+  --red-light: #fdf0ee;
+  --amber: #d68910;
+  --amber-light: #fef9e7;
+  --green: #1e7e4a;
+  --green-light: #eafaf1;
+  --purple: #6c5ce7;
+  --purple-light: #f0eeff;
   --mono: 'IBM Plex Mono', monospace;
   --sans: 'IBM Plex Sans', sans-serif;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.6; min-height: 100vh; }
 
-/* Layout */
 .app { display: grid; grid-template-rows: auto 1fr; min-height: 100vh; }
-.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+.topbar { background: var(--navy); border-bottom: 1px solid var(--navy2); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
 .topbar-left { display: flex; align-items: center; gap: 2rem; }
-.logo { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.1em; font-weight: 500; }
-.nav { display: flex; gap: 0; }
-.nav-btn { font-family: var(--sans); font-size: 12px; padding: 0 16px; height: 52px; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text2); cursor: pointer; letter-spacing: 0.02em; transition: color 0.15s; }
-.nav-btn:hover { color: var(--text); }
-.nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-.topbar-right { display: flex; align-items: center; gap: 10px; }
-.sync-status { font-family: var(--mono); font-size: 10px; color: var(--text3); }
-.sync-status.ok { color: var(--green); }
-.sync-status.err { color: var(--red); }
+.logo { font-family: var(--mono); font-size: 12px; color: #a8c4e0; letter-spacing: 0.1em; font-weight: 500; }
+.nav { display: flex; }
+.nav-btn { font-family: var(--sans); font-size: 12px; padding: 0 16px; height: 52px; background: transparent; border: none; border-bottom: 2px solid transparent; color: rgba(255,255,255,0.55); cursor: pointer; letter-spacing: 0.02em; transition: color 0.15s; }
+.nav-btn:hover { color: rgba(255,255,255,0.85); }
+.nav-btn.active { color: #ffffff; border-bottom-color: #a8c4e0; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.sync-status { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.4); }
+.sync-status.ok { color: #6fcf97; }
+.sync-status.err { color: #eb5757; }
 .main { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
 
-/* Buttons */
-.btn { font-family: var(--sans); font-size: 12px; padding: 7px 16px; border: 1px solid var(--border2); border-radius: 3px; background: transparent; color: var(--text); cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em; }
-.btn:hover { border-color: var(--accent); color: var(--accent); }
-.btn-accent { border-color: var(--accent); color: var(--accent); }
-.btn-accent:hover { background: var(--accent); color: var(--bg); }
-.btn-danger { border-color: var(--red); color: var(--red); }
-.btn-danger:hover { background: var(--red); color: #fff; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn { font-family: var(--sans); font-size: 12px; padding: 7px 16px; border: 1px solid var(--border2); border-radius: 4px; background: var(--surface); color: var(--text2); cursor: pointer; transition: all 0.15s; letter-spacing: 0.01em; }
+.btn:hover { border-color: var(--navy3); color: var(--navy); }
+.btn-navy { background: var(--navy); border-color: var(--navy); color: #fff; }
+.btn-navy:hover { background: var(--navy2); border-color: var(--navy2); color: #fff; }
+.btn-danger { border-color: #e8c4c0; color: var(--red); background: var(--red-light); }
+.btn-danger:hover { background: #f9e0dd; border-color: var(--red); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* Views */
 .view { display: none; }
 .view.active { display: block; }
 
-/* Tracker */
-.tracker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-.tracker-header h2 { font-size: 16px; font-weight: 400; color: var(--text); letter-spacing: 0.02em; }
-.filters { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; }
-.filter-btn { font-family: var(--mono); font-size: 10px; padding: 4px 12px; border-radius: 2px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text3); letter-spacing: 0.05em; transition: all 0.15s; }
-.filter-btn:hover { border-color: var(--border2); color: var(--text2); }
-.filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(200,184,138,0.06); }
+.tracker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.tracker-header h2 { font-size: 15px; font-weight: 500; color: var(--text); }
+.filters { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.filter-btn { font-family: var(--mono); font-size: 10px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text3); letter-spacing: 0.04em; transition: all 0.15s; }
+.filter-btn:hover { border-color: var(--navy-mid); color: var(--navy2); }
+.filter-btn.active { border-color: var(--navy); color: var(--navy); background: var(--navy-light); font-weight: 500; }
 
-/* Cards */
 .projects { display: flex; flex-direction: column; gap: 8px; }
-.project-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; transition: border-color 0.15s; }
-.project-card:hover { border-color: var(--border2); }
+.project-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; transition: box-shadow 0.15s, border-color 0.15s; }
+.project-card:hover { border-color: var(--border2); box-shadow: 0 2px 8px rgba(30,58,95,0.06); }
 .card-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; }
-.stage-pill { font-family: var(--mono); font-size: 9px; padding: 3px 8px; border-radius: 2px; font-weight: 500; letter-spacing: 0.08em; white-space: nowrap; }
-.pill-proposal { background: rgba(122,106,154,0.15); color: #a090c8; border: 1px solid rgba(122,106,154,0.3); }
-.pill-active { background: rgba(90,138,90,0.15); color: #7ab87a; border: 1px solid rgba(90,138,90,0.3); }
-.pill-delivery { background: rgba(200,146,58,0.15); color: #c8923a; border: 1px solid rgba(200,146,58,0.3); }
-.pill-closed { background: rgba(80,80,80,0.2); color: #666; border: 1px solid rgba(80,80,80,0.3); }
+.card-header:hover { background: #fafbfc; }
+.stage-pill { font-family: var(--mono); font-size: 9px; padding: 3px 9px; border-radius: 20px; font-weight: 500; letter-spacing: 0.07em; white-space: nowrap; }
+.pill-proposal { background: var(--purple-light); color: var(--purple); border: 1px solid #d4d0f8; }
+.pill-active { background: var(--green-light); color: var(--green); border: 1px solid #b8e8cc; }
+.pill-delivery { background: var(--amber-light); color: var(--amber); border: 1px solid #f5dfa0; }
+.pill-closed { background: #f5f5f5; color: #999; border: 1px solid #e0e0e0; }
 .card-name { flex: 1; font-size: 13px; color: var(--text); font-weight: 400; }
 .card-client { font-size: 11px; color: var(--text3); }
-.deadline-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.deadline-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .card-deadline { font-family: var(--mono); font-size: 10px; color: var(--text3); white-space: nowrap; }
 .chevron { font-size: 10px; color: var(--text3); transition: transform 0.2s; }
 .chevron.open { transform: rotate(180deg); }
 
-/* Card body */
-.card-body { border-top: 1px solid var(--border); padding: 20px; display: none; }
+.card-body { border-top: 1px solid var(--border); padding: 20px; display: none; background: #fafbfc; }
 .card-body.open { display: block; }
 .sec { margin-bottom: 20px; }
 .sec:last-child { margin-bottom: 0; }
-.sec-label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.12em; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.sec-label { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.12em; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); font-weight: 500; }
 .fg { display: grid; gap: 8px; margin-bottom: 8px; }
 .fg-2 { grid-template-columns: 1fr 1fr; }
 .fg-3 { grid-template-columns: 1fr 1fr 1fr; }
@@ -93,95 +96,87 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .field { display: flex; flex-direction: column; gap: 4px; }
 .field label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.06em; }
 .field input, .field select, .field textarea {
-  font-family: var(--sans); font-size: 12px; padding: 6px 8px;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 3px; color: var(--text); width: 100%;
-  transition: border-color 0.15s;
+  font-family: var(--sans); font-size: 12px; padding: 6px 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text); width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
-.field input:disabled { opacity: 0.35; cursor: not-allowed; }
-.field select option { background: var(--surface2); }
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: var(--navy3);
+  box-shadow: 0 0 0 3px rgba(30,58,95,0.08);
+}
+.field input:disabled { opacity: 0.4; cursor: not-allowed; background: var(--surface2); }
 .field textarea { resize: vertical; min-height: 52px; line-height: 1.5; }
 
-/* Checkboxes */
 .checks { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px; }
 .check { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); cursor: pointer; }
-.check input[type=checkbox] { width: 12px; height: 12px; accent-color: var(--accent); cursor: pointer; }
+.check input[type=checkbox] { width: 13px; height: 13px; accent-color: var(--navy); cursor: pointer; }
 .check.on { color: var(--green); }
 
-/* Subcon */
-.subcon-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 14px; margin-bottom: 8px; position: relative; }
-.subcon-num { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.08em; margin-bottom: 10px; }
+.subcon-block { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px; margin-bottom: 8px; position: relative; }
+.subcon-num { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 500; }
 .subcon-remove { position: absolute; top: 12px; right: 12px; font-size: 10px; color: var(--text3); cursor: pointer; background: none; border: none; font-family: var(--mono); }
 .subcon-remove:hover { color: var(--red); }
-.add-subcon { width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 3px; background: transparent; color: var(--text3); font-size: 11px; cursor: pointer; text-align: left; margin-top: 4px; transition: all 0.15s; }
-.add-subcon:hover { border-color: var(--border2); color: var(--text2); }
+.add-subcon { width: 100%; padding: 8px; border: 1px dashed var(--border2); border-radius: 4px; background: transparent; color: var(--text3); font-size: 11px; cursor: pointer; text-align: left; margin-top: 4px; transition: all 0.15s; }
+.add-subcon:hover { border-color: var(--navy3); color: var(--navy); background: var(--navy-light); }
 
-/* Billing conditional */
-.billing-sub { margin-top: 8px; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; }
-.billing-sub p { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
+.billing-sub { margin-top: 8px; padding: 12px 14px; background: var(--navy-light); border: 1px solid var(--navy-mid); border-radius: 4px; }
+.billing-sub p { font-size: 11px; color: var(--navy2); margin-bottom: 8px; }
 
-/* Card actions */
 .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
 .save-indicator { font-family: var(--mono); font-size: 10px; color: var(--text3); }
 .save-indicator.saving { color: var(--amber); }
 .save-indicator.saved { color: var(--green); }
 
-/* Dashboard */
 .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-.dash-header h2 { font-size: 16px; font-weight: 400; }
+.dash-header h2 { font-size: 15px; font-weight: 500; }
 .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-.dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 20px; }
+.dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
 .dash-card.full { grid-column: 1 / -1; }
-.dash-card-title { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.1em; margin-bottom: 16px; }
+.dash-card-title { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.12em; margin-bottom: 16px; font-weight: 500; }
 
-/* Stage bars */
-.stage-bars { display: flex; flex-direction: column; gap: 10px; }
+.stage-bars { display: flex; flex-direction: column; gap: 12px; }
 .sbar { display: flex; align-items: center; gap: 12px; }
-.sbar-label { font-size: 11px; color: var(--text2); width: 60px; flex-shrink: 0; }
-.sbar-track { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
-.sbar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+.sbar-label { font-size: 12px; color: var(--text2); width: 64px; flex-shrink: 0; }
+.sbar-track { flex: 1; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.sbar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
 .sbar-count { font-family: var(--mono); font-size: 11px; color: var(--text2); width: 20px; text-align: right; }
 
-/* Timeline */
 .tl-list { display: flex; flex-direction: column; gap: 6px; }
-.tl-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--surface2); border-radius: 3px; }
-.tl-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.tl-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--surface2); border-radius: 4px; border: 1px solid var(--border); }
+.tl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .tl-name { flex: 1; font-size: 12px; color: var(--text); }
-.tl-type { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.05em; }
+.tl-type { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.04em; }
 .tl-date { font-family: var(--mono); font-size: 10px; color: var(--text2); }
 .tl-days { font-family: var(--mono); font-size: 10px; font-weight: 500; white-space: nowrap; }
 
-/* Flags */
 .flag-list { display: flex; flex-direction: column; gap: 6px; }
-.flag-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; background: var(--surface2); border-radius: 3px; }
-.flag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); flex-shrink: 0; margin-top: 5px; }
+.flag-item { display: flex; align-items: flex-start; gap: 8px; padding: 9px 12px; background: var(--red-light); border: 1px solid #f0cac6; border-radius: 4px; }
+.flag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; margin-top: 5px; }
 .flag-text { font-size: 11px; color: var(--text); line-height: 1.5; }
 .flag-eng { font-size: 10px; color: var(--text3); font-family: var(--mono); }
 
-/* SC table */
 .sc-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-th { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.08em; text-align: left; padding: 0 10px 8px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
-td { font-size: 11px; color: var(--text); padding: 8px 10px 8px 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
+th { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.08em; text-align: left; padding: 0 10px 10px 0; border-bottom: 1px solid var(--border); white-space: nowrap; font-weight: 500; }
+td { font-size: 11px; color: var(--text); padding: 9px 10px 9px 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
-.sc-pill { font-family: var(--mono); font-size: 9px; padding: 2px 7px; border-radius: 2px; }
-.sc-yes { background: rgba(90,138,90,0.15); color: #7ab87a; }
-.sc-no { background: rgba(192,80,77,0.15); color: #d07070; }
+tr:hover td { background: #fafbfc; }
+.sc-pill { font-family: var(--mono); font-size: 9px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.sc-yes { background: var(--green-light); color: var(--green); }
+.sc-no { background: var(--red-light); color: var(--red); }
 
-/* Empty */
-.empty { text-align: center; padding: 3rem; color: var(--text3); font-size: 13px; border: 1px dashed var(--border); border-radius: 4px; }
-
-/* Digest bar */
-.digest-bar { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px 20px; margin-bottom: 1.5rem; }
-.digest-info { font-size: 12px; color: var(--text2); }
-.digest-info strong { color: var(--accent); font-weight: 400; }
-
-/* Loading */
+.empty { text-align: center; padding: 2.5rem; color: var(--text3); font-size: 13px; border: 1px dashed var(--border2); border-radius: 6px; background: var(--surface); }
 .loading { text-align: center; padding: 3rem; color: var(--text3); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; }
 
-/* Toast */
-.toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border2); border-radius: 3px; padding: 10px 16px; font-size: 12px; color: var(--text); z-index: 999; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; font-family: var(--mono); }
+.digest-bar { display: flex; align-items: center; justify-content: space-between; background: var(--navy); border-radius: 6px; padding: 14px 20px; margin-bottom: 1.5rem; }
+.digest-info { font-size: 12px; color: rgba(255,255,255,0.7); }
+.digest-info strong { color: #a8c4e0; font-weight: 400; }
+.digest-btn { font-size: 12px; padding: 7px 16px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; background: transparent; color: #fff; transition: all 0.15s; }
+.digest-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+.digest-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); border-radius: 4px; padding: 10px 18px; font-size: 12px; color: #fff; z-index: 999; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; font-family: var(--mono); letter-spacing: 0.02em; }
 .toast.show { opacity: 1; transform: translateY(0); }
 
 @media (max-width: 768px) {
@@ -204,7 +199,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <button class="btn btn-accent" onclick="addProject()">+ New</button>
+      <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
     </div>
   </div>
 
@@ -226,7 +221,7 @@ tr:last-child td { border-bottom: none; }
     <div class="view" id="view-dashboard">
       <div class="digest-bar">
         <div class="digest-info"><strong>Monday digest</strong> — scheduled 08:00 via Gmail &nbsp;·&nbsp; Deadline alerts fire at 10:00 on due dates</div>
-        <button class="btn" id="digestBtn" onclick="sendDigest()">Send digest now</button>
+        <button class="digest-btn" id="digestBtn" onclick="sendDigest()">Send digest now</button>
       </div>
       <div class="dash-grid" id="dashGrid"><div class="loading" style="grid-column:1/-1">LOADING DASHBOARD...</div></div>
     </div>
@@ -287,7 +282,7 @@ async function saveProject(id) {
   setSyncStatus('saving...','');
   try {
     await apiPost({ action:'save', data:p });
-    if (ind) { ind.textContent = 'saved'; ind.className = 'save-indicator saved'; setTimeout(()=>{ if(ind) { ind.textContent=''; ind.className='save-indicator'; }},2000); }
+    if (ind) { ind.textContent = 'saved'; ind.className = 'save-indicator saved'; setTimeout(()=>{ if(ind){ind.textContent='';ind.className='save-indicator';}},2000); }
     setSyncStatus('synced','ok');
   } catch(e) {
     if (ind) { ind.textContent='save failed'; ind.className='save-indicator'; }
@@ -328,7 +323,7 @@ function uf(id, field, value) {
 
 function daysFrom(d) { return d ? Math.ceil((new Date(d)-new Date())/86400000) : null; }
 function fmtDate(d) { if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
-function dotColor(days) { if(days===null) return '#555'; if(days<0) return '#c0504d'; if(days<=7) return '#c8923a'; return '#5a8a5a'; }
+function dotColor(days) { if(days===null) return '#ccc'; if(days<0) return '#c0392b'; if(days<=7) return '#d68910'; return '#1e7e4a'; }
 function stageClass(s) { return {Proposal:'pill-proposal',Active:'pill-active',Delivery:'pill-delivery',Closed:'pill-closed'}[s]||'pill-proposal'; }
 function statusOpts(c) { return ['Not started','In progress','Delivered','N/A'].map(s=>`<option ${c===s?'selected':''}>${s}</option>`).join(''); }
 function stageOpts(c) { return ['Proposal','Active','Delivery','Closed'].map(s=>`<option ${c===s?'selected':''}>${s}</option>`).join(''); }
@@ -342,24 +337,41 @@ function chk(id, field, val, label) {
 
 function renderCard(p) {
   const days = daysFrom(p.finalDeadline);
-  const sc2Section = p.sc1Name ? `
-    <div class="subcon-block" style="margin-top:8px">
-      <div class="subcon-num">EXTERNAL RESOURCE 02</div>
-      <button class="subcon-remove" onclick="uf(${p.id},'sc2Name','');uf(${p.id},'sc2Briefed',false);uf(${p.id},'sc2Deliverable','');uf(${p.id},'sc2Deadline','');uf(${p.id},'sc2PO','');reRender(${p.id})">remove</button>
-      <div class="fg fg-2">
-        <div class="field"><label>NAME / VENDOR</label><input value="${p.sc2Name||''}" onchange="uf(${p.id},'sc2Name',this.value)"></div>
-        <div class="field"><label>DELIVERABLE</label><input value="${p.sc2Deliverable||''}" onchange="uf(${p.id},'sc2Deliverable',this.value)"></div>
-      </div>
-      <div class="fg fg-2">
-        <div class="field"><label>DEADLINE</label><input type="date" value="${p.sc2Deadline||''}" onchange="uf(${p.id},'sc2Deadline',this.value)"></div>
-        <div class="field"><label>PO NUMBER</label><input value="${p.sc2PO||''}" placeholder="e.g. PO-4421" onchange="uf(${p.id},'sc2PO',this.value)"></div>
-      </div>
-      <div class="checks">
-        ${chk(p.id,'sc2Briefed',p.sc2Briefed,'Briefed & confirmed')}
-        ${chk(p.id,'sc2InvReceived',p.sc2InvReceived,'Invoice received')}
-        ${chk(p.id,'sc2InvProcessed',p.sc2InvProcessed,'Invoice processed')}
-      </div>
-    </div>` : '';
+  const sc1Section = p.sc1Name ? `<div class="subcon-block">
+    <div class="subcon-num">EXTERNAL RESOURCE 01</div>
+    <button class="subcon-remove" onclick="uf(${p.id},'sc1Name','');reRender(${p.id})">remove</button>
+    <div class="fg fg-2">
+      <div class="field"><label>NAME / VENDOR</label><input value="${p.sc1Name||''}" onchange="uf(${p.id},'sc1Name',this.value)"></div>
+      <div class="field"><label>DELIVERABLE</label><input value="${p.sc1Deliverable||''}" onchange="uf(${p.id},'sc1Deliverable',this.value)"></div>
+    </div>
+    <div class="fg fg-2">
+      <div class="field"><label>DEADLINE</label><input type="date" value="${p.sc1Deadline||''}" onchange="uf(${p.id},'sc1Deadline',this.value)"></div>
+      <div class="field"><label>PO NUMBER</label><input value="${p.sc1PO||''}" placeholder="e.g. PO-4421" onchange="uf(${p.id},'sc1PO',this.value)"></div>
+    </div>
+    <div class="checks">
+      ${chk(p.id,'sc1Briefed',p.sc1Briefed,'Briefed & confirmed')}
+      ${chk(p.id,'sc1InvReceived',p.sc1InvReceived,'Invoice received')}
+      ${chk(p.id,'sc1InvProcessed',p.sc1InvProcessed,'Invoice processed')}
+    </div>
+  </div>` : '';
+
+  const sc2Section = p.sc1Name ? `<div class="subcon-block">
+    <div class="subcon-num">EXTERNAL RESOURCE 02</div>
+    <button class="subcon-remove" onclick="uf(${p.id},'sc2Name','');reRender(${p.id})">remove</button>
+    <div class="fg fg-2">
+      <div class="field"><label>NAME / VENDOR</label><input value="${p.sc2Name||''}" onchange="uf(${p.id},'sc2Name',this.value)"></div>
+      <div class="field"><label>DELIVERABLE</label><input value="${p.sc2Deliverable||''}" onchange="uf(${p.id},'sc2Deliverable',this.value)"></div>
+    </div>
+    <div class="fg fg-2">
+      <div class="field"><label>DEADLINE</label><input type="date" value="${p.sc2Deadline||''}" onchange="uf(${p.id},'sc2Deadline',this.value)"></div>
+      <div class="field"><label>PO NUMBER</label><input value="${p.sc2PO||''}" placeholder="e.g. PO-4421" onchange="uf(${p.id},'sc2PO',this.value)"></div>
+    </div>
+    <div class="checks">
+      ${chk(p.id,'sc2Briefed',p.sc2Briefed,'Briefed & confirmed')}
+      ${chk(p.id,'sc2InvReceived',p.sc2InvReceived,'Invoice received')}
+      ${chk(p.id,'sc2InvProcessed',p.sc2InvProcessed,'Invoice processed')}
+    </div>
+  </div>` : '';
 
   const addSc = !p.sc1Name ? `<button class="add-subcon" onclick="uf(${p.id},'sc1Name',' ');reRender(${p.id})">+ Add external resource</button>` :
     !p.sc2Name ? `<button class="add-subcon" onclick="uf(${p.id},'sc2Name',' ');reRender(${p.id})">+ Add second external resource</button>` : '';
@@ -408,15 +420,15 @@ function renderCard(p) {
 
       <div class="sec">
         <div class="sec-label">DEADLINES & DELIVERABLES</div>
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:12px;margin-bottom:8px">
-          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:8px">INTERIM REPORT</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:8px">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--navy3);margin-bottom:8px;font-weight:500">INTERIM REPORT</div>
           <div class="fg fg-2">
             <div class="field"><label>DEADLINE</label><input type="date" value="${p.interimDeadline||''}" onchange="uf(${p.id},'interimDeadline',this.value)"></div>
             <div class="field"><label>STATUS</label><select onchange="uf(${p.id},'interimStatus',this.value)">${statusOpts(p.interimStatus)}</select></div>
           </div>
         </div>
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:12px;margin-bottom:8px">
-          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:8px">FINAL REPORT</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:8px">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--navy3);margin-bottom:8px;font-weight:500">FINAL REPORT</div>
           <div class="fg fg-2">
             <div class="field"><label>DEADLINE</label><input type="date" value="${p.finalDeadline||''}" onchange="uf(${p.id},'finalDeadline',this.value)"></div>
             <div class="field"><label>STATUS</label><select onchange="uf(${p.id},'finalStatus',this.value)">${statusOpts(p.finalStatus)}</select></div>
@@ -437,25 +449,7 @@ function renderCard(p) {
 
       <div class="sec">
         <div class="sec-label">EXTERNAL RESOURCES</div>
-        ${p.sc1Name ? `<div class="subcon-block">
-          <div class="subcon-num">EXTERNAL RESOURCE 01</div>
-          <button class="subcon-remove" onclick="uf(${p.id},'sc1Name','');reRender(${p.id})">remove</button>
-          <div class="fg fg-2">
-            <div class="field"><label>NAME / VENDOR</label><input value="${p.sc1Name||''}" onchange="uf(${p.id},'sc1Name',this.value)"></div>
-            <div class="field"><label>DELIVERABLE</label><input value="${p.sc1Deliverable||''}" onchange="uf(${p.id},'sc1Deliverable',this.value)"></div>
-          </div>
-          <div class="fg fg-2">
-            <div class="field"><label>DEADLINE</label><input type="date" value="${p.sc1Deadline||''}" onchange="uf(${p.id},'sc1Deadline',this.value)"></div>
-            <div class="field"><label>PO NUMBER</label><input value="${p.sc1PO||''}" placeholder="e.g. PO-4421" onchange="uf(${p.id},'sc1PO',this.value)"></div>
-          </div>
-          <div class="checks">
-            ${chk(p.id,'sc1Briefed',p.sc1Briefed,'Briefed & confirmed')}
-            ${chk(p.id,'sc1InvReceived',p.sc1InvReceived,'Invoice received')}
-            ${chk(p.id,'sc1InvProcessed',p.sc1InvProcessed,'Invoice processed')}
-          </div>
-        </div>` : ''}
-        ${sc2Section}
-        ${addSc}
+        ${sc1Section}${sc2Section}${addSc}
       </div>
 
       <div class="sec">
@@ -473,7 +467,7 @@ function renderCard(p) {
 
       <div class="card-footer">
         <span class="save-indicator" id="save-${p.id}"></span>
-        <button class="btn btn-danger" onclick="deleteProject(${p.id})">Delete</button>
+        <button class="btn btn-danger" onclick="deleteProject(${p.id})">Delete engagement</button>
       </div>
     </div>
   </div>`;
@@ -520,7 +514,7 @@ function renderDashboard() {
   const counts={Proposal:0,Active:0,Delivery:0,Closed:0};
   projects.forEach(p=>counts[p.stage]++);
   const max=Math.max(...Object.values(counts),1);
-  const stageColors={Proposal:'#7a6a9a',Active:'#5a8a5a',Delivery:'#c8923a',Closed:'#555'};
+  const stageColors={Proposal:'#6c5ce7',Active:'#1e7e4a',Delivery:'#d68910',Closed:'#aaa'};
 
   const deadlines=[];
   active.forEach(p=>{
@@ -545,7 +539,10 @@ function renderDashboard() {
   });
 
   const allScs=[];
-  active.forEach(p=>{ if(p.sc1Name) allScs.push({eng:p.name,name:p.sc1Name,del:p.sc1Deliverable,dl:p.sc1Deadline,po:p.sc1PO,briefed:p.sc1Briefed,invR:p.sc1InvReceived,invP:p.sc1InvProcessed}); if(p.sc2Name) allScs.push({eng:p.name,name:p.sc2Name,del:p.sc2Deliverable,dl:p.sc2Deadline,po:p.sc2PO,briefed:p.sc2Briefed,invR:p.sc2InvReceived,invP:p.sc2InvProcessed}); });
+  active.forEach(p=>{
+    if(p.sc1Name) allScs.push({eng:p.name,name:p.sc1Name,del:p.sc1Deliverable,dl:p.sc1Deadline,po:p.sc1PO,briefed:p.sc1Briefed,invR:p.sc1InvReceived,invP:p.sc1InvProcessed});
+    if(p.sc2Name) allScs.push({eng:p.name,name:p.sc2Name,del:p.sc2Deliverable,dl:p.sc2Deadline,po:p.sc2PO,briefed:p.sc2Briefed,invR:p.sc2InvReceived,invP:p.sc2InvProcessed});
+  });
 
   document.getElementById('dashGrid').innerHTML=`
     <div class="dash-card">
@@ -556,15 +553,15 @@ function renderDashboard() {
     </div>
     <div class="dash-card">
       <div class="dash-card-title">OUTSTANDING FLAGS</div>
-      ${flags.length===0?`<div class="empty" style="padding:1rem;font-size:11px">All clear</div>`:`<div class="flag-list">${flags.map(f=>`<div class="flag-item"><div class="flag-dot"></div><div class="flag-text">${f.text}<br><span class="flag-eng">${f.eng.length>42?f.eng.slice(0,42)+'…':f.eng}</span></div></div>`).join('')}</div>`}
+      ${flags.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">All clear — no outstanding items</div>`:`<div class="flag-list">${flags.map(f=>`<div class="flag-item"><div class="flag-dot"></div><div class="flag-text">${f.text}<br><span class="flag-eng">${f.eng.length>42?f.eng.slice(0,42)+'…':f.eng}</span></div></div>`).join('')}</div>`}
     </div>
     <div class="dash-card full">
       <div class="dash-card-title">DEADLINE TIMELINE</div>
-      ${deadlines.length===0?`<div class="empty" style="padding:1rem;font-size:11px">No upcoming deadlines</div>`:`<div class="tl-list">${deadlines.map(d=>`<div class="tl-item"><div class="tl-dot" style="background:${dotColor(d.days)}"></div><span class="tl-name">${d.name.length>52?d.name.slice(0,52)+'…':d.name}</span><span class="tl-type">${d.type}</span><span class="tl-date">${fmtDate(d.date)}</span><span class="tl-days" style="color:${dotColor(d.days)}">${d.days<0?Math.abs(d.days)+'d overdue':d.days===0?'TODAY':d.days+'d'}</span></div>`).join('')}</div>`}
+      ${deadlines.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No upcoming deadlines</div>`:`<div class="tl-list">${deadlines.map(d=>`<div class="tl-item"><div class="tl-dot" style="background:${dotColor(d.days)}"></div><span class="tl-name">${d.name.length>52?d.name.slice(0,52)+'…':d.name}</span><span class="tl-type">${d.type}</span><span class="tl-date">${fmtDate(d.date)}</span><span class="tl-days" style="color:${dotColor(d.days)}">${d.days<0?Math.abs(d.days)+'d overdue':d.days===0?'TODAY':d.days+'d'}</span></div>`).join('')}</div>`}
     </div>
     <div class="dash-card full">
       <div class="dash-card-title">SUBCONTRACTOR STATUS</div>
-      ${allScs.length===0?`<div class="empty" style="padding:1rem;font-size:11px">No external resources on active engagements</div>`:`<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>ENGAGEMENT</th><th>DELIVERABLE</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(s=>`<tr><td>${s.name||'—'}</td><td style="color:var(--text3)">${s.eng.length>28?s.eng.slice(0,28)+'…':s.eng}</td><td style="color:var(--text3)">${s.del||'—'}</td><td>${fmtDate(s.dl)}</td><td><span class="sc-pill ${s.briefed?'sc-yes':'sc-no'}">${s.briefed?'YES':'NO'}</span></td><td>${s.po||'<span style="color:var(--red);font-size:10px">MISSING</span>'}</td><td><span class="sc-pill ${s.invR?'sc-yes':'sc-no'}">${s.invR?'YES':'NO'}</span></td><td><span class="sc-pill ${s.invP?'sc-yes':'sc-no'}">${s.invP?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`}
+      ${allScs.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active engagements</div>`:`<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>ENGAGEMENT</th><th>DELIVERABLE</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(s=>`<tr><td>${s.name||'—'}</td><td style="color:var(--text3)">${s.eng.length>28?s.eng.slice(0,28)+'…':s.eng}</td><td style="color:var(--text3)">${s.del||'—'}</td><td>${fmtDate(s.dl)}</td><td><span class="sc-pill ${s.briefed?'sc-yes':'sc-no'}">${s.briefed?'YES':'NO'}</span></td><td>${s.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${s.invR?'sc-yes':'sc-no'}">${s.invR?'YES':'NO'}</span></td><td><span class="sc-pill ${s.invP?'sc-yes':'sc-no'}">${s.invP?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`}
     </div>`;
 }
 
