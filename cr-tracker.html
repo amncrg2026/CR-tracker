@@ -359,6 +359,11 @@ function removeDb(id, idx) {
   scheduleSave(id); reRender(id);
 }
 
+function displayName(p) {
+  const codes = [p.projectCode, p.slCode].filter(Boolean).join(' — ');
+  return codes ? `${p.name||'Untitled'} [${codes}]` : (p.name||'Untitled');
+}
+
 function daysFrom(d) { return d ? Math.ceil((new Date(d)-new Date())/86400000) : null; }
 function fmtDate(d) { if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 function dotColor(days) { if(days===null) return '#ccc'; if(days<0) return '#c0392b'; if(days<=7) return '#d68910'; return '#1e7e4a'; }
@@ -424,7 +429,7 @@ function renderCard(p) {
   return `<div class="project-card" id="card-${p.id}">
     <div class="card-header" onclick="toggleCard(${p.id})">
       <span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>
-      <span class="card-name">${p.name||'Untitled engagement'}</span>
+      <span class="card-name">${displayName(p)}</span>
       <span class="card-client">${p.client||''}</span>
       <span class="deadline-dot" style="background:${dotColor(days)}"></span>
       <span class="card-deadline">${p.finalDeadline||'—'}</span>
@@ -547,29 +552,29 @@ function renderDashboard() {
 
   const deadlines=[];
   active.forEach(p=>{
-    if(p.interimDeadline&&p.interimStatus!=='Delivered'&&p.interimStatus!=='N/A') deadlines.push({name:p.name,type:'Interim',date:p.interimDeadline,days:daysFrom(p.interimDeadline)});
-    if(p.finalDeadline&&p.finalStatus!=='Delivered'&&p.finalStatus!=='N/A') deadlines.push({name:p.name,type:'Final',date:p.finalDeadline,days:daysFrom(p.finalDeadline)});
+    if(p.interimDeadline&&p.interimStatus!=='Delivered'&&p.interimStatus!=='N/A') deadlines.push({name:displayName(p),type:'Interim',date:p.interimDeadline,days:daysFrom(p.interimDeadline)});
+    if(p.finalDeadline&&p.finalStatus!=='Delivered'&&p.finalStatus!=='N/A') deadlines.push({name:displayName(p),type:'Final',date:p.finalDeadline,days:daysFrom(p.finalDeadline)});
   });
   deadlines.sort((a,b)=>a.days-b.days);
 
   const flags=[];
   active.forEach(p=>{
-    if(!p.sharepointMade) flags.push({eng:p.name,text:'SharePoint entry not made'});
+    if(!p.sharepointMade) flags.push({eng:displayName(p),text:'SharePoint entry not made'});
     if(!p.projectCode) flags.push({eng:p.name,text:'Project code missing'});
-    if(!p.slCode) flags.push({eng:p.name,text:'SL code missing'});
-    if(p.billingReady&&!p.invoiceInitiated) flags.push({eng:p.name,text:'Billing ready — invoice not initiated with finance'});
+    if(!p.slCode) flags.push({eng:displayName(p),text:'SL code missing'});
+    if(p.billingReady&&!p.invoiceInitiated) flags.push({eng:displayName(p),text:'Billing ready — invoice not initiated with finance'});
     p.subcontractors.forEach(sc=>{
-      if(!sc.briefed) flags.push({eng:p.name,text:`${sc.name||'Subcontractor'} — not briefed`});
-      if(!sc.po) flags.push({eng:p.name,text:`${sc.name||'Subcontractor'} — no PO`});
-      if(sc.invoiceReceived&&!sc.invoiceProcessed) flags.push({eng:p.name,text:`${sc.name||'Subcontractor'} — invoice not processed`});
+      if(!sc.briefed) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — not briefed`});
+      if(!sc.po) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — no PO`});
+      if(sc.invoiceReceived&&!sc.invoiceProcessed) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — invoice not processed`});
     });
     p.databases.forEach(db=>{
-      if(db.poRequired&&!db.poNumber) flags.push({eng:p.name,text:`${db.name||'Database'} — PO required but missing`});
+      if(db.poRequired&&!db.poNumber) flags.push({eng:displayName(p),text:`${db.name||'Database'} — PO required but missing`});
     });
   });
 
   const allScs=[];
-  active.forEach(p=>p.subcontractors.forEach(sc=>allScs.push({eng:p.name,sc})));
+  active.forEach(p=>p.subcontractors.forEach(sc=>allScs.push({eng:displayName(p),sc})));
 
   document.getElementById('dashGrid').innerHTML=`
     <div class="dash-card">
