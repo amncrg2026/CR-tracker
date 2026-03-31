@@ -59,6 +59,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .view { display: none; }
 .view.active { display: block; }
 
+/* Tracker */
 .tracker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
 .tracker-header h2 { font-size: 15px; font-weight: 500; }
 .filters { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
@@ -74,7 +75,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .stage-pill { font-family: var(--mono); font-size: 9px; padding: 3px 9px; border-radius: 20px; font-weight: 500; letter-spacing: 0.07em; white-space: nowrap; }
 .pill-proposal { background: var(--purple-light); color: var(--purple); border: 1px solid #d4d0f8; }
 .pill-active { background: var(--green-light); color: var(--green); border: 1px solid #b8e8cc; }
-.pill-delivery { background: var(--amber-light); color: var(--amber); border: 1px solid #f5dfa0; }
+.pill-delivered { background: var(--amber-light); color: var(--amber); border: 1px solid #f5dfa0; }
 .pill-closed { background: #f5f5f5; color: #999; border: 1px solid #e0e0e0; }
 .card-name { flex: 1; font-size: 14px; color: var(--text); font-weight: 400; }
 .card-client { font-size: 12px; color: var(--text3); }
@@ -94,12 +95,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .fg-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 .field { display: flex; flex-direction: column; gap: 4px; }
 .field label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.06em; }
-.field input, .field select, .field textarea {
-  font-family: var(--sans); font-size: 13px; padding: 7px 10px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 4px; color: var(--text); width: 100%;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
+.field input, .field select, .field textarea { font-family: var(--sans); font-size: 13px; padding: 7px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text); width: 100%; transition: border-color 0.15s, box-shadow 0.15s; }
 .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--navy3); box-shadow: 0 0 0 3px rgba(30,58,95,0.08); }
 .field input:disabled { opacity: 0.4; cursor: not-allowed; background: var(--surface2); }
 .field textarea { resize: vertical; min-height: 52px; line-height: 1.5; }
@@ -129,6 +125,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .save-indicator.saving { color: var(--amber); }
 .save-indicator.saved { color: var(--green); }
 
+/* Dashboard */
 .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
 .dash-card.full { grid-column: 1 / -1; }
@@ -136,7 +133,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 
 .stage-bars { display: flex; flex-direction: column; gap: 12px; }
 .sbar { display: flex; align-items: center; gap: 12px; }
-.sbar-label { font-size: 12px; color: var(--text2); width: 64px; flex-shrink: 0; }
+.sbar-label { font-size: 12px; color: var(--text2); width: 72px; flex-shrink: 0; }
 .sbar-track { flex: 1; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
 .sbar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
 .sbar-count { font-family: var(--mono); font-size: 11px; color: var(--text2); width: 20px; text-align: right; }
@@ -146,7 +143,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .tl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .tl-name { flex: 1; font-size: 12px; color: var(--text); }
 .tl-type { font-family: var(--mono); font-size: 9px; color: var(--text3); }
-.tl-date { font-family: var(--mono); font-size: 10px; color: var(--text2); }
+.tl-date { font-family: var(--mono); font-size: 11px; color: var(--text2); white-space: nowrap; }
 .tl-days { font-family: var(--mono); font-size: 10px; font-weight: 500; white-space: nowrap; }
 
 .flag-list { display: flex; flex-direction: column; gap: 6px; }
@@ -165,6 +162,50 @@ tr:hover td { background: #fafbfc; }
 .sc-yes { background: var(--green-light); color: var(--green); }
 .sc-no { background: var(--red-light); color: var(--red); }
 
+/* Drag and drop */
+.na-block { padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: flex-start; gap: 10px; cursor: default; user-select: none; }
+.na-block.dragging { opacity: 0.4; }
+.na-block.drag-over { border-color: var(--navy3); background: var(--navy-light); }
+.drag-handle { color: var(--text3); font-size: 14px; cursor: grab; padding: 2px 4px; flex-shrink: 0; margin-top: 2px; line-height: 1; }
+.drag-handle:active { cursor: grabbing; }
+.na-content { flex: 1; }
+.na-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+.na-name { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text); }
+.na-client { font-size: 11px; color: var(--text3); }
+.na-action { font-size: 12px; color: var(--text2); }
+.na-deadline { font-family: var(--mono); font-size: 10px; color: var(--text3); white-space: nowrap; flex-shrink: 0; margin-top: 3px; }
+
+/* Calendar */
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.cal-nav { display: flex; align-items: center; gap: 12px; }
+.cal-month { font-size: 16px; font-weight: 500; color: var(--text); min-width: 160px; text-align: center; }
+.cal-nav-btn { font-family: var(--mono); font-size: 14px; padding: 4px 12px; cursor: pointer; border: 1px solid var(--border2); border-radius: 4px; background: var(--surface); color: var(--text2); transition: all 0.15s; }
+.cal-nav-btn:hover { border-color: var(--navy3); color: var(--navy); }
+.cal-legend { display: flex; gap: 16px; align-items: center; }
+.cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+.cal-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow { font-family: var(--mono); font-size: 10px; color: var(--text3); text-align: center; padding: 6px 0 10px; letter-spacing: 0.06em; font-weight: 500; }
+.cal-day { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; min-height: 90px; padding: 8px; position: relative; transition: border-color 0.15s; }
+.cal-day:hover { border-color: var(--border2); }
+.cal-day.other-month { background: var(--bg); border-color: transparent; }
+.cal-day.other-month .cal-date { color: var(--text3); opacity: 0.4; }
+.cal-day.today { border-color: var(--navy3); background: var(--navy-light); }
+.cal-day.today .cal-date { color: var(--navy); font-weight: 500; }
+.cal-date { font-family: var(--mono); font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+.cal-dots { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 4px; }
+.cal-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.cal-events-preview { display: flex; flex-direction: column; gap: 2px; }
+.cal-event-pill { font-size: 9px; padding: 1px 5px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--mono); }
+
+/* Tooltip */
+.cal-tooltip { position: fixed; background: var(--navy); color: #fff; border-radius: 6px; padding: 10px 14px; font-size: 12px; line-height: 1.6; z-index: 999; pointer-events: none; max-width: 280px; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+.cal-tooltip.show { display: block; }
+.cal-tooltip-title { font-family: var(--mono); font-size: 10px; color: #a8c4e0; margin-bottom: 6px; letter-spacing: 0.06em; }
+.cal-tooltip-item { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.cal-tooltip-item:last-child { border-bottom: none; }
+.cal-tooltip-type { font-size: 10px; color: rgba(255,255,255,0.6); }
+
 .empty { text-align: center; padding: 2.5rem; color: var(--text3); font-size: 13px; border: 1px dashed var(--border2); border-radius: 6px; background: var(--surface); }
 .loading { text-align: center; padding: 3rem; color: var(--text3); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; }
 
@@ -175,7 +216,7 @@ tr:hover td { background: #fafbfc; }
 .digest-btn:hover { background: rgba(255,255,255,0.1); }
 .digest-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); border-radius: 4px; padding: 10px 18px; font-size: 12px; color: #fff; z-index: 999; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; font-family: var(--mono); }
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); border-radius: 4px; padding: 10px 18px; font-size: 12px; color: #fff; z-index: 998; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; font-family: var(--mono); }
 .toast.show { opacity: 1; transform: translateY(0); }
 
 @media (max-width: 768px) {
@@ -183,6 +224,8 @@ tr:hover td { background: #fafbfc; }
   .dash-grid { grid-template-columns: 1fr; }
   .fg-4 { grid-template-columns: 1fr 1fr; }
   .fg-3 { grid-template-columns: 1fr 1fr; }
+  .cal-grid { gap: 2px; }
+  .cal-day { min-height: 60px; padding: 5px; }
 }
 </style>
 </head>
@@ -194,6 +237,7 @@ tr:hover td { background: #fafbfc; }
       <nav class="nav">
         <button class="nav-btn active" onclick="switchTab('tracker',this)">Engagements</button>
         <button class="nav-btn" onclick="switchTab('dashboard',this)">Dashboard</button>
+        <button class="nav-btn" onclick="switchTab('calendar',this)">Calendar</button>
       </nav>
     </div>
     <div class="topbar-right">
@@ -203,18 +247,20 @@ tr:hover td { background: #fafbfc; }
   </div>
 
   <div class="main">
+    <!-- TRACKER TAB -->
     <div class="view active" id="view-tracker">
       <div class="tracker-header"><h2>Active engagements</h2></div>
       <div class="filters">
         <button class="filter-btn active" onclick="setFilter('all',this)">ALL</button>
         <button class="filter-btn" onclick="setFilter('Proposal',this)">PROPOSAL</button>
         <button class="filter-btn" onclick="setFilter('Active',this)">ACTIVE</button>
-        <button class="filter-btn" onclick="setFilter('Delivery',this)">DELIVERY</button>
+        <button class="filter-btn" onclick="setFilter('Delivered',this)">DELIVERED</button>
         <button class="filter-btn" onclick="setFilter('Closed',this)">CLOSED</button>
       </div>
       <div id="projectList"><div class="loading">LOADING ENGAGEMENTS...</div></div>
     </div>
 
+    <!-- DASHBOARD TAB -->
     <div class="view" id="view-dashboard">
       <div class="digest-bar">
         <div class="digest-info"><strong>Monday digest</strong> — scheduled 08:00 via Gmail &nbsp;·&nbsp; Deadline alerts fire at 10:00 on due dates</div>
@@ -222,8 +268,27 @@ tr:hover td { background: #fafbfc; }
       </div>
       <div class="dash-grid" id="dashGrid"><div class="loading" style="grid-column:1/-1">LOADING DASHBOARD...</div></div>
     </div>
+
+    <!-- CALENDAR TAB -->
+    <div class="view" id="view-calendar">
+      <div class="cal-header">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="calPrev()">&#8592;</button>
+          <div class="cal-month" id="calMonth"></div>
+          <button class="cal-nav-btn" onclick="calNext()">&#8594;</button>
+        </div>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#1e7e4a"></div>Final report</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#d68910"></div>Interim report</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#3d6494"></div>Subcontractor</div>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
   </div>
 </div>
+
+<div class="cal-tooltip" id="calTooltip"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -232,167 +297,109 @@ let projects = [];
 let nextId = 1;
 let currentFilter = 'all';
 let saveTimers = {};
+let calDate = new Date();
+let naOrder = JSON.parse(localStorage.getItem('cr_na_order') || '[]');
+let dragSrcId = null;
 
-function parseJSON(val, fallback) {
-  try { return JSON.parse(val) || fallback; } catch(e) { return fallback; }
-}
-
-async function apiFetch(params) {
-  const r = await fetch(API + '?' + new URLSearchParams(params));
-  return r.json();
-}
-
-async function apiPost(body) {
-  const r = await fetch(API, { method:'POST', body: JSON.stringify(body) });
-  return r.json();
-}
+function parseJSON(val, fallback) { try { return JSON.parse(val)||fallback; } catch(e) { return fallback; } }
+async function apiFetch(params) { const r = await fetch(API+'?'+new URLSearchParams(params)); return r.json(); }
+async function apiPost(body) { const r = await fetch(API,{method:'POST',body:JSON.stringify(body)}); return r.json(); }
 
 async function loadAll() {
   setSyncStatus('syncing...','');
   try {
-    const data = await apiFetch({ action:'getAll' });
+    const data = await apiFetch({action:'getAll'});
     projects = data.map(fixTypes);
-    if (projects.length) nextId = Math.max(...projects.map(p=>Number(p.id)||0)) + 1;
+    if (projects.length) nextId = Math.max(...projects.map(p=>Number(p.id)||0))+1;
     setSyncStatus('synced','ok');
     render();
     if (document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
-  } catch(e) {
-    setSyncStatus('offline','err');
-    render();
-  }
+    if (document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
+  } catch(e) { setSyncStatus('offline','err'); render(); }
 }
 
 function fixTypes(p) {
-  const bools = ['sharepointMade','billingReady','invoiceInitiated'];
-  bools.forEach(k => { p[k] = p[k]==='TRUE'||p[k]===true||p[k]==='true'; });
-  p.subcontractors = parseJSON(p.subcontractors, []);
-  p.databases = parseJSON(p.databases, []);
+  ['sharepointMade','billingReady','invoiceInitiated'].forEach(k=>{ p[k]=p[k]==='TRUE'||p[k]===true||p[k]==='true'; });
+  p.subcontractors = parseJSON(p.subcontractors,[]);
+  p.databases = parseJSON(p.databases,[]);
   return p;
 }
 
-function setSyncStatus(msg, cls) {
-  const el = document.getElementById('syncStatus');
-  el.textContent = msg; el.className = 'sync-status'+(cls?' '+cls:'');
-}
+function setSyncStatus(msg,cls) { const el=document.getElementById('syncStatus'); el.textContent=msg; el.className='sync-status'+(cls?' '+cls:''); }
 
 async function saveProject(id) {
-  const p = projects.find(x=>x.id==id);
-  if (!p) return;
+  const p = projects.find(x=>x.id==id); if (!p) return;
   const ind = document.getElementById('save-'+id);
   if (ind) { ind.textContent='saving...'; ind.className='save-indicator saving'; }
   setSyncStatus('saving...','');
   try {
-    const payload = { ...p, subcontractors: JSON.stringify(p.subcontractors), databases: JSON.stringify(p.databases) };
-    await apiPost({ action:'save', data:payload });
-    if (ind) { ind.textContent='saved'; ind.className='save-indicator saved'; setTimeout(()=>{ if(ind){ind.textContent='';ind.className='save-indicator';}},2000); }
+    const payload = {...p, subcontractors:JSON.stringify(p.subcontractors), databases:JSON.stringify(p.databases)};
+    await apiPost({action:'save',data:payload});
+    if (ind) { ind.textContent='saved'; ind.className='save-indicator saved'; setTimeout(()=>{if(ind){ind.textContent='';ind.className='save-indicator';}},2000); }
     setSyncStatus('synced','ok');
-  } catch(e) {
-    if (ind) { ind.textContent='save failed'; ind.className='save-indicator'; }
-    setSyncStatus('offline','err');
-  }
+  } catch(e) { if(ind){ind.textContent='save failed';ind.className='save-indicator';} setSyncStatus('offline','err'); }
 }
 
-function scheduleSave(id) {
-  clearTimeout(saveTimers[id]);
-  saveTimers[id] = setTimeout(()=>saveProject(id), 1200);
-}
+function scheduleSave(id) { clearTimeout(saveTimers[id]); saveTimers[id]=setTimeout(()=>saveProject(id),1200); }
 
 async function deleteProject(id) {
   if (!confirm('Delete this engagement?')) return;
-  projects = projects.filter(x=>x.id!=id);
-  render();
-  try { await apiPost({ action:'delete', id:String(id) }); setSyncStatus('synced','ok'); }
+  projects=projects.filter(x=>x.id!=id); render();
+  try { await apiPost({action:'delete',id:String(id)}); setSyncStatus('synced','ok'); }
   catch(e) { setSyncStatus('offline','err'); }
 }
 
 function blankProject(id) {
-  return { id, name:'', client:'', stage:'Proposal', projectCode:'', slCode:'', sharepointMade:false, clientLastContact:'', interimDeadline:'', interimStatus:'Not started', finalDeadline:'', finalStatus:'Not started', nextAction:'', originator:'', clientManager:'', projectLeader:'', researcher:'', subcontractors:[], databases:[], billingReady:false, invoiceInitiated:false, notes:'' };
+  return {id,name:'',client:'',stage:'Proposal',projectCode:'',slCode:'',sharepointMade:false,clientLastContact:'',interimDeadline:'',interimStatus:'Not started',finalDeadline:'',finalStatus:'Not started',nextAction:'',originator:'',clientManager:'',projectLeader:'',researcher:'',subcontractors:[],databases:[],billingReady:false,invoiceInitiated:false,notes:''};
 }
 
 function addProject() {
-  const p = blankProject(nextId++);
-  projects.unshift(p);
-  render();
-  setTimeout(()=>{ const c=document.getElementById('card-'+p.id); if(c){ c.scrollIntoView({behavior:'smooth'}); setTimeout(()=>toggleCard(p.id),300); }},100);
+  const p=blankProject(nextId++); projects.unshift(p); render();
+  setTimeout(()=>{ const c=document.getElementById('card-'+p.id); if(c){c.scrollIntoView({behavior:'smooth'}); setTimeout(()=>toggleCard(p.id),300);} },100);
 }
 
-function uf(id, field, value) {
-  const p = projects.find(x=>x.id==id);
-  if (p) { p[field]=value; scheduleSave(id); }
-}
+function uf(id,field,value) { const p=projects.find(x=>x.id==id); if(p){p[field]=value; scheduleSave(id);} }
+function updateSubcon(id,idx,field,value) { const p=projects.find(x=>x.id==id); if(p&&p.subcontractors[idx]){p.subcontractors[idx][field]=value; scheduleSave(id);} }
+function addSubcon(id) { const p=projects.find(x=>x.id==id); if(!p)return; p.subcontractors.push({name:'',briefed:false,deadline:'',po:'',currency:'USD',fee:'',ope:'',invoiceReceived:false,invoiceProcessed:false}); scheduleSave(id); reRender(id); }
+function removeSubcon(id,idx) { const p=projects.find(x=>x.id==id); if(!p)return; p.subcontractors.splice(idx,1); scheduleSave(id); reRender(id); }
+function updateDb(id,idx,field,value) { const p=projects.find(x=>x.id==id); if(p&&p.databases[idx]){p.databases[idx][field]=value; scheduleSave(id);} }
+function addDb(id) { const p=projects.find(x=>x.id==id); if(!p)return; p.databases.push({name:'',cost:'',poRequired:false,poNumber:''}); scheduleSave(id); reRender(id); }
+function removeDb(id,idx) { const p=projects.find(x=>x.id==id); if(!p)return; p.databases.splice(idx,1); scheduleSave(id); reRender(id); }
 
-function updateSubcon(id, idx, field, value) {
-  const p = projects.find(x=>x.id==id);
-  if (p && p.subcontractors[idx]) { p.subcontractors[idx][field]=value; scheduleSave(id); }
-}
+function daysFrom(d) { return d?Math.ceil((new Date(d)-new Date())/86400000):null; }
+function fmtDate(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
+function fmtDateLong(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}); }
+function dotColor(days) { if(days===null)return'#ccc'; if(days<0)return'#c0392b'; if(days<=7)return'#d68910'; return'#1e7e4a'; }
 
-function addSubcon(id) {
-  const p = projects.find(x=>x.id==id);
-  if (!p) return;
-  p.subcontractors.push({ name:'', briefed:false, deliverable:'', deadline:'', po:'', invoiceReceived:false, invoiceProcessed:false });
-  scheduleSave(id); reRender(id);
-}
-
-function removeSubcon(id, idx) {
-  const p = projects.find(x=>x.id==id);
-  if (!p) return;
-  p.subcontractors.splice(idx,1);
-  scheduleSave(id); reRender(id);
-}
-
-function updateDb(id, idx, field, value) {
-  const p = projects.find(x=>x.id==id);
-  if (p && p.databases[idx]) { p.databases[idx][field]=value; scheduleSave(id); }
-}
-
-function addDb(id) {
-  const p = projects.find(x=>x.id==id);
-  if (!p) return;
-  p.databases.push({ name:'', cost:'', poRequired:false, poNumber:'' });
-  scheduleSave(id); reRender(id);
-}
-
-function removeDb(id, idx) {
-  const p = projects.find(x=>x.id==id);
-  if (!p) return;
-  p.databases.splice(idx,1);
-  scheduleSave(id); reRender(id);
-}
+function stageClass(s) { return {Proposal:'pill-proposal',Active:'pill-active',Delivered:'pill-delivered',Closed:'pill-closed'}[s]||'pill-proposal'; }
+function stageColor(s) { return {Proposal:'var(--purple)',Active:'var(--green)',Delivered:'var(--amber)',Closed:'#aaa'}[s]||'#aaa'; }
+function statusOpts(c) { return ['Not started','In progress','Delivered','N/A'].map(s=>`<option ${c===s?'selected':''}>${s}</option>`).join(''); }
+function stageOpts(c) { return ['Proposal','Active','Delivered','Closed'].map(s=>`<option ${c===s?'selected':''}>${s}</option>`).join(''); }
 
 function displayName(p) {
-  const codes = [p.projectCode, p.slCode].filter(Boolean).join(' — ');
-  return codes ? `${p.name||'Untitled'} [${codes}]` : (p.name||'Untitled');
+  const codes=[p.projectCode,p.slCode].filter(Boolean).join(' — ');
+  return codes?`${p.name||'Untitled'} [${codes}]`:(p.name||'Untitled');
 }
 
-function daysFrom(d) { return d ? Math.ceil((new Date(d)-new Date())/86400000) : null; }
-function fmtDate(d) { if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
-function dotColor(days) { if(days===null) return '#ccc'; if(days<0) return '#c0392b'; if(days<=7) return '#d68910'; return '#1e7e4a'; }
-function stageClass(s) { return {Proposal:'pill-proposal',Active:'pill-active',Delivery:'pill-delivery',Closed:'pill-closed'}[s]||'pill-proposal'; }
-function statusOpts(c) { return ['Not started','In progress','Delivered','N/A'].map(s=>`<option ${c===s?'selected':''}>${s}</option>`).join(''); }
-function stageOpts(c) { return ['Proposal','Active','Delivery','Closed'].map(s=>`<option ${c===s?'selected':''}>${s}</option>`).join(''); }
-
-function chk(id, field, val, label) {
-  const on = val===true||val==='TRUE'||val==='true';
+function chk(id,field,val,label) {
+  const on=val===true||val==='TRUE'||val==='true';
   return `<label class="check ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="uf(${id},'${field}',this.checked);this.parentElement.className='check '+(this.checked?'on':'')">${label}</label>`;
 }
-
-function chkSc(id, idx, field, val, label) {
-  const on = val===true||val==='TRUE'||val==='true';
+function chkSc(id,idx,field,val,label) {
+  const on=val===true||val==='TRUE'||val==='true';
   return `<label class="check ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="updateSubcon(${id},${idx},'${field}',this.checked);this.parentElement.className='check '+(this.checked?'on':'')">${label}</label>`;
 }
-
-function chkDb(id, idx, field, val, label) {
-  const on = val===true||val==='TRUE'||val==='true';
+function chkDb(id,idx,field,val,label) {
+  const on=val===true||val==='TRUE'||val==='true';
   return `<label class="check ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="updateDb(${id},${idx},'${field}',this.checked);reRender(${id})">${label}</label>`;
 }
 
 function currencyOpts(selected) {
-  const currencies = ['USD','SGD','IDR','AUD','EUR','GBP','JPY','MYR','THB','VND','CNY','HKD','CHF','CAD'];
-  return currencies.map(c=>`<option ${c===(selected||'USD')?'selected':''}>${c}</option>`).join('');
+  return ['USD','SGD','IDR','AUD','EUR','GBP','JPY','MYR','THB','VND','CNY','HKD','CHF','CAD'].map(c=>`<option ${c===(selected||'USD')?'selected':''}>${c}</option>`).join('');
 }
 
 function renderSubcons(p) {
-  const blocks = p.subcontractors.map((sc,i)=>`
+  const blocks=p.subcontractors.map((sc,i)=>`
     <div class="subcon-block">
       <div class="subcon-num">EXTERNAL RESOURCE ${String(i+1).padStart(2,'0')}</div>
       <button class="subcon-remove" onclick="removeSubcon(${p.id},${i})">remove</button>
@@ -402,9 +409,7 @@ function renderSubcons(p) {
       </div>
       <div class="fg fg-2">
         <div class="field"><label>PO NUMBER</label><input value="${sc.po||''}" placeholder="e.g. PO-4421" onchange="updateSubcon(${p.id},${i},'po',this.value)"></div>
-        <div class="field"><label>CURRENCY</label>
-          <select onchange="updateSubcon(${p.id},${i},'currency',this.value)">${currencyOpts(sc.currency)}</select>
-        </div>
+        <div class="field"><label>CURRENCY</label><select onchange="updateSubcon(${p.id},${i},'currency',this.value)">${currencyOpts(sc.currency)}</select></div>
       </div>
       <div class="fg fg-2">
         <div class="field"><label>PROFESSIONAL FEE</label><input value="${sc.fee||''}" placeholder="0" type="number" min="0" onchange="updateSubcon(${p.id},${i},'fee',this.value)"></div>
@@ -416,11 +421,11 @@ function renderSubcons(p) {
         ${chkSc(p.id,i,'invoiceProcessed',sc.invoiceProcessed,'Invoice processed')}
       </div>
     </div>`).join('');
-  return blocks + `<button class="add-subcon" onclick="addSubcon(${p.id})">+ Add external resource</button>`;
+  return blocks+`<button class="add-subcon" onclick="addSubcon(${p.id})">+ Add external resource</button>`;
 }
 
 function renderDatabases(p) {
-  const blocks = p.databases.map((db,i)=>`
+  const blocks=p.databases.map((db,i)=>`
     <div class="db-block">
       <div class="db-num">DATABASE ${String(i+1).padStart(2,'0')}</div>
       <button class="db-remove" onclick="removeDb(${p.id},${i})">remove</button>
@@ -431,85 +436,124 @@ function renderDatabases(p) {
       </div>
       <div class="checks">${chkDb(p.id,i,'poRequired',db.poRequired,'PO required')}</div>
     </div>`).join('');
-  return blocks + `<button class="add-subcon" onclick="addDb(${p.id})">+ Add database</button>`;
+  return blocks+`<button class="add-subcon" onclick="addDb(${p.id})">+ Add database</button>`;
 }
 
 function renderCard(p) {
-  const days = daysFrom(p.finalDeadline);
-  const billingFields = p.billingReady ? `<div class="billing-sub"><p>Billing is ready — has invoice preparation been initiated with finance?</p><div class="checks">${chk(p.id,'invoiceInitiated',p.invoiceInitiated,'Invoice preparation initiated with finance')}</div></div>` : '';
+  const isProposal = p.stage==='Proposal';
+  const days=daysFrom(p.finalDeadline||p.interimDeadline);
+  const billingFields=p.billingReady?`<div class="billing-sub"><p>Billing is ready — has invoice preparation been initiated with finance?</p><div class="checks">${chk(p.id,'invoiceInitiated',p.invoiceInitiated,'Invoice preparation initiated with finance')}</div></div>`:'';
+
+  const engagementDetails = isProposal ? `
+    <div class="sec">
+      <div class="sec-label">PROPOSAL DETAILS</div>
+      <div class="fg fg-2">
+        <div class="field"><label>PROSPECT NAME</label><input value="${p.name||''}" placeholder="Target / prospect" onchange="uf(${p.id},'name',this.value)"></div>
+        <div class="field"><label>CLIENT / ORGANISATION</label><input value="${p.client||''}" onchange="uf(${p.id},'client',this.value)"></div>
+      </div>
+      <div class="fg fg-2">
+        <div class="field"><label>SL CODE</label><input value="${p.slCode||''}" placeholder="e.g. SL-0044" onchange="uf(${p.id},'slCode',this.value)"></div>
+        <div class="field"><label>STAGE</label><select onchange="uf(${p.id},'stage',this.value);reRender(${p.id})">${stageOpts(p.stage)}</select></div>
+      </div>
+      <div class="field"><label>CLIENT LAST CONTACTED</label><input type="date" value="${(p.clientLastContact||'').toString().slice(0,10)}" onchange="uf(${p.id},'clientLastContact',this.value)" style="max-width:220px"></div>
+    </div>` : `
+    <div class="sec">
+      <div class="sec-label">ENGAGEMENT DETAILS</div>
+      <div class="fg fg-2">
+        <div class="field"><label>ENGAGEMENT NAME</label><input value="${p.name||''}" onchange="uf(${p.id},'name',this.value)"></div>
+        <div class="field"><label>CLIENT</label><input value="${p.client||''}" onchange="uf(${p.id},'client',this.value)"></div>
+      </div>
+      <div class="fg fg-3">
+        <div class="field"><label>PROJECT CODE</label><input value="${p.projectCode||''}" placeholder="e.g. SGP-2024-0091" onchange="uf(${p.id},'projectCode',this.value)"></div>
+        <div class="field"><label>SL CODE</label><input value="${p.slCode||''}" placeholder="e.g. SL-0044" onchange="uf(${p.id},'slCode',this.value)"></div>
+        <div class="field"><label>STAGE</label><select onchange="uf(${p.id},'stage',this.value);reRender(${p.id})">${stageOpts(p.stage)}</select></div>
+      </div>
+      <div class="fg fg-2">
+        <div class="field"><label>CLIENT LAST CONTACTED</label><input type="date" value="${(p.clientLastContact||'').toString().slice(0,10)}" onchange="uf(${p.id},'clientLastContact',this.value)"></div>
+        <div class="field" style="justify-content:flex-end;padding-bottom:2px"><label style="visibility:hidden;font-size:10px">.</label><div class="checks">${chk(p.id,'sharepointMade',p.sharepointMade,'SharePoint entry made')}</div></div>
+      </div>
+    </div>`;
+
+  const deadlinesSection = isProposal ? `
+    <div class="sec">
+      <div class="sec-label">PROPOSAL SUBMISSION</div>
+      <div class="fg fg-2">
+        <div class="field"><label>SUBMISSION DEADLINE</label><input type="date" value="${(p.interimDeadline||'').toString().slice(0,10)}" onchange="uf(${p.id},'interimDeadline',this.value)"></div>
+        <div class="field"><label>STATUS</label><select onchange="uf(${p.id},'interimStatus',this.value)">${statusOpts(p.interimStatus)}</select></div>
+      </div>
+      <div class="field" style="margin-top:4px"><label>NEXT ACTION</label><input value="${p.nextAction||''}" onchange="uf(${p.id},'nextAction',this.value)"></div>
+    </div>` : `
+    <div class="sec">
+      <div class="sec-label">DEADLINES & DELIVERABLES</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:8px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--navy3);margin-bottom:8px;font-weight:500">INTERIM REPORT</div>
+        <div class="fg fg-2">
+          <div class="field"><label>DEADLINE</label><input type="date" value="${(p.interimDeadline||'').toString().slice(0,10)}" onchange="uf(${p.id},'interimDeadline',this.value)"></div>
+          <div class="field"><label>STATUS</label><select onchange="uf(${p.id},'interimStatus',this.value)">${statusOpts(p.interimStatus)}</select></div>
+        </div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:8px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--navy3);margin-bottom:8px;font-weight:500">FINAL REPORT</div>
+        <div class="fg fg-2">
+          <div class="field"><label>DEADLINE</label><input type="date" value="${(p.finalDeadline||'').toString().slice(0,10)}" onchange="uf(${p.id},'finalDeadline',this.value)"></div>
+          <div class="field"><label>STATUS</label><select onchange="uf(${p.id},'finalStatus',this.value)">${statusOpts(p.finalStatus)}</select></div>
+        </div>
+      </div>
+      <div class="field"><label>NEXT ACTION</label><input value="${p.nextAction||''}" onchange="uf(${p.id},'nextAction',this.value)"></div>
+    </div>`;
+
+  const resourcesSections = isProposal ? '' : `
+    <div class="sec">
+      <div class="sec-label">INTERNAL RESOURCES</div>
+      <div class="fg fg-4">
+        <div class="field"><label>ORIGINATOR</label><input value="${p.originator||''}" placeholder="Name" onchange="uf(${p.id},'originator',this.value)"></div>
+        <div class="field"><label>CLIENT MANAGER</label><input value="${p.clientManager||''}" placeholder="Name" onchange="uf(${p.id},'clientManager',this.value)"></div>
+        <div class="field"><label>PROJECT LEADER</label><input value="${p.projectLeader||''}" placeholder="Name" onchange="uf(${p.id},'projectLeader',this.value)"></div>
+        <div class="field"><label>RESEARCHER</label><input value="${p.researcher||''}" placeholder="Name" onchange="uf(${p.id},'researcher',this.value)"></div>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="sec-label">EXTERNAL RESOURCES</div>
+      ${renderSubcons(p)}
+    </div>`;
+
+  const adminSection = isProposal ? `
+    <div class="sec">
+      <div class="sec-label">DATABASE USAGE</div>
+      ${renderDatabases(p)}
+    </div>
+    <div class="sec">
+      <div class="sec-label">NOTES</div>
+      <div class="field"><input value="${p.notes||''}" onchange="uf(${p.id},'notes',this.value)"></div>
+    </div>` : `
+    <div class="sec">
+      <div class="sec-label">DATABASE USAGE</div>
+      ${renderDatabases(p)}
+    </div>
+    <div class="sec">
+      <div class="sec-label">ADMIN & COMMERCIAL</div>
+      <div class="field" style="margin-bottom:10px"><label>NOTES</label><input value="${p.notes||''}" onchange="uf(${p.id},'notes',this.value)"></div>
+      <div class="checks" style="margin-bottom:8px">${chk(p.id,'billingReady',p.billingReady,'Billing ready')}</div>
+      ${billingFields}
+    </div>`;
+
+  const headerName = isProposal ? (p.name||'New proposal') : displayName(p);
+  const headerDeadline = p.interimDeadline||p.finalDeadline||'';
+
   return `<div class="project-card" id="card-${p.id}">
     <div class="card-header" onclick="toggleCard(${p.id})">
       <span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>
-      <span class="card-name">${displayName(p)}</span>
+      <span class="card-name">${headerName}</span>
       <span class="card-client">${p.client||''}</span>
-      <span class="deadline-dot" style="background:${dotColor(days)}"></span>
-      <span class="card-deadline">${p.finalDeadline||'—'}</span>
+      <span class="deadline-dot" style="background:${dotColor(daysFrom(headerDeadline))}"></span>
+      <span class="card-deadline">${headerDeadline?headerDeadline.toString().slice(0,10):'—'}</span>
       <span class="chevron" id="chev-${p.id}">▾</span>
     </div>
     <div class="card-body" id="body-${p.id}">
-      <div class="sec">
-        <div class="sec-label">ENGAGEMENT DETAILS</div>
-        <div class="fg fg-2">
-          <div class="field"><label>ENGAGEMENT NAME</label><input value="${p.name||''}" onchange="uf(${p.id},'name',this.value)"></div>
-          <div class="field"><label>CLIENT</label><input value="${p.client||''}" onchange="uf(${p.id},'client',this.value)"></div>
-        </div>
-        <div class="fg fg-3">
-          <div class="field"><label>PROJECT CODE</label><input value="${p.projectCode||''}" placeholder="e.g. SGP-2024-0091" onchange="uf(${p.id},'projectCode',this.value)"></div>
-          <div class="field"><label>SL CODE</label><input value="${p.slCode||''}" placeholder="e.g. SL-0044" onchange="uf(${p.id},'slCode',this.value)"></div>
-          <div class="field"><label>STAGE</label><select onchange="uf(${p.id},'stage',this.value);reRender(${p.id})">${stageOpts(p.stage)}</select></div>
-        </div>
-        <div class="fg fg-2">
-          <div class="field"><label>CLIENT LAST CONTACTED</label><input type="date" value="${(p.clientLastContact||'').toString().slice(0,10)}" onchange="uf(${p.id},'clientLastContact',this.value)"></div>
-          <div class="field" style="justify-content:flex-end;padding-bottom:2px"><label style="visibility:hidden;font-size:9px">.</label><div class="checks">${chk(p.id,'sharepointMade',p.sharepointMade,'SharePoint entry made')}</div></div>
-        </div>
-      </div>
-
-      <div class="sec">
-        <div class="sec-label">DEADLINES & DELIVERABLES</div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:8px">
-          <div style="font-family:var(--mono);font-size:9px;color:var(--navy3);margin-bottom:8px;font-weight:500">INTERIM REPORT</div>
-          <div class="fg fg-2">
-            <div class="field"><label>DEADLINE</label><input type="date" value="${(p.interimDeadline||'').toString().slice(0,10)}" onchange="uf(${p.id},'interimDeadline',this.value)"></div>
-            <div class="field"><label>STATUS</label><select onchange="uf(${p.id},'interimStatus',this.value)">${statusOpts(p.interimStatus)}</select></div>
-          </div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:8px">
-          <div style="font-family:var(--mono);font-size:9px;color:var(--navy3);margin-bottom:8px;font-weight:500">FINAL REPORT</div>
-          <div class="fg fg-2">
-            <div class="field"><label>DEADLINE</label><input type="date" value="${(p.finalDeadline||'').toString().slice(0,10)}" onchange="uf(${p.id},'finalDeadline',this.value)"></div>
-            <div class="field"><label>STATUS</label><select onchange="uf(${p.id},'finalStatus',this.value)">${statusOpts(p.finalStatus)}</select></div>
-          </div>
-        </div>
-        <div class="field"><label>NEXT ACTION</label><input value="${p.nextAction||''}" onchange="uf(${p.id},'nextAction',this.value)"></div>
-      </div>
-
-      <div class="sec">
-        <div class="sec-label">INTERNAL RESOURCES</div>
-        <div class="fg fg-4">
-          <div class="field"><label>ORIGINATOR</label><input value="${p.originator||''}" placeholder="Name" onchange="uf(${p.id},'originator',this.value)"></div>
-          <div class="field"><label>CLIENT MANAGER</label><input value="${p.clientManager||''}" placeholder="Name" onchange="uf(${p.id},'clientManager',this.value)"></div>
-          <div class="field"><label>PROJECT LEADER</label><input value="${p.projectLeader||''}" placeholder="Name" onchange="uf(${p.id},'projectLeader',this.value)"></div>
-          <div class="field"><label>RESEARCHER</label><input value="${p.researcher||''}" placeholder="Name" onchange="uf(${p.id},'researcher',this.value)"></div>
-        </div>
-      </div>
-
-      <div class="sec">
-        <div class="sec-label">EXTERNAL RESOURCES</div>
-        ${renderSubcons(p)}
-      </div>
-
-      <div class="sec">
-        <div class="sec-label">DATABASE USAGE</div>
-        ${renderDatabases(p)}
-      </div>
-
-      <div class="sec">
-        <div class="sec-label">ADMIN & COMMERCIAL</div>
-        <div class="field" style="margin-bottom:10px"><label>NOTES</label><input value="${p.notes||''}" onchange="uf(${p.id},'notes',this.value)"></div>
-        <div class="checks" style="margin-bottom:8px">${chk(p.id,'billingReady',p.billingReady,'Billing ready')}</div>
-        ${billingFields}
-      </div>
-
+      ${engagementDetails}
+      ${deadlinesSection}
+      ${resourcesSections}
+      ${adminSection}
       <div class="card-footer">
         <span class="save-indicator" id="save-${p.id}"></span>
         <button class="btn btn-danger" onclick="deleteProject(${p.id})">Delete engagement</button>
@@ -519,17 +563,22 @@ function renderCard(p) {
 }
 
 function reRender(id) {
-  const wasOpen = document.getElementById('body-'+id)?.classList.contains('open');
+  const wasOpen=document.getElementById('body-'+id)?.classList.contains('open');
   render();
-  if (wasOpen) { document.getElementById('body-'+id)?.classList.add('open'); document.getElementById('chev-'+id)?.classList.add('open'); }
+  if(wasOpen){document.getElementById('body-'+id)?.classList.add('open');document.getElementById('chev-'+id)?.classList.add('open');}
 }
 
 function render() {
-  const list = document.getElementById('projectList');
-  const filtered = currentFilter==='all' ? projects : projects.filter(p=>p.stage===currentFilter);
-  if (!filtered.length) { list.innerHTML=`<div class="empty">No engagements${currentFilter!=='all'?' in this stage':''}</div>`; return; }
-  const order={Delivery:0,Active:1,Proposal:2,Closed:3};
-  const sorted=[...filtered].sort((a,b)=>{ if(order[a.stage]!==order[b.stage]) return order[a.stage]-order[b.stage]; if(a.finalDeadline&&b.finalDeadline) return new Date(a.finalDeadline)-new Date(b.finalDeadline); return 0; });
+  const list=document.getElementById('projectList');
+  const filtered=currentFilter==='all'?projects:projects.filter(p=>p.stage===currentFilter);
+  if(!filtered.length){list.innerHTML=`<div class="empty">No engagements${currentFilter!=='all'?' in this stage':''}</div>`;return;}
+  const order={Delivered:0,Active:1,Proposal:2,Closed:3};
+  const sorted=[...filtered].sort((a,b)=>{
+    if(order[a.stage]!==order[b.stage])return(order[a.stage]??99)-(order[b.stage]??99);
+    const da=a.finalDeadline||a.interimDeadline, db=b.finalDeadline||b.interimDeadline;
+    if(da&&db)return new Date(da)-new Date(db);
+    return 0;
+  });
   list.innerHTML=sorted.map(renderCard).join('');
 }
 
@@ -552,28 +601,34 @@ function switchTab(tab,el) {
   el.classList.add('active');
   document.getElementById('view-'+tab).classList.add('active');
   if(tab==='dashboard') renderDashboard();
+  if(tab==='calendar') renderCalendar();
 }
 
+/* ── DASHBOARD ── */
 function renderDashboard() {
   const active=projects.filter(p=>p.stage!=='Closed');
-  const counts={Proposal:0,Active:0,Delivery:0,Closed:0};
-  projects.forEach(p=>counts[p.stage]++);
+  const counts={Proposal:0,Active:0,Delivered:0,Closed:0};
+  projects.forEach(p=>{if(counts[p.stage]!==undefined)counts[p.stage]++;});
   const max=Math.max(...Object.values(counts),1);
-  const stageColors={Proposal:'#6c5ce7',Active:'#1e7e4a',Delivery:'#d68910',Closed:'#aaa'};
+  const stageColors={Proposal:'#6c5ce7',Active:'#1e7e4a',Delivered:'#d68910',Closed:'#aaa'};
 
   const deadlines=[];
   active.forEach(p=>{
-    if(p.interimDeadline&&p.interimStatus!=='Delivered'&&p.interimStatus!=='N/A') deadlines.push({name:displayName(p),type:'Interim',date:p.interimDeadline,days:daysFrom(p.interimDeadline)});
-    if(p.finalDeadline&&p.finalStatus!=='Delivered'&&p.finalStatus!=='N/A') deadlines.push({name:displayName(p),type:'Final',date:p.finalDeadline,days:daysFrom(p.finalDeadline)});
+    if(p.interimDeadline&&p.interimStatus!=='Delivered'&&p.interimStatus!=='N/A')
+      deadlines.push({name:displayName(p),type:p.stage==='Proposal'?'Proposal submission':'Interim',date:p.interimDeadline,days:daysFrom(p.interimDeadline)});
+    if(p.finalDeadline&&p.finalStatus!=='Delivered'&&p.finalStatus!=='N/A')
+      deadlines.push({name:displayName(p),type:'Final',date:p.finalDeadline,days:daysFrom(p.finalDeadline)});
   });
   deadlines.sort((a,b)=>a.days-b.days);
 
   const flags=[];
   active.forEach(p=>{
-    if(!p.sharepointMade) flags.push({eng:displayName(p),text:'SharePoint entry not made'});
-    if(!p.projectCode) flags.push({eng:p.name,text:'Project code missing'});
+    if(p.stage!=='Proposal'){
+      if(!p.sharepointMade) flags.push({eng:displayName(p),text:'SharePoint entry not made'});
+      if(!p.projectCode) flags.push({eng:p.name||'Untitled',text:'Project code missing'});
+      if(p.billingReady&&!p.invoiceInitiated) flags.push({eng:displayName(p),text:'Billing ready — invoice not initiated with finance'});
+    }
     if(!p.slCode) flags.push({eng:displayName(p),text:'SL code missing'});
-    if(p.billingReady&&!p.invoiceInitiated) flags.push({eng:displayName(p),text:'Billing ready — invoice not initiated with finance'});
     p.subcontractors.forEach(sc=>{
       if(!sc.briefed) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — not briefed`});
       if(!sc.po) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — no PO`});
@@ -587,21 +642,14 @@ function renderDashboard() {
   const allScs=[];
   active.forEach(p=>p.subcontractors.forEach(sc=>allScs.push({eng:displayName(p),sc})));
 
+  // Build ordered next actions
+  const naProjects = active.filter(p=>p.stage!=='Closed');
+  const orderedNa = getOrderedNa(naProjects);
+
   document.getElementById('dashGrid').innerHTML=`
     <div class="dash-card full">
-      <div class="dash-card-title">CURRENT STATUS & NEXT ACTIONS</div>
-      ${active.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No active engagements</div>`:`<div style="display:flex;flex-direction:column;gap:6px">${active.map(p=>{
-        const codes=[p.projectCode,p.slCode].filter(Boolean).join(' — ');
-        const stageCol={Proposal:'var(--purple)',Active:'var(--green)',Delivery:'var(--amber)',Closed:'#aaa'}[p.stage]||'#aaa';
-        return `<div style="padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid ${stageCol};border-radius:4px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <span style="font-family:var(--mono);font-size:10px;font-weight:500;color:var(--text)">${p.name||'Untitled'}${codes?' <span style="color:var(--text3)">['+codes+']</span>':''}</span>
-            <span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>
-            ${p.client?`<span style="font-size:11px;color:var(--text3)">— ${p.client}</span>`:''}
-          </div>
-          <div style="font-size:12px;color:var(--text2)">${p.nextAction?'→ '+p.nextAction:'<span style="color:var(--text3);font-style:italic">No next action recorded</span>'}</div>
-        </div>`;
-      }).join('')}</div>`}
+      <div class="dash-card-title">CURRENT STATUS & NEXT ACTIONS <span style="color:var(--text3);font-weight:400;font-size:9px">— drag to reprioritise</span></div>
+      ${orderedNa.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No active engagements</div>`:`<div id="naList" style="display:flex;flex-direction:column;gap:6px">${orderedNa.map(p=>renderNaBlock(p)).join('')}</div>`}
     </div>
     <div class="dash-card">
       <div class="dash-card-title">STAGE OVERVIEW</div>
@@ -615,27 +663,146 @@ function renderDashboard() {
     </div>
     <div class="dash-card full">
       <div class="dash-card-title">DEADLINE TIMELINE</div>
-      ${deadlines.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No upcoming deadlines</div>`:`<div class="tl-list">${deadlines.map(d=>`<div class="tl-item"><div class="tl-dot" style="background:${dotColor(d.days)}"></div><span class="tl-name">${d.name.length>52?d.name.slice(0,52)+'…':d.name}</span><span class="tl-type">${d.type}</span><span class="tl-date">${fmtDate(d.date)}</span><span class="tl-days" style="color:${dotColor(d.days)}">${d.days<0?Math.abs(d.days)+'d overdue':d.days===0?'TODAY':d.days+'d'}</span></div>`).join('')}</div>`}
+      ${deadlines.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No upcoming deadlines</div>`:`<div class="tl-list">${deadlines.map(d=>`<div class="tl-item"><div class="tl-dot" style="background:${dotColor(d.days)}"></div><span class="tl-name">${d.name.length>45?d.name.slice(0,45)+'…':d.name}</span><span class="tl-type">${d.type}</span><span class="tl-date">${fmtDateLong(d.date)}</span><span class="tl-days" style="color:${dotColor(d.days)}">${d.days<0?Math.abs(d.days)+'d overdue':d.days===0?'TODAY':d.days+'d'}</span></div>`).join('')}</div>`}
     </div>
     <div class="dash-card full">
       <div class="dash-card-title">SUBCONTRACTOR STATUS</div>
       ${allScs.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active engagements</div>`:`<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>ENGAGEMENT</th><th>CURRENCY</th><th>PROF FEE</th><th>OPEs</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="font-family:var(--mono);font-size:10px">${sc.currency||'USD'}</td><td>${sc.fee?Number(sc.fee).toLocaleString():'—'}</td><td>${sc.ope?Number(sc.ope).toLocaleString():'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">${sc.invoiceReceived?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">${sc.invoiceProcessed?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`}
     </div>`;
+
+  initDragDrop();
 }
+
+/* ── DRAG AND DROP ── */
+function getOrderedNa(naProjects) {
+  if(!naOrder.length) return naProjects;
+  const ordered=[];
+  naOrder.forEach(id=>{ const p=naProjects.find(x=>String(x.id)===String(id)); if(p)ordered.push(p); });
+  naProjects.forEach(p=>{ if(!naOrder.includes(String(p.id))&&!naOrder.includes(p.id)) ordered.push(p); });
+  return ordered;
+}
+
+function renderNaBlock(p) {
+  const codes=[p.projectCode,p.slCode].filter(Boolean).join(' — ');
+  return `<div class="na-block" id="na-${p.id}" draggable="true" data-id="${p.id}">
+    <div class="drag-handle" title="Drag to reorder">⠿</div>
+    <div class="na-content">
+      <div class="na-header">
+        <span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>
+        <span class="na-name">${p.name||'Untitled'}${codes?` <span style="color:var(--text3)">[${codes}]</span>`:''}</span>
+        ${p.client?`<span class="na-client">— ${p.client}</span>`:''}
+      </div>
+      <div class="na-action">${p.nextAction?'→ '+p.nextAction:'<span style="color:var(--text3);font-style:italic">No next action recorded</span>'}</div>
+    </div>
+    <div class="na-deadline">${fmtDate(p.finalDeadline||p.interimDeadline)}</div>
+  </div>`;
+}
+
+function initDragDrop() {
+  const list=document.getElementById('naList'); if(!list)return;
+  list.querySelectorAll('.na-block').forEach(block=>{
+    block.addEventListener('dragstart',e=>{ dragSrcId=block.dataset.id; block.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+    block.addEventListener('dragend',()=>{ block.classList.remove('dragging'); list.querySelectorAll('.na-block').forEach(b=>b.classList.remove('drag-over')); saveNaOrder(); });
+    block.addEventListener('dragover',e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; block.classList.add('drag-over'); });
+    block.addEventListener('dragleave',()=>block.classList.remove('drag-over'));
+    block.addEventListener('drop',e=>{ e.preventDefault(); block.classList.remove('drag-over'); if(dragSrcId===block.dataset.id)return; const src=list.querySelector(`[data-id="${dragSrcId}"]`); if(!src)return; const blocks=[...list.querySelectorAll('.na-block')]; const srcIdx=blocks.indexOf(src),tgtIdx=blocks.indexOf(block); if(srcIdx<tgtIdx)block.after(src); else block.before(src); });
+  });
+}
+
+function saveNaOrder() {
+  const list=document.getElementById('naList'); if(!list)return;
+  naOrder=[...list.querySelectorAll('.na-block')].map(b=>b.dataset.id);
+  localStorage.setItem('cr_na_order',JSON.stringify(naOrder));
+}
+
+/* ── CALENDAR ── */
+function renderCalendar() {
+  const y=calDate.getFullYear(), m=calDate.getMonth();
+  document.getElementById('calMonth').textContent=new Date(y,m,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+
+  const events={};
+  projects.filter(p=>p.stage!=='Closed').forEach(p=>{
+    const add=(dateStr,type,label)=>{
+      if(!dateStr)return;
+      const key=dateStr.toString().slice(0,10);
+      if(!events[key])events[key]=[];
+      events[key].push({type,label,project:p.name||'Untitled',stage:p.stage});
+    };
+    if(p.interimDeadline&&p.interimStatus!=='Delivered'&&p.interimStatus!=='N/A')
+      add(p.interimDeadline,'interim',p.stage==='Proposal'?'Proposal: '+(p.name||''):' Interim: '+(p.name||''));
+    if(p.finalDeadline&&p.finalStatus!=='Delivered'&&p.finalStatus!=='N/A')
+      add(p.finalDeadline,'final','Final: '+(p.name||''));
+    p.subcontractors.forEach(sc=>{ if(sc.deadline) add(sc.deadline,'subcon',(sc.name||'Subcon')+': '+(p.name||'')); });
+  });
+
+  const typeColor={final:'#1e7e4a',interim:'#d68910',subcon:'#3d6494'};
+  const typeBg={final:'#eafaf1',interim:'#fef9e7',subcon:'#e8eef6'};
+  const typeText={final:'#1e7e4a',interim:'#8a5a00',subcon:'#1e3a5f'};
+
+  const firstDay=new Date(y,m,1).getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const prevDays=new Date(y,m,0).getDate();
+  const today=new Date(); today.setHours(0,0,0,0);
+
+  const dows=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  let html=dows.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+
+  const totalCells=Math.ceil((firstDay+daysInMonth)/7)*7;
+
+  for(let i=0;i<totalCells;i++){
+    let day,isCurrentMonth=true;
+    if(i<firstDay){ day=prevDays-(firstDay-1-i); isCurrentMonth=false; }
+    else if(i>=firstDay+daysInMonth){ day=i-(firstDay+daysInMonth)+1; isCurrentMonth=false; }
+    else{ day=i-firstDay+1; }
+
+    const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayEvents=isCurrentMonth?(events[dateStr]||[]):[];
+    const isToday=isCurrentMonth&&new Date(y,m,day).getTime()===today.getTime();
+
+    const dots=dayEvents.map(ev=>`<div class="cal-dot" style="background:${typeColor[ev.type]}"></div>`).join('');
+    const pills=dayEvents.slice(0,2).map(ev=>`<div class="cal-event-pill" style="background:${typeBg[ev.type]};color:${typeText[ev.type]}">${ev.label.length>18?ev.label.slice(0,18)+'…':ev.label}</div>`).join('');
+    const more=dayEvents.length>2?`<div style="font-size:9px;color:var(--text3);font-family:var(--mono)">+${dayEvents.length-2} more</div>`:'';
+
+    const tooltipData=dayEvents.length?`data-tooltip="${encodeURIComponent(JSON.stringify({date:dateStr,events:dayEvents}))}"`:'';
+
+    html+=`<div class="cal-day${isCurrentMonth?'':' other-month'}${isToday?' today':''}" ${tooltipData} onmouseenter="showCalTooltip(event,this)" onmouseleave="hideCalTooltip()">
+      <div class="cal-date">${day}</div>
+      ${dayEvents.length?`<div class="cal-dots">${dots}</div><div class="cal-events-preview">${pills}${more}</div>`:''}
+    </div>`;
+  }
+
+  document.getElementById('calGrid').innerHTML=html;
+}
+
+function showCalTooltip(e,el) {
+  const raw=el.getAttribute('data-tooltip'); if(!raw)return;
+  const data=JSON.parse(decodeURIComponent(raw));
+  const tt=document.getElementById('calTooltip');
+  const dt=new Date(data.date+'T00:00:00');
+  const dateLabel=dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const typeLabel={final:'Final report',interim:'Interim report',subcon:'Subcontractor deadline'};
+  tt.innerHTML=`<div class="cal-tooltip-title">${dateLabel}</div>${data.events.map(ev=>`<div class="cal-tooltip-item"><div style="font-weight:500">${ev.project}</div><div class="cal-tooltip-type">${typeLabel[ev.type]||ev.type}</div></div>`).join('')}`;
+  tt.classList.add('show');
+  const r=el.getBoundingClientRect();
+  let left=r.left+window.scrollX,top=r.bottom+window.scrollY+4;
+  if(left+290>window.innerWidth)left=window.innerWidth-295;
+  tt.style.left=left+'px'; tt.style.top=top+'px';
+}
+
+function hideCalTooltip() { document.getElementById('calTooltip').classList.remove('show'); }
+function calPrev() { calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1); renderCalendar(); }
+function calNext() { calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1); renderCalendar(); }
 
 async function sendDigest() {
   const btn=document.getElementById('digestBtn');
   btn.disabled=true; btn.textContent='Sending…';
-  try {
-    await apiPost({ action:'sendDigest' });
-    showToast('Digest sent to your Gmail');
-  } catch(e) { showToast('Could not send — check Apps Script logs'); }
+  try { await apiPost({action:'sendDigest'}); showToast('Digest sent to your Gmail'); }
+  catch(e){ showToast('Could not send — check Apps Script logs'); }
   btn.disabled=false; btn.textContent='Send digest now';
 }
 
 function showToast(msg,dur=3000) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),dur);
 }
 
