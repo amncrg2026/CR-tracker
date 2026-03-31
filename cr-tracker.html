@@ -237,7 +237,7 @@ tr:hover td { background: #fafbfc; }
       <nav class="nav">
         <button class="nav-btn active" onclick="switchTab('tracker',this)">Engagements</button>
         <button class="nav-btn" onclick="switchTab('dashboard',this)">Dashboard</button>
-        <button class="nav-btn" onclick="switchTab('calendar',this)">Calendar</button>
+        <button class="nav-btn" onclick="switchTab('calendar',this)">Calendar & Travel</button>
       </nav>
     </div>
     <div class="topbar-right">
@@ -269,7 +269,7 @@ tr:hover td { background: #fafbfc; }
       <div class="dash-grid" id="dashGrid"><div class="loading" style="grid-column:1/-1">LOADING DASHBOARD...</div></div>
     </div>
 
-    <!-- CALENDAR TAB -->
+    <!-- CALENDAR & TRAVEL TAB -->
     <div class="view" id="view-calendar">
       <div class="cal-header">
         <div class="cal-nav">
@@ -283,9 +283,15 @@ tr:hover td { background: #fafbfc; }
           <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#3d6494"></div>Subcontractor</div>
           <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#c0392b"></div>SG holiday</div>
           <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#e88080"></div>ID holiday</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#0f6e56"></div>Travel OPE</div>
         </div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
+      <div style="margin-top:2rem">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--navy3);letter-spacing:0.12em;font-weight:500;margin-bottom:4px">TRAVEL OPE MATRIX</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:16px">Available OPE by jurisdiction and month — projects with travel enabled, after subcon OPEs. Covers next 6 months.</div>
+        <div id="travelMatrix"><div class="loading">LOADING...</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -391,7 +397,7 @@ async function deleteProject(id) {
 }
 
 function blankProject(id) {
-  return {id,name:'',client:'',stage:'Proposal',projectCode:'',slCode:'',sharepointMade:false,clientLastContact:'',interimDeadline:'',interimStatus:'Not started',finalDeadline:'',finalStatus:'Not started',nextAction:'',originator:'',clientManager:'',projectLeader:'',researcher:'',subcontractors:[],databases:[],billingReady:false,invoiceInitiated:false,notes:''};
+  return {id,name:'',client:'',stage:'Proposal',projectCode:'',slCode:'',sharepointMade:false,clientLastContact:'',kickoffDate:'',interimDeadline:'',interimStatus:'Not started',finalDeadline:'',finalStatus:'Not started',nextAction:'',originator:'',clientManager:'',projectLeader:'',researcher:'',subcontractors:[],databases:[],billingReady:false,invoiceInitiated:false,notes:'',projectFeeCurrency:'USD',projectFee:'',opePercent:'10',opeOverride:'',allowTravel:false,jurisdiction1:'',jurisdiction2:''};
 }
 
 function addProject() {
@@ -437,6 +443,39 @@ function chkDb(id,idx,field,val,label) {
 
 function currencyOpts(selected) {
   return ['USD','SGD','IDR','AUD','EUR','GBP','JPY','MYR','THB','VND','CNY','HKD','CHF','CAD'].map(c=>`<option ${c===(selected||'USD')?'selected':''}>${c}</option>`).join('');
+}
+
+const SEA_COUNTRIES = ['Brunei','Cambodia','Indonesia','Laos','Malaysia','Myanmar','Philippines','Singapore','Thailand','Timor-Leste','Vietnam'];
+function seaOpts(selected) {
+  return ['— none —',...SEA_COUNTRIES].map(c=>`<option ${c===(selected||'— none —')?'selected':''}>${c}</option>`).join('');
+}
+
+function calcOPEBudget(p) {
+  if (!p.projectFee) return 0;
+  const fee = parseFloat(p.projectFee)||0;
+  if (p.opeOverride && parseFloat(p.opeOverride)) return parseFloat(p.opeOverride);
+  const pct = parseFloat(p.opePercent)||10;
+  return fee * pct / 100;
+}
+
+function calcOPEUsed(p) {
+  return p.subcontractors.reduce((sum,sc)=>sum+(parseFloat(sc.ope)||0),0);
+}
+
+function calcOPEAvailable(p) {
+  return Math.max(0, calcOPEBudget(p) - calcOPEUsed(p));
+}
+
+function isActiveOnDate(p, date) {
+  if (!p.kickoffDate || !p.finalDeadline) return false;
+  const d1 = new Date(p.kickoffDate); d1.setHours(0,0,0,0);
+  const d2 = new Date(p.finalDeadline); d2.setHours(23,59,59,999);
+  return date >= d1 && date <= d2;
+}
+
+function fmtMoney(amt) {
+  if (!amt) return '—';
+  return Number(amt).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
 }
 
 function renderSubcons(p) {
@@ -556,6 +595,26 @@ function renderCard(p) {
     <div class="sec">
       <div class="sec-label">EXTERNAL RESOURCES</div>
       ${renderSubcons(p)}
+    </div>
+    <div class="sec">
+      <div class="sec-label">PROJECT FINANCIALS & TRAVEL</div>
+      <div class="fg fg-3" style="margin-bottom:8px">
+        <div class="field"><label>KICK-OFF DATE (DAY 1)</label><input type="date" value="${(p.kickoffDate||'').toString().slice(0,10)}" onchange="uf(${p.id},'kickoffDate',this.value)"></div>
+        <div class="field"><label>JURISDICTION 1</label><select onchange="uf(${p.id},'jurisdiction1',this.value)">${seaOpts(p.jurisdiction1)}</select></div>
+        <div class="field"><label>JURISDICTION 2 (optional)</label><select onchange="uf(${p.id},'jurisdiction2',this.value)">${seaOpts(p.jurisdiction2)}</select></div>
+      </div>
+      <div class="fg fg-4" style="margin-bottom:8px">
+        <div class="field"><label>FEE CURRENCY</label><select onchange="uf(${p.id},'projectFeeCurrency',this.value)">${currencyOpts(p.projectFeeCurrency)}</select></div>
+        <div class="field"><label>PROJECT FEE</label><input type="number" min="0" value="${p.projectFee||''}" placeholder="0" onchange="uf(${p.id},'projectFee',this.value)"></div>
+        <div class="field"><label>OPE % (of project fee)</label><input type="number" min="0" max="100" value="${p.opePercent||'10'}" placeholder="10" onchange="uf(${p.id},'opePercent',this.value)"></div>
+        <div class="field"><label>OPE OVERRIDE (fixed amt)</label><input type="number" min="0" value="${p.opeOverride||''}" placeholder="Leave blank to use %" onchange="uf(${p.id},'opeOverride',this.value)"></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="font-size:12px;color:var(--text2)">OPE budget: <strong>${p.projectFeeCurrency||'USD'} ${fmtMoney(calcOPEBudget(p))}</strong> &nbsp;·&nbsp; Subcon OPEs used: <strong>${p.projectFeeCurrency||'USD'} ${fmtMoney(calcOPEUsed(p))}</strong> &nbsp;·&nbsp; Available: <strong style="color:var(--green)">${p.projectFeeCurrency||'USD'} ${fmtMoney(calcOPEAvailable(p))}</strong></div>
+          <div class="checks">${chk(p.id,'allowTravel',p.allowTravel,'Allow travel (include in Travel Planner)')}</div>
+        </div>
+      </div>
     </div>`;
 
   const adminSection = isProposal ? `
@@ -642,7 +701,7 @@ function switchTab(tab,el) {
   el.classList.add('active');
   document.getElementById('view-'+tab).classList.add('active');
   if(tab==='dashboard') renderDashboard();
-  if(tab==='calendar') renderCalendar();
+  if(tab==='calendar') { renderCalendar(); renderTravelMatrix(); }
 }
 
 /* ── DASHBOARD ── */
@@ -871,11 +930,28 @@ function renderCalendar() {
     else if(i>=firstDay+daysInMonth){ day=i-(firstDay+daysInMonth)+1; isCurrentMonth=false; }
     else{ day=i-firstDay+1; }
 
+    const dateObj = new Date(y,m,day);
     const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const dayEvents=isCurrentMonth?(events[dateStr]||[]):[];
     const isToday=isCurrentMonth&&new Date(y,m,day).getTime()===today.getTime();
     const sgHol=isCurrentMonth?(SG_HOLIDAYS[dateStr]||null):null;
     const idHol=isCurrentMonth?(ID_HOLIDAYS[dateStr]||null):null;
+
+    // Travel OPE for this day
+    const travelByJuris = {};
+    if (isCurrentMonth) {
+      projects.filter(p=>p.allowTravel&&p.kickoffDate&&p.finalDeadline&&p.stage!=='Closed'&&p.stage!=='Proposal').forEach(p=>{
+        if (!isActiveOnDate(p, dateObj)) return;
+        const avail = calcOPEAvailable(p);
+        if (avail <= 0) return;
+        [p.jurisdiction1, p.jurisdiction2].filter(j=>j&&j!=='— none —').forEach(j=>{
+          if (!travelByJuris[j]) travelByJuris[j] = {total:0, projects:[]};
+          travelByJuris[j].total += avail;
+          travelByJuris[j].projects.push({name:p.name, avail, currency: p.projectFeeCurrency||'USD'});
+        });
+      });
+    }
+    const hasTravelOPE = Object.keys(travelByJuris).length > 0;
 
     const dots=dayEvents.map(ev=>`<div class="cal-dot" style="background:${typeColor[ev.type]}"></div>`).join('');
     const pills=dayEvents.slice(0,2).map(ev=>`<div class="cal-event-pill" style="background:${typeBg[ev.type]};color:${typeText[ev.type]}">${ev.label.length>18?ev.label.slice(0,18)+'…':ev.label}</div>`).join('');
@@ -884,6 +960,7 @@ function renderCalendar() {
     const allTooltipEvents=[...dayEvents];
     if(sgHol) allTooltipEvents.push({type:'sg-hol',project:sgHol,label:sgHol});
     if(idHol) allTooltipEvents.push({type:'id-hol',project:idHol,label:idHol});
+    if(hasTravelOPE) Object.entries(travelByJuris).forEach(([j,d])=>allTooltipEvents.push({type:'travel',project:`${j}: ${d.projects[0].currency} ${fmtMoney(d.total)}`,label:j,juris:j,travelData:d}));
     const tooltipData=allTooltipEvents.length?`data-tooltip="${encodeURIComponent(JSON.stringify({date:dateStr,events:allTooltipEvents}))}"`:'';
 
     let bgStyle='';
@@ -896,10 +973,13 @@ function renderCalendar() {
       idHol?`<div style="font-size:9px;font-family:var(--mono);color:#b03030;background:#fdf0f0;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${idHol}">🇮🇩 ${idHol.length>14?idHol.slice(0,14)+'…':idHol}</div>`:''
     ].filter(Boolean).join('');
 
+    const travelTag = hasTravelOPE ? `<div style="font-size:9px;font-family:var(--mono);color:#085041;background:#e1f5ee;padding:1px 5px;border-radius:3px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">✈ ${Object.keys(travelByJuris).join(', ')}</div>` : '';
+
     html+=`<div class="cal-day${isCurrentMonth?'':' other-month'}${isToday?' today':''}" style="${bgStyle}" ${tooltipData} onmouseenter="showCalTooltip(event,this)" onmouseleave="hideCalTooltip()">
       <div class="cal-date">${day}</div>
       ${holLabels}
       ${dayEvents.length?`<div class="cal-dots">${dots}</div><div class="cal-events-preview">${pills}${more}</div>`:''}
+      ${travelTag}
     </div>`;
   }
 
@@ -912,9 +992,16 @@ function showCalTooltip(e,el) {
   const tt=document.getElementById('calTooltip');
   const dt=new Date(data.date+'T00:00:00');
   const dateLabel=dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const typeLabel={final:'Final report',interim:'Interim report',subcon:'Subcontractor deadline','sg-hol':'Singapore public holiday','id-hol':'Indonesia public holiday'};
-  const typeCol={'sg-hol':'#e74c3c','id-hol':'#e88080',final:'#a8c4e0',interim:'#a8c4e0',subcon:'#a8c4e0'};
-  tt.innerHTML=`<div class="cal-tooltip-title">${dateLabel}</div>${data.events.map(ev=>`<div class="cal-tooltip-item"><div style="font-weight:500;color:${typeCol[ev.type]||'#fff'}">${ev.project}</div><div class="cal-tooltip-type">${typeLabel[ev.type]||ev.type}</div></div>`).join('')}`;
+  const typeLabel={final:'Final report',interim:'Interim report',subcon:'Subcontractor deadline','sg-hol':'Singapore public holiday','id-hol':'Indonesia public holiday',travel:'Travel OPE available'};
+  const typeCol={'sg-hol':'#e74c3c','id-hol':'#e88080',final:'#a8c4e0',interim:'#a8c4e0',subcon:'#a8c4e0',travel:'#6fcf97'};
+  tt.innerHTML=`<div class="cal-tooltip-title">${dateLabel}</div>${data.events.map(ev=>{
+    if(ev.type==='travel') {
+      const td=ev.travelData;
+      const lines=td?td.projects.map(p=>`<div style="font-size:10px;color:rgba(255,255,255,0.7);padding-left:8px">• ${p.name}: ${p.currency} ${fmtMoney(p.avail)}</div>`).join(''):'';
+      return `<div class="cal-tooltip-item"><div style="font-weight:500;color:${typeCol[ev.type]||'#fff'}">✈ ${ev.project}</div><div class="cal-tooltip-type">${typeLabel[ev.type]||ev.type}</div>${lines}</div>`;
+    }
+    return `<div class="cal-tooltip-item"><div style="font-weight:500;color:${typeCol[ev.type]||'#fff'}">${ev.project}</div><div class="cal-tooltip-type">${typeLabel[ev.type]||ev.type}</div></div>`;
+  }).join('')}`;
   tt.classList.add('show');
   const r=el.getBoundingClientRect();
   let left=r.left+window.scrollX,top=r.bottom+window.scrollY+4;
@@ -922,9 +1009,92 @@ function showCalTooltip(e,el) {
   tt.style.left=left+'px'; tt.style.top=top+'px';
 }
 
+function renderTravelMatrix() {
+  const travelProjects = projects.filter(p=>p.allowTravel&&p.kickoffDate&&p.finalDeadline&&p.stage!=='Closed'&&p.stage!=='Proposal'&&p.projectFee);
+  if (!travelProjects.length) {
+    document.getElementById('travelMatrix').innerHTML=`<div class="empty" style="font-size:12px">No projects with travel enabled. Add kick-off date, project fee, and tick "Allow travel" on active engagements.</div>`;
+    return;
+  }
+
+  // Build 6 months forward
+  const months=[];
+  const now=new Date(); now.setDate(1); now.setHours(0,0,0,0);
+  for(let i=0;i<6;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()+i,1);
+    months.push({y:d.getFullYear(),m:d.getMonth(),label:d.toLocaleDateString('en-GB',{month:'short',year:'numeric'})});
+  }
+
+  // Collect all jurisdictions
+  const jurisSet=new Set();
+  travelProjects.forEach(p=>{
+    if(p.jurisdiction1&&p.jurisdiction1!=='— none —') jurisSet.add(p.jurisdiction1);
+    if(p.jurisdiction2&&p.jurisdiction2!=='— none —') jurisSet.add(p.jurisdiction2);
+  });
+  const jurisdictions=[...jurisSet].sort();
+
+  if (!jurisdictions.length) {
+    document.getElementById('travelMatrix').innerHTML=`<div class="empty" style="font-size:12px">No jurisdictions set on travel-enabled projects.</div>`;
+    return;
+  }
+
+  // Build matrix data
+  const matrix={};
+  jurisdictions.forEach(j=>{ matrix[j]={}; months.forEach(({label})=>matrix[j][label]={total:0,projects:[]}); });
+
+  travelProjects.forEach(p=>{
+    const avail=calcOPEAvailable(p);
+    if(avail<=0) return;
+    const juris=[p.jurisdiction1,p.jurisdiction2].filter(j=>j&&j!=='— none —');
+    months.forEach(({y,m,label})=>{
+      const monthStart=new Date(y,m,1);
+      const monthEnd=new Date(y,m+1,0,23,59,59);
+      const d1=new Date(p.kickoffDate); const d2=new Date(p.finalDeadline);
+      if(d1<=monthEnd&&d2>=monthStart){
+        juris.forEach(j=>{
+          matrix[j][label].total+=avail;
+          matrix[j][label].projects.push({name:p.name,avail,currency:p.projectFeeCurrency||'USD'});
+        });
+      }
+    });
+  });
+
+  let html=`<div class="sc-wrap"><table><thead><tr><th>JURISDICTION</th>${months.map(({label})=>`<th>${label.toUpperCase()}</th>`).join('')}</tr></thead><tbody>`;
+  jurisdictions.forEach(j=>{
+    html+=`<tr><td style="font-weight:500">${j}</td>${months.map(({label})=>{
+      const cell=matrix[j][label];
+      if(!cell.total) return `<td style="color:var(--text3)">—</td>`;
+      const currency=cell.projects[0]?.currency||'USD';
+      const color=cell.total>2000?'var(--green)':cell.total>500?'var(--amber)':'var(--text2)';
+      return `<td style="color:${color};font-weight:500;font-family:var(--mono);font-size:11px">${currency} ${fmtMoney(cell.total)}</td>`;
+    }).join('')}</tr>`;
+  });
+  html+=`</tbody></table></div>`;
+
+  // Project detail table
+  html+=`<div style="margin-top:1.5rem"><div style="font-family:var(--mono);font-size:10px;color:var(--navy3);letter-spacing:0.1em;font-weight:500;margin-bottom:12px">PROJECT DETAIL</div>`;
+  html+=`<div class="sc-wrap"><table><thead><tr><th>ENGAGEMENT</th><th>JURISDICTION</th><th>DAY 1</th><th>FINAL DEADLINE</th><th>FEE</th><th>OPE %</th><th>OPE BUDGET</th><th>SUBCON OPEs</th><th>OPE AVAILABLE</th></tr></thead><tbody>`;
+  travelProjects.forEach(p=>{
+    const cur=p.projectFeeCurrency||'USD';
+    const juris=[p.jurisdiction1,p.jurisdiction2].filter(j=>j&&j!=='— none —').join(', ')||'—';
+    html+=`<tr>
+      <td>${p.name||'Untitled'}</td>
+      <td>${juris}</td>
+      <td style="font-family:var(--mono);font-size:11px">${p.kickoffDate?p.kickoffDate.toString().slice(0,10):'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px">${p.finalDeadline?p.finalDeadline.toString().slice(0,10):'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px">${cur} ${fmtMoney(p.projectFee)}</td>
+      <td style="font-family:var(--mono);font-size:11px">${p.opeOverride?'Override':p.opePercent+'%'}</td>
+      <td style="font-family:var(--mono);font-size:11px">${cur} ${fmtMoney(calcOPEBudget(p))}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--red)">${cur} ${fmtMoney(calcOPEUsed(p))}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--green);font-weight:500">${cur} ${fmtMoney(calcOPEAvailable(p))}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div></div>`;
+  document.getElementById('travelMatrix').innerHTML=html;
+}
+
 function hideCalTooltip() { document.getElementById('calTooltip').classList.remove('show'); }
-function calPrev() { calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1); renderCalendar(); }
-function calNext() { calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1); renderCalendar(); }
+function calPrev() { calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1); renderCalendar(); renderTravelMatrix(); }
+function calNext() { calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1); renderCalendar(); renderTravelMatrix(); }
 
 async function sendDigest() {
   const btn=document.getElementById('digestBtn');
