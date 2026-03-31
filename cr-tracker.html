@@ -196,7 +196,8 @@ tr:hover td { background: #fafbfc; }
 .cal-dots { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 4px; }
 .cal-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .cal-events-preview { display: flex; flex-direction: column; gap: 2px; }
-.cal-event-pill { font-size: 9px; padding: 1px 5px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--mono); }
+.cal-event-pill { font-size: 9px; padding: 1px 5px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--mono); cursor: pointer; transition: opacity 0.15s; }
+.cal-event-pill:hover { opacity: 0.8; }
 
 /* Tooltip */
 .cal-tooltip { position: fixed; background: var(--navy); color: #fff; border-radius: 6px; padding: 10px 14px; font-size: 12px; line-height: 1.6; z-index: 999; pointer-events: none; max-width: 280px; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
@@ -283,7 +284,6 @@ tr:hover td { background: #fafbfc; }
           <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#3d6494"></div>Subcontractor</div>
           <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#c0392b"></div>SG holiday</div>
           <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#e88080"></div>ID holiday</div>
-          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#0f6e56"></div>Travel OPE</div>
         </div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
@@ -897,17 +897,28 @@ function renderCalendar() {
 
   const events={};
   projects.filter(p=>p.stage!=='Closed').forEach(p=>{
-    const add=(dateStr,type,label)=>{
+    const add=(dateStr,type,label,meta)=>{
       if(!dateStr)return;
       const key=dateStr.toString().slice(0,10);
       if(!events[key])events[key]=[];
-      events[key].push({type,label,project:p.name||'Untitled',stage:p.stage});
+      events[key].push({type,label,project:p.name||'Untitled',stage:p.stage,...meta});
     };
     if(p.interimDeadline&&p.interimStatus!=='Delivered'&&p.interimStatus!=='N/A')
-      add(p.interimDeadline,'interim',p.stage==='Proposal'?'Proposal: '+(p.name||''):'Interim: '+(p.name||''));
+      add(p.interimDeadline,'interim',p.stage==='Proposal'?'Proposal: '+(p.name||''):'Interim: '+(p.name||''),{
+        fullName:p.name||'Untitled',client:p.client||'',projectCode:p.projectCode||'',slCode:p.slCode||'',nextAction:p.nextAction||'',dateStr:p.interimDeadline.toString().slice(0,10),
+        icsTitle:(p.stage==='Proposal'?'Proposal Submission':'Interim Report')+' — '+(p.name||'Untitled')+(p.projectCode?' ['+p.projectCode+']':'')
+      });
     if(p.finalDeadline&&p.finalStatus!=='Delivered'&&p.finalStatus!=='N/A')
-      add(p.finalDeadline,'final','Final: '+(p.name||''));
-    p.subcontractors.forEach(sc=>{ if(sc.deadline) add(sc.deadline,'subcon',(sc.name||'Subcon')+': '+(p.name||'')); });
+      add(p.finalDeadline,'final','Final: '+(p.name||''),{
+        fullName:p.name||'Untitled',client:p.client||'',projectCode:p.projectCode||'',slCode:p.slCode||'',nextAction:p.nextAction||'',dateStr:p.finalDeadline.toString().slice(0,10),
+        icsTitle:'Final Report — '+(p.name||'Untitled')+(p.projectCode?' ['+p.projectCode+']':'')
+      });
+    p.subcontractors.forEach(sc=>{
+      if(sc.deadline) add(sc.deadline,'subcon',(sc.name||'Subcon')+': '+(p.name||''),{
+        fullName:p.name||'Untitled',client:p.client||'',projectCode:p.projectCode||'',slCode:p.slCode||'',nextAction:p.nextAction||'',dateStr:sc.deadline.toString().slice(0,10),
+        icsTitle:'Subcon Deadline ('+(sc.name||'Subcontractor')+') — '+(p.name||'Untitled')+(p.projectCode?' ['+p.projectCode+']':'')
+      });
+    });
   });
 
   const typeColor={final:'#1e7e4a',interim:'#d68910',subcon:'#3d6494'};
@@ -954,7 +965,7 @@ function renderCalendar() {
     const hasTravelOPE = Object.keys(travelByJuris).length > 0;
 
     const dots=dayEvents.map(ev=>`<div class="cal-dot" style="background:${typeColor[ev.type]}"></div>`).join('');
-    const pills=dayEvents.slice(0,2).map(ev=>`<div class="cal-event-pill" style="background:${typeBg[ev.type]};color:${typeText[ev.type]}">${ev.label.length>18?ev.label.slice(0,18)+'…':ev.label}</div>`).join('');
+    const pills=dayEvents.slice(0,2).map(ev=>`<div class="cal-event-pill" style="background:${typeBg[ev.type]};color:${typeText[ev.type]};cursor:pointer" title="Click to download Outlook appointment" onclick="event.stopPropagation();downloadICS(${JSON.stringify(ev).replace(/"/g,'&quot;')})">${ev.label.length>18?ev.label.slice(0,18)+'…':ev.label}</div>`).join('');
     const more=dayEvents.length>2?`<div style="font-size:9px;color:var(--text3);font-family:var(--mono)">+${dayEvents.length-2} more</div>`:'';
 
     const allTooltipEvents=[...dayEvents];
@@ -979,7 +990,6 @@ function renderCalendar() {
       <div class="cal-date">${day}</div>
       ${holLabels}
       ${dayEvents.length?`<div class="cal-dots">${dots}</div><div class="cal-events-preview">${pills}${more}</div>`:''}
-      
     </div>`;
   }
 
@@ -1093,6 +1103,62 @@ function renderTravelMatrix() {
 }
 
 function hideCalTooltip() { document.getElementById('calTooltip').classList.remove('show'); }
+function downloadICS(ev) {
+  const dateStr = ev.dateStr || '';
+  if (!dateStr) return;
+  const d = dateStr.replace(/-/g,'');
+
+  // Format: YYYYMMDDTHHMMSS
+  const dtStart = d + 'T170000';
+  const dtEnd   = d + 'T180000';
+
+  // Reminder: 1 day before = -1440 minutes (VALARM TRIGGER)
+  const codes = [ev.projectCode, ev.slCode].filter(Boolean).join(' — ');
+  const desc = [
+    ev.client ? 'Client: ' + ev.client : '',
+    codes ? 'Codes: ' + codes : '',
+    ev.nextAction ? 'Next action: ' + ev.nextAction : '',
+    '',
+    'Generated by CR Engagement Tracker'
+  ].filter(l=>l!==undefined).join('\\n').replace(/,/g,'\\,');
+
+  const uid = 'cr-tracker-' + Date.now() + '@cr';
+  const now = new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//CR Tracker//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:' + uid,
+    'DTSTAMP:' + now,
+    'DTSTART;TZID=Asia/Singapore:' + dtStart,
+    'DTEND;TZID=Asia/Singapore:' + dtEnd,
+    'SUMMARY:' + (ev.icsTitle||ev.label).replace(/,/g,'\\,'),
+    'DESCRIPTION:' + desc,
+    'BEGIN:VALARM',
+    'TRIGGER:-PT1440M',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:Reminder: ' + (ev.icsTitle||ev.label).replace(/,/g,'\\,'),
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (ev.icsTitle||ev.label).replace(/[^a-zA-Z0-9\s\-_]/g,'').trim() + '.ics';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Outlook appointment downloaded');
+}
+
 function calPrev() { calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1); renderCalendar(); renderTravelMatrix(); }
 function calNext() { calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1); renderCalendar(); renderTravelMatrix(); }
 
