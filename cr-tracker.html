@@ -32,7 +32,7 @@
   --sans: 'IBM Plex Sans', sans-serif;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+html, body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.7; min-height: 100vh; }
 
 .app { display: grid; grid-template-rows: auto 1fr; min-height: 100vh; }
 .topbar { background: var(--navy); border-bottom: 1px solid var(--navy2); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
@@ -76,10 +76,10 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .pill-active { background: var(--green-light); color: var(--green); border: 1px solid #b8e8cc; }
 .pill-delivery { background: var(--amber-light); color: var(--amber); border: 1px solid #f5dfa0; }
 .pill-closed { background: #f5f5f5; color: #999; border: 1px solid #e0e0e0; }
-.card-name { flex: 1; font-size: 13px; color: var(--text); font-weight: 400; }
-.card-client { font-size: 11px; color: var(--text3); }
+.card-name { flex: 1; font-size: 14px; color: var(--text); font-weight: 400; }
+.card-client { font-size: 12px; color: var(--text3); }
 .deadline-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.card-deadline { font-family: var(--mono); font-size: 10px; color: var(--text3); white-space: nowrap; }
+.card-deadline { font-family: var(--mono); font-size: 11px; color: var(--text3); white-space: nowrap; }
 .chevron { font-size: 10px; color: var(--text3); transition: transform 0.2s; }
 .chevron.open { transform: rotate(180deg); }
 
@@ -87,15 +87,15 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .card-body.open { display: block; }
 .sec { margin-bottom: 20px; }
 .sec:last-child { margin-bottom: 0; }
-.sec-label { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.12em; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); font-weight: 500; }
+.sec-label { font-family: var(--mono); font-size: 10px; color: var(--navy3); letter-spacing: 0.12em; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); font-weight: 500; }
 .fg { display: grid; gap: 8px; margin-bottom: 8px; }
 .fg-2 { grid-template-columns: 1fr 1fr; }
 .fg-3 { grid-template-columns: 1fr 1fr 1fr; }
 .fg-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 .field { display: flex; flex-direction: column; gap: 4px; }
-.field label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.06em; }
+.field label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.06em; }
 .field input, .field select, .field textarea {
-  font-family: var(--sans); font-size: 12px; padding: 6px 10px;
+  font-family: var(--sans); font-size: 13px; padding: 7px 10px;
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 4px; color: var(--text); width: 100%;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -105,19 +105,19 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .field textarea { resize: vertical; min-height: 52px; line-height: 1.5; }
 
 .checks { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px; }
-.check { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); cursor: pointer; }
+.check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); cursor: pointer; }
 .check input[type=checkbox] { width: 13px; height: 13px; accent-color: var(--navy); cursor: pointer; }
 .check.on { color: var(--green); }
 
 .subcon-block { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px; margin-bottom: 8px; position: relative; }
-.subcon-num { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 500; }
+.subcon-num { font-family: var(--mono); font-size: 10px; color: var(--navy3); letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 500; }
 .subcon-remove { position: absolute; top: 12px; right: 12px; font-size: 11px; color: var(--text3); cursor: pointer; background: none; border: none; font-family: var(--mono); }
 .subcon-remove:hover { color: var(--red); }
-.add-subcon { width: 100%; padding: 8px; border: 1px dashed var(--border2); border-radius: 4px; background: transparent; color: var(--text3); font-size: 11px; cursor: pointer; text-align: left; margin-top: 4px; transition: all 0.15s; }
+.add-subcon { width: 100%; padding: 8px; border: 1px dashed var(--border2); border-radius: 4px; background: transparent; color: var(--text3); font-size: 12px; cursor: pointer; text-align: left; margin-top: 4px; transition: all 0.15s; }
 .add-subcon:hover { border-color: var(--navy3); color: var(--navy); background: var(--navy-light); }
 
 .db-block { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px; margin-bottom: 8px; position: relative; }
-.db-num { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 500; }
+.db-num { font-family: var(--mono); font-size: 10px; color: var(--navy3); letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 500; }
 .db-remove { position: absolute; top: 12px; right: 12px; font-size: 11px; color: var(--text3); cursor: pointer; background: none; border: none; font-family: var(--mono); }
 .db-remove:hover { color: var(--red); }
 
@@ -132,7 +132,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
 .dash-card.full { grid-column: 1 / -1; }
-.dash-card-title { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.12em; margin-bottom: 16px; font-weight: 500; }
+.dash-card-title { font-family: var(--mono); font-size: 10px; color: var(--navy3); letter-spacing: 0.12em; margin-bottom: 16px; font-weight: 500; }
 
 .stage-bars { display: flex; flex-direction: column; gap: 12px; }
 .sbar { display: flex; align-items: center; gap: 12px; }
@@ -157,8 +157,8 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 
 .sc-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-th { font-family: var(--mono); font-size: 9px; color: var(--navy3); letter-spacing: 0.08em; text-align: left; padding: 0 10px 10px 0; border-bottom: 1px solid var(--border); white-space: nowrap; font-weight: 500; }
-td { font-size: 11px; color: var(--text); padding: 9px 10px 9px 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
+th { font-family: var(--mono); font-size: 10px; color: var(--navy3); letter-spacing: 0.08em; text-align: left; padding: 0 10px 10px 0; border-bottom: 1px solid var(--border); white-space: nowrap; font-weight: 500; }
+td { font-size: 12px; color: var(--text); padding: 9px 10px 9px 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: #fafbfc; }
 .sc-pill { font-family: var(--mono); font-size: 9px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
@@ -386,6 +386,11 @@ function chkDb(id, idx, field, val, label) {
   return `<label class="check ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="updateDb(${id},${idx},'${field}',this.checked);reRender(${id})">${label}</label>`;
 }
 
+function currencyOpts(selected) {
+  const currencies = ['USD','SGD','IDR','AUD','EUR','GBP','JPY','MYR','THB','VND','CNY','HKD','CHF','CAD'];
+  return currencies.map(c=>`<option ${c===(selected||'USD')?'selected':''}>${c}</option>`).join('');
+}
+
 function renderSubcons(p) {
   const blocks = p.subcontractors.map((sc,i)=>`
     <div class="subcon-block">
@@ -393,11 +398,17 @@ function renderSubcons(p) {
       <button class="subcon-remove" onclick="removeSubcon(${p.id},${i})">remove</button>
       <div class="fg fg-2">
         <div class="field"><label>NAME / VENDOR</label><input value="${sc.name||''}" onchange="updateSubcon(${p.id},${i},'name',this.value)"></div>
-        <div class="field"><label>DELIVERABLE</label><input value="${sc.deliverable||''}" onchange="updateSubcon(${p.id},${i},'deliverable',this.value)"></div>
+        <div class="field"><label>DEADLINE</label><input type="date" value="${sc.deadline||''}" onchange="updateSubcon(${p.id},${i},'deadline',this.value)"></div>
       </div>
       <div class="fg fg-2">
-        <div class="field"><label>DEADLINE</label><input type="date" value="${sc.deadline||''}" onchange="updateSubcon(${p.id},${i},'deadline',this.value)"></div>
         <div class="field"><label>PO NUMBER</label><input value="${sc.po||''}" placeholder="e.g. PO-4421" onchange="updateSubcon(${p.id},${i},'po',this.value)"></div>
+        <div class="field"><label>CURRENCY</label>
+          <select onchange="updateSubcon(${p.id},${i},'currency',this.value)">${currencyOpts(sc.currency)}</select>
+        </div>
+      </div>
+      <div class="fg fg-2">
+        <div class="field"><label>PROFESSIONAL FEE</label><input value="${sc.fee||''}" placeholder="0" type="number" min="0" onchange="updateSubcon(${p.id},${i},'fee',this.value)"></div>
+        <div class="field"><label>OPEs (leave blank if none)</label><input value="${sc.ope||''}" placeholder="0" type="number" min="0" onchange="updateSubcon(${p.id},${i},'ope',this.value)"></div>
       </div>
       <div class="checks">
         ${chkSc(p.id,i,'briefed',sc.briefed,'Briefed & confirmed')}
@@ -577,6 +588,21 @@ function renderDashboard() {
   active.forEach(p=>p.subcontractors.forEach(sc=>allScs.push({eng:displayName(p),sc})));
 
   document.getElementById('dashGrid').innerHTML=`
+    <div class="dash-card full">
+      <div class="dash-card-title">CURRENT STATUS & NEXT ACTIONS</div>
+      ${active.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No active engagements</div>`:`<div style="display:flex;flex-direction:column;gap:6px">${active.map(p=>{
+        const codes=[p.projectCode,p.slCode].filter(Boolean).join(' — ');
+        const stageCol={Proposal:'var(--purple)',Active:'var(--green)',Delivery:'var(--amber)',Closed:'#aaa'}[p.stage]||'#aaa';
+        return `<div style="padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid ${stageCol};border-radius:4px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-family:var(--mono);font-size:10px;font-weight:500;color:var(--text)">${p.name||'Untitled'}${codes?' <span style="color:var(--text3)">['+codes+']</span>':''}</span>
+            <span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>
+            ${p.client?`<span style="font-size:11px;color:var(--text3)">— ${p.client}</span>`:''}
+          </div>
+          <div style="font-size:12px;color:var(--text2)">${p.nextAction?'→ '+p.nextAction:'<span style="color:var(--text3);font-style:italic">No next action recorded</span>'}</div>
+        </div>`;
+      }).join('')}</div>`}
+    </div>
     <div class="dash-card">
       <div class="dash-card-title">STAGE OVERVIEW</div>
       <div class="stage-bars">
@@ -593,7 +619,7 @@ function renderDashboard() {
     </div>
     <div class="dash-card full">
       <div class="dash-card-title">SUBCONTRACTOR STATUS</div>
-      ${allScs.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active engagements</div>`:`<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>ENGAGEMENT</th><th>DELIVERABLE</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="color:var(--text3)">${sc.deliverable||'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">${sc.invoiceReceived?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">${sc.invoiceProcessed?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`}
+      ${allScs.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active engagements</div>`:`<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>ENGAGEMENT</th><th>CURRENCY</th><th>PROF FEE</th><th>OPEs</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="font-family:var(--mono);font-size:10px">${sc.currency||'USD'}</td><td>${sc.fee?Number(sc.fee).toLocaleString():'—'}</td><td>${sc.ope?Number(sc.ope).toLocaleString():'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">${sc.invoiceReceived?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">${sc.invoiceProcessed?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`}
     </div>`;
 }
 
@@ -617,4 +643,3 @@ loadAll();
 </script>
 </body>
 </html>
- 
