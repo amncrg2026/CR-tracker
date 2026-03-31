@@ -281,6 +281,8 @@ tr:hover td { background: #fafbfc; }
           <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#1e7e4a"></div>Final report</div>
           <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#d68910"></div>Interim report</div>
           <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#3d6494"></div>Subcontractor</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#c0392b"></div>SG holiday</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#e88080"></div>ID holiday</div>
         </div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
@@ -716,6 +718,81 @@ function saveNaOrder() {
 }
 
 /* ── CALENDAR ── */
+/* ── PUBLIC HOLIDAYS ──
+   To add a new year: copy the pattern below and add entries.
+   Eid dates vary yearly — update when officially announced.
+*/
+const SG_HOLIDAYS = {
+  // 2025
+  '2025-01-01':'New Year\'s Day',
+  '2025-01-29':'Chinese New Year',
+  '2025-01-30':'Chinese New Year',
+  '2025-03-31':'Hari Raya Puasa',
+  '2025-04-18':'Good Friday',
+  '2025-05-01':'Labour Day',
+  '2025-05-12':'Vesak Day',
+  '2025-06-07':'Hari Raya Haji',
+  '2025-08-09':'National Day',
+  '2025-10-20':'Deepavali',
+  '2025-12-25':'Christmas Day',
+  // 2026
+  '2026-01-01':'New Year\'s Day',
+  '2026-02-17':'Chinese New Year',
+  '2026-02-18':'Chinese New Year',
+  '2026-03-20':'Hari Raya Puasa',
+  '2026-04-03':'Good Friday',
+  '2026-05-01':'Labour Day',
+  '2026-05-31':'Vesak Day',
+  '2026-05-27':'Hari Raya Haji',
+  '2026-08-10':'National Day',
+  '2026-11-09':'Deepavali',
+  '2026-12-25':'Christmas Day',
+};
+
+const ID_HOLIDAYS = {
+  // 2025
+  '2025-01-01':'New Year\'s Day',
+  '2025-01-27':'Isra Miraj',
+  '2025-01-29':'Chinese New Year',
+  '2025-03-29':'Nyepi',
+  '2025-03-31':'Hari Raya Idul Fitri',
+  '2025-04-01':'Hari Raya Idul Fitri',
+  '2025-04-02':'Hari Raya Idul Fitri',
+  '2025-04-03':'Hari Raya Idul Fitri',
+  '2025-04-04':'Hari Raya Idul Fitri',
+  '2025-04-18':'Good Friday',
+  '2025-05-01':'Labour Day',
+  '2025-05-12':'Waisak',
+  '2025-05-29':'Ascension Day',
+  '2025-06-01':'Pancasila Day',
+  '2025-06-06':'Idul Adha',
+  '2025-06-27':'Islamic New Year',
+  '2025-08-17':'Independence Day',
+  '2025-09-05':'Prophet\'s Birthday',
+  '2025-12-25':'Christmas Day',
+  '2025-12-26':'Christmas Holiday',
+  // 2026
+  '2026-01-01':'New Year\'s Day',
+  '2026-01-16':'Isra Miraj',
+  '2026-01-28':'Chinese New Year',
+  '2026-03-18':'Nyepi',
+  '2026-03-20':'Hari Raya Idul Fitri',
+  '2026-03-21':'Hari Raya Idul Fitri',
+  '2026-03-22':'Hari Raya Idul Fitri',
+  '2026-03-23':'Hari Raya Idul Fitri',
+  '2026-03-24':'Hari Raya Idul Fitri',
+  '2026-04-03':'Good Friday',
+  '2026-05-01':'Labour Day',
+  '2026-05-20':'Waisak',
+  '2026-05-14':'Ascension Day',
+  '2026-05-26':'Idul Adha',
+  '2026-06-01':'Pancasila Day',
+  '2026-06-17':'Islamic New Year',
+  '2026-08-17':'Independence Day',
+  '2026-08-25':'Prophet\'s Birthday',
+  '2026-12-25':'Christmas Day',
+};
+
 function renderCalendar() {
   const y=calDate.getFullYear(), m=calDate.getMonth();
   document.getElementById('calMonth').textContent=new Date(y,m,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
@@ -729,7 +806,7 @@ function renderCalendar() {
       events[key].push({type,label,project:p.name||'Untitled',stage:p.stage});
     };
     if(p.interimDeadline&&p.interimStatus!=='Delivered'&&p.interimStatus!=='N/A')
-      add(p.interimDeadline,'interim',p.stage==='Proposal'?'Proposal: '+(p.name||''):' Interim: '+(p.name||''));
+      add(p.interimDeadline,'interim',p.stage==='Proposal'?'Proposal: '+(p.name||''):'Interim: '+(p.name||''));
     if(p.finalDeadline&&p.finalStatus!=='Delivered'&&p.finalStatus!=='N/A')
       add(p.finalDeadline,'final','Final: '+(p.name||''));
     p.subcontractors.forEach(sc=>{ if(sc.deadline) add(sc.deadline,'subcon',(sc.name||'Subcon')+': '+(p.name||'')); });
@@ -758,15 +835,31 @@ function renderCalendar() {
     const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const dayEvents=isCurrentMonth?(events[dateStr]||[]):[];
     const isToday=isCurrentMonth&&new Date(y,m,day).getTime()===today.getTime();
+    const sgHol=isCurrentMonth?(SG_HOLIDAYS[dateStr]||null):null;
+    const idHol=isCurrentMonth?(ID_HOLIDAYS[dateStr]||null):null;
 
     const dots=dayEvents.map(ev=>`<div class="cal-dot" style="background:${typeColor[ev.type]}"></div>`).join('');
     const pills=dayEvents.slice(0,2).map(ev=>`<div class="cal-event-pill" style="background:${typeBg[ev.type]};color:${typeText[ev.type]}">${ev.label.length>18?ev.label.slice(0,18)+'…':ev.label}</div>`).join('');
     const more=dayEvents.length>2?`<div style="font-size:9px;color:var(--text3);font-family:var(--mono)">+${dayEvents.length-2} more</div>`:'';
 
-    const tooltipData=dayEvents.length?`data-tooltip="${encodeURIComponent(JSON.stringify({date:dateStr,events:dayEvents}))}"`:'';
+    const allTooltipEvents=[...dayEvents];
+    if(sgHol) allTooltipEvents.push({type:'sg-hol',project:sgHol,label:sgHol});
+    if(idHol) allTooltipEvents.push({type:'id-hol',project:idHol,label:idHol});
+    const tooltipData=allTooltipEvents.length?`data-tooltip="${encodeURIComponent(JSON.stringify({date:dateStr,events:allTooltipEvents}))}"`:'';
 
-    html+=`<div class="cal-day${isCurrentMonth?'':' other-month'}${isToday?' today':''}" ${tooltipData} onmouseenter="showCalTooltip(event,this)" onmouseleave="hideCalTooltip()">
+    let bgStyle='';
+    if(sgHol&&idHol) bgStyle='background:linear-gradient(135deg,#fff0f0 50%,#fff5f5 50%)';
+    else if(sgHol) bgStyle='background:#fff0f0';
+    else if(idHol) bgStyle='background:#fff8f8';
+
+    const holLabels=[
+      sgHol?`<div style="font-size:9px;font-family:var(--mono);color:#c0392b;background:#fde8e8;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${sgHol}">🇸🇬 ${sgHol.length>14?sgHol.slice(0,14)+'…':sgHol}</div>`:'',
+      idHol?`<div style="font-size:9px;font-family:var(--mono);color:#b03030;background:#fdf0f0;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${idHol}">🇮🇩 ${idHol.length>14?idHol.slice(0,14)+'…':idHol}</div>`:''
+    ].filter(Boolean).join('');
+
+    html+=`<div class="cal-day${isCurrentMonth?'':' other-month'}${isToday?' today':''}" style="${bgStyle}" ${tooltipData} onmouseenter="showCalTooltip(event,this)" onmouseleave="hideCalTooltip()">
       <div class="cal-date">${day}</div>
+      ${holLabels}
       ${dayEvents.length?`<div class="cal-dots">${dots}</div><div class="cal-events-preview">${pills}${more}</div>`:''}
     </div>`;
   }
@@ -780,8 +873,9 @@ function showCalTooltip(e,el) {
   const tt=document.getElementById('calTooltip');
   const dt=new Date(data.date+'T00:00:00');
   const dateLabel=dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const typeLabel={final:'Final report',interim:'Interim report',subcon:'Subcontractor deadline'};
-  tt.innerHTML=`<div class="cal-tooltip-title">${dateLabel}</div>${data.events.map(ev=>`<div class="cal-tooltip-item"><div style="font-weight:500">${ev.project}</div><div class="cal-tooltip-type">${typeLabel[ev.type]||ev.type}</div></div>`).join('')}`;
+  const typeLabel={final:'Final report',interim:'Interim report',subcon:'Subcontractor deadline','sg-hol':'Singapore public holiday','id-hol':'Indonesia public holiday'};
+  const typeCol={'sg-hol':'#e74c3c','id-hol':'#e88080',final:'#a8c4e0',interim:'#a8c4e0',subcon:'#a8c4e0'};
+  tt.innerHTML=`<div class="cal-tooltip-title">${dateLabel}</div>${data.events.map(ev=>`<div class="cal-tooltip-item"><div style="font-weight:500;color:${typeCol[ev.type]||'#fff'}">${ev.project}</div><div class="cal-tooltip-type">${typeLabel[ev.type]||ev.type}</div></div>`).join('')}`;
   tt.classList.add('show');
   const r=el.getBoundingClientRect();
   let left=r.left+window.scrollX,top=r.bottom+window.scrollY+4;
