@@ -294,6 +294,45 @@ tr:hover td { background: #fafbfc; }
 <div class="toast" id="toast"></div>
 
 <script>
+const AUTH = { user: 'adimas.mulya@controlrisks.com', pass: 'CR2026' };
+
+function checkAuth() {
+  if (sessionStorage.getItem('cr_auth') === 'ok') return true;
+  return false;
+}
+
+function showLoginScreen() {
+  document.body.innerHTML = `
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f4f5f7;font-family:'IBM Plex Sans',sans-serif">
+      <div style="background:#fff;border:1px solid #e2e6ed;border-radius:8px;padding:40px 48px;width:100%;max-width:400px;box-shadow:0 4px 24px rgba(30,58,95,0.08)">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#a8c4e0;letter-spacing:0.1em;margin-bottom:24px;background:#1e3a5f;padding:10px 16px;border-radius:4px">CR // TRACKER</div>
+        <div style="font-size:15px;font-weight:500;color:#1a2332;margin-bottom:6px">Sign in</div>
+        <div style="font-size:12px;color:#8a96a8;margin-bottom:24px">Enter your credentials to access the tracker</div>
+        <div id="loginError" style="display:none;background:#fdf0ee;border:1px solid #f0cac6;border-radius:4px;padding:8px 12px;font-size:12px;color:#c0392b;margin-bottom:16px">Incorrect username or password</div>
+        <div style="margin-bottom:12px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8a96a8;letter-spacing:0.06em;margin-bottom:4px">USERNAME</div>
+          <input id="loginUser" type="email" placeholder="your@email.com" style="width:100%;padding:8px 10px;border:1px solid #e2e6ed;border-radius:4px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:#1a2332;outline:none" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8a96a8;letter-spacing:0.06em;margin-bottom:4px">PASSWORD</div>
+          <input id="loginPass" type="password" placeholder="••••••" style="width:100%;padding:8px 10px;border:1px solid #e2e6ed;border-radius:4px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:#1a2332;outline:none" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button onclick="doLogin()" style="width:100%;padding:9px;background:#1e3a5f;border:none;border-radius:4px;color:#fff;font-size:13px;font-family:'IBM Plex Sans',sans-serif;cursor:pointer">Sign in</button>
+      </div>
+    </div>`;
+}
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if (u === AUTH.user && p === AUTH.pass) {
+    sessionStorage.setItem('cr_auth','ok');
+    location.reload();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
 const API = 'https://script.google.com/macros/s/AKfycbwkFfqxKIgFlqea0Q68OMsDN32VN36VpNcdkIGQ1DezMinJJaKxmcCfpLqi_9LbHu22/exec';
 let projects = [];
 let nextId = 1;
@@ -900,7 +939,7 @@ function showToast(msg,dur=3000) {
   setTimeout(()=>t.classList.remove('show'),dur);
 }
 
-loadAll();
+if (!checkAuth()) { showLoginScreen(); } else { loadAll(); }
 </script>
 </body>
 </html>
