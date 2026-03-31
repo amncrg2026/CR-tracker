@@ -398,7 +398,7 @@ function renderSubcons(p) {
       <button class="subcon-remove" onclick="removeSubcon(${p.id},${i})">remove</button>
       <div class="fg fg-2">
         <div class="field"><label>NAME / VENDOR</label><input value="${sc.name||''}" onchange="updateSubcon(${p.id},${i},'name',this.value)"></div>
-        <div class="field"><label>DEADLINE</label><input type="date" value="${sc.deadline||''}" onchange="updateSubcon(${p.id},${i},'deadline',this.value)"></div>
+        <div class="field"><label>DEADLINE</label><input type="date" value="${(sc.deadline||'').toString().slice(0,10)}" onchange="updateSubcon(${p.id},${i},'deadline',this.value)"></div>
       </div>
       <div class="fg fg-2">
         <div class="field"><label>PO NUMBER</label><input value="${sc.po||''}" placeholder="e.g. PO-4421" onchange="updateSubcon(${p.id},${i},'po',this.value)"></div>
@@ -459,7 +459,7 @@ function renderCard(p) {
           <div class="field"><label>STAGE</label><select onchange="uf(${p.id},'stage',this.value);reRender(${p.id})">${stageOpts(p.stage)}</select></div>
         </div>
         <div class="fg fg-2">
-          <div class="field"><label>CLIENT LAST CONTACTED</label><input type="date" value="${p.clientLastContact||''}" onchange="uf(${p.id},'clientLastContact',this.value)"></div>
+          <div class="field"><label>CLIENT LAST CONTACTED</label><input type="date" value="${(p.clientLastContact||'').toString().slice(0,10)}" onchange="uf(${p.id},'clientLastContact',this.value)"></div>
           <div class="field" style="justify-content:flex-end;padding-bottom:2px"><label style="visibility:hidden;font-size:9px">.</label><div class="checks">${chk(p.id,'sharepointMade',p.sharepointMade,'SharePoint entry made')}</div></div>
         </div>
       </div>
@@ -469,14 +469,14 @@ function renderCard(p) {
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:8px">
           <div style="font-family:var(--mono);font-size:9px;color:var(--navy3);margin-bottom:8px;font-weight:500">INTERIM REPORT</div>
           <div class="fg fg-2">
-            <div class="field"><label>DEADLINE</label><input type="date" value="${p.interimDeadline||''}" onchange="uf(${p.id},'interimDeadline',this.value)"></div>
+            <div class="field"><label>DEADLINE</label><input type="date" value="${(p.interimDeadline||'').toString().slice(0,10)}" onchange="uf(${p.id},'interimDeadline',this.value)"></div>
             <div class="field"><label>STATUS</label><select onchange="uf(${p.id},'interimStatus',this.value)">${statusOpts(p.interimStatus)}</select></div>
           </div>
         </div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:8px">
           <div style="font-family:var(--mono);font-size:9px;color:var(--navy3);margin-bottom:8px;font-weight:500">FINAL REPORT</div>
           <div class="fg fg-2">
-            <div class="field"><label>DEADLINE</label><input type="date" value="${p.finalDeadline||''}" onchange="uf(${p.id},'finalDeadline',this.value)"></div>
+            <div class="field"><label>DEADLINE</label><input type="date" value="${(p.finalDeadline||'').toString().slice(0,10)}" onchange="uf(${p.id},'finalDeadline',this.value)"></div>
             <div class="field"><label>STATUS</label><select onchange="uf(${p.id},'finalStatus',this.value)">${statusOpts(p.finalStatus)}</select></div>
           </div>
         </div>
