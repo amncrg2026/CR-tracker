@@ -443,6 +443,37 @@ tr:hover td { background: #fafbfc; }
 <script>
 const AUTH = { user: 'adimas.mulya@controlrisks.com', pass: 'CR2026' };
 
+/* ── PUBLIC HOLIDAYS ──
+   To add a new year: copy the pattern below and add entries.
+   Eid dates vary yearly — update when officially announced.
+*/
+const SG_HOLIDAYS = {
+  '2025-01-01':'New Year\'s Day','2025-01-29':'Chinese New Year','2025-01-30':'Chinese New Year',
+  '2025-03-31':'Hari Raya Puasa','2025-04-18':'Good Friday','2025-05-01':'Labour Day',
+  '2025-05-12':'Vesak Day','2025-06-07':'Hari Raya Haji','2025-08-09':'National Day',
+  '2025-10-20':'Deepavali','2025-12-25':'Christmas Day',
+  '2026-01-01':'New Year\'s Day','2026-02-17':'Chinese New Year','2026-02-18':'Chinese New Year',
+  '2026-03-20':'Hari Raya Puasa','2026-04-03':'Good Friday','2026-05-01':'Labour Day',
+  '2026-05-31':'Vesak Day','2026-05-27':'Hari Raya Haji','2026-08-10':'National Day',
+  '2026-11-09':'Deepavali','2026-12-25':'Christmas Day',
+};
+const ID_HOLIDAYS = {
+  '2025-01-01':'New Year\'s Day','2025-01-27':'Isra Miraj','2025-01-29':'Chinese New Year',
+  '2025-03-29':'Nyepi','2025-03-31':'Hari Raya Idul Fitri','2025-04-01':'Hari Raya Idul Fitri',
+  '2025-04-02':'Hari Raya Idul Fitri','2025-04-03':'Hari Raya Idul Fitri','2025-04-04':'Hari Raya Idul Fitri',
+  '2025-04-18':'Good Friday','2025-05-01':'Labour Day','2025-05-12':'Waisak',
+  '2025-05-29':'Ascension Day','2025-06-01':'Pancasila Day','2025-06-06':'Idul Adha',
+  '2025-06-27':'Islamic New Year','2025-08-17':'Independence Day','2025-09-05':'Prophet\'s Birthday',
+  '2025-12-25':'Christmas Day','2025-12-26':'Christmas Holiday',
+  '2026-01-01':'New Year\'s Day','2026-01-16':'Isra Miraj','2026-01-28':'Chinese New Year',
+  '2026-03-18':'Nyepi','2026-03-20':'Hari Raya Idul Fitri','2026-03-21':'Hari Raya Idul Fitri',
+  '2026-03-22':'Hari Raya Idul Fitri','2026-03-23':'Hari Raya Idul Fitri','2026-03-24':'Hari Raya Idul Fitri',
+  '2026-04-03':'Good Friday','2026-05-01':'Labour Day','2026-05-20':'Waisak',
+  '2026-05-14':'Ascension Day','2026-05-26':'Idul Adha','2026-06-01':'Pancasila Day',
+  '2026-06-17':'Islamic New Year','2026-08-17':'Independence Day','2026-08-25':'Prophet\'s Birthday',
+  '2026-12-25':'Christmas Day',
+};
+
 function checkAuth() {
   if (sessionStorage.getItem('cr_auth') === 'ok') return true;
   return false;
@@ -555,17 +586,17 @@ function addDb(id) { const p=projects.find(x=>x.id==id); if(!p)return; p.databas
 function removeDb(id,idx) { const p=projects.find(x=>x.id==id); if(!p)return; p.databases.splice(idx,1); scheduleSave(id); reRender(id); }
 
 function daysFrom(d) { return d?Math.ceil((new Date(d)-new Date())/86400000):null; }
-function workDaysFrom(d) {
-  if (!d) return null;
-  const target = new Date(d.toString().slice(0,10)+'T00:00:00');
-  const today = new Date(); today.setHours(0,0,0,0);
-  if (target < today) return -workingDaysBetween(target, today);
-  return workingDaysBetween(today, target);
-}
 function fmtDate(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 function fmtDateLong(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}); }
 function dotColor(wd) { if(wd===null)return'#ccc'; if(wd<0)return'#c0392b'; if(wd<=3)return'#c0392b'; if(wd<=5)return'#d68910'; return'#1e7e4a'; }
 function daysLabel(wd) { if(wd===null)return''; if(wd<0)return Math.abs(wd)+'wd overdue'; if(wd===0)return'TODAY'; return wd+'wd'; }
+function workDaysFrom(d) {
+  if (!d) return null;
+  const target = new Date(d.toString().slice(0,10)+'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  if (target < today) { let c=0,x=new Date(target); while(x<today){x.setDate(x.getDate()+1);if(isWorkingDay(x))c++;} return -c; }
+  let c=0,x=new Date(today); while(x<target){x.setDate(x.getDate()+1);if(isWorkingDay(x))c++;} return c;
+}
 
 function stageClass(s) { return {Proposal:'pill-proposal',Active:'pill-active',Delivered:'pill-delivered',Closed:'pill-closed'}[s]||'pill-proposal'; }
 function stageColor(s) { return {Proposal:'var(--purple)',Active:'var(--green)',Delivered:'var(--amber)',Closed:'#aaa'}[s]||'#aaa'; }
@@ -1259,81 +1290,6 @@ function saveNaOrder() {
 }
 
 /* ── CALENDAR ── */
-/* ── PUBLIC HOLIDAYS ──
-   To add a new year: copy the pattern below and add entries.
-   Eid dates vary yearly — update when officially announced.
-*/
-const SG_HOLIDAYS = {
-  // 2025
-  '2025-01-01':'New Year\'s Day',
-  '2025-01-29':'Chinese New Year',
-  '2025-01-30':'Chinese New Year',
-  '2025-03-31':'Hari Raya Puasa',
-  '2025-04-18':'Good Friday',
-  '2025-05-01':'Labour Day',
-  '2025-05-12':'Vesak Day',
-  '2025-06-07':'Hari Raya Haji',
-  '2025-08-09':'National Day',
-  '2025-10-20':'Deepavali',
-  '2025-12-25':'Christmas Day',
-  // 2026
-  '2026-01-01':'New Year\'s Day',
-  '2026-02-17':'Chinese New Year',
-  '2026-02-18':'Chinese New Year',
-  '2026-03-20':'Hari Raya Puasa',
-  '2026-04-03':'Good Friday',
-  '2026-05-01':'Labour Day',
-  '2026-05-31':'Vesak Day',
-  '2026-05-27':'Hari Raya Haji',
-  '2026-08-10':'National Day',
-  '2026-11-09':'Deepavali',
-  '2026-12-25':'Christmas Day',
-};
-
-const ID_HOLIDAYS = {
-  // 2025
-  '2025-01-01':'New Year\'s Day',
-  '2025-01-27':'Isra Miraj',
-  '2025-01-29':'Chinese New Year',
-  '2025-03-29':'Nyepi',
-  '2025-03-31':'Hari Raya Idul Fitri',
-  '2025-04-01':'Hari Raya Idul Fitri',
-  '2025-04-02':'Hari Raya Idul Fitri',
-  '2025-04-03':'Hari Raya Idul Fitri',
-  '2025-04-04':'Hari Raya Idul Fitri',
-  '2025-04-18':'Good Friday',
-  '2025-05-01':'Labour Day',
-  '2025-05-12':'Waisak',
-  '2025-05-29':'Ascension Day',
-  '2025-06-01':'Pancasila Day',
-  '2025-06-06':'Idul Adha',
-  '2025-06-27':'Islamic New Year',
-  '2025-08-17':'Independence Day',
-  '2025-09-05':'Prophet\'s Birthday',
-  '2025-12-25':'Christmas Day',
-  '2025-12-26':'Christmas Holiday',
-  // 2026
-  '2026-01-01':'New Year\'s Day',
-  '2026-01-16':'Isra Miraj',
-  '2026-01-28':'Chinese New Year',
-  '2026-03-18':'Nyepi',
-  '2026-03-20':'Hari Raya Idul Fitri',
-  '2026-03-21':'Hari Raya Idul Fitri',
-  '2026-03-22':'Hari Raya Idul Fitri',
-  '2026-03-23':'Hari Raya Idul Fitri',
-  '2026-03-24':'Hari Raya Idul Fitri',
-  '2026-04-03':'Good Friday',
-  '2026-05-01':'Labour Day',
-  '2026-05-20':'Waisak',
-  '2026-05-14':'Ascension Day',
-  '2026-05-26':'Idul Adha',
-  '2026-06-01':'Pancasila Day',
-  '2026-06-17':'Islamic New Year',
-  '2026-08-17':'Independence Day',
-  '2026-08-25':'Prophet\'s Birthday',
-  '2026-12-25':'Christmas Day',
-};
-
 function renderCalendar() {
   const y=calDate.getFullYear(), m=calDate.getMonth();
   document.getElementById('calMonth').textContent=new Date(y,m,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
