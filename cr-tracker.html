@@ -1574,7 +1574,9 @@ function showToast(msg,dur=3000) {
   setTimeout(()=>t.classList.remove('show'),dur);
 }
 
-if (!checkAuth()) { showLoginScreen(); } else { loadAll(); }
+document.addEventListener('DOMContentLoaded', function() {
+  if (!checkAuth()) { showLoginScreen(); } else { loadAll(); }
+});
 </script>
 </body>
 </html>
