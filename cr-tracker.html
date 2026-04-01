@@ -401,7 +401,7 @@ tr:hover td { background: #fafbfc; }
           </div>
           <div class="fg fg-2">
             <div class="field">
-              <label>SENT TO SENIOR REVIEWER ON</label>
+              <label>SEND TO SENIOR REVIEWER ON</label>
               <input type="date" id="erSrDate">
               <div id="erSrSuggestion" style="font-size:10px;color:var(--navy3);font-family:var(--mono);margin-top:3px"></div>
             </div>
@@ -990,31 +990,52 @@ function erCalcHours() {
 function erUpdateSuggestions() {
   const reportType = document.getElementById('erReportType').value;
   let clientDate = document.getElementById('erClientDate').value;
-  if (!clientDate && erCurrentEngId) {
-    const p = projects.find(x=>String(x.id)===String(erCurrentEngId));
-    if (p) clientDate = (p.finalDeadline||'').toString().slice(0,10);
-  }
-  if (!clientDate) return;
-  const clientD = new Date(clientDate+'T00:00:00');
+  let p = null;
+  if (erCurrentEngId) p = projects.find(x=>String(x.id)===String(erCurrentEngId));
 
-  // Suggest editor date
-  const editorDaysBack = reportType==='interim' ? 1 : 3;
-  let editorD = new Date(clientD);
+  // Use the relevant deadline based on report type
+  let relevantDeadline = '';
+  if (reportType === 'interim' && p && p.interimDeadline) {
+    relevantDeadline = p.interimDeadline.toString().slice(0,10);
+  } else if (p && p.finalDeadline) {
+    relevantDeadline = p.finalDeadline.toString().slice(0,10);
+  } else if (clientDate) {
+    relevantDeadline = clientDate;
+  }
+  if (!relevantDeadline) return;
+
+  const deadlineD = new Date(relevantDeadline+'T00:00:00');
+
+  // 1 WD before interim, 2 WD before final
+  const wdBack = reportType === 'interim' ? 1 : 2;
+  let editorD = new Date(deadlineD);
   let backCount = 0;
-  while (backCount < editorDaysBack) { editorD.setDate(editorD.getDate()-1); if(isWorkingDay(editorD)) backCount++; }
+  while (backCount < wdBack) { editorD.setDate(editorD.getDate()-1); if(isWorkingDay(editorD)) backCount++; }
   const editorStr = editorD.toISOString().slice(0,10);
   document.getElementById('erEditorDate').value = editorStr;
-  document.getElementById('erEditorSuggestion').textContent = 'Suggested: '+editorDaysBack+' working day'+(editorDaysBack>1?'s':'')+' before client deadline';
+  document.getElementById('erEditorSuggestion').textContent = 'Suggested: '+wdBack+' working day'+(wdBack>1?'s':'')+' before '+(reportType==='interim'?'interim':'final')+' deadline — change if needed';
 
-  // Suggest SR date: editor date + editing hours + 1 working day
+  // SR date: 1 WD after editor date (after editing window)
   const pages = parseInt(document.getElementById('erPages').value)||8;
   const editHours = Math.ceil(pages/8);
   let srD = new Date(editorD);
-  // Add editing hours respecting 6pm cutoff — simplify to next working day if >1 day editing
-  if (editHours >= 8) { srD = addWorkingDays(editorD, Math.ceil(editHours/8)); }
-  else { srD = addWorkingDays(editorD, 1); }
+  // If editing spills past 6pm, next working day
+  const timeSlot = document.getElementById('erTimeSlot').value;
+  if (timeSlot !== 'custom') {
+    const [sh] = timeSlot.split(':').map(Number);
+    const endH = sh + editHours;
+    if (endH >= 18) srD = addWorkingDays(editorD, 1);
+    else srD = addWorkingDays(editorD, 1);
+  } else {
+    srD = addWorkingDays(editorD, 1);
+  }
   document.getElementById('erSrDate').value = srD.toISOString().slice(0,10);
-  document.getElementById('erSrSuggestion').textContent = 'Suggested: after editing window';
+  document.getElementById('erSrSuggestion').textContent = 'Suggested: 1 working day after editing';
+
+  // Set client date from final deadline
+  if (!clientDate && p && p.finalDeadline) {
+    document.getElementById('erClientDate').value = p.finalDeadline.toString().slice(0,10);
+  }
 }
 
 document.addEventListener('change', function(e) {
@@ -1070,6 +1091,8 @@ function erGenerate() {
   const clientDate = document.getElementById('erClientDate').value;
   const timeSlot = document.getElementById('erTimeSlot').value;
   const otherDetails = document.getElementById('erOtherDetails').value.trim();
+  const projCode = erCurrentEngId ? (projects.find(x=>String(x.id)===String(erCurrentEngId))?.projectCode||'') : '';
+  const projDisplay = projCode ? `${projName} [${projCode}]` : projName;
   const hoursNeeded = Math.ceil((parseInt(pages)||8)/8);
 
   if (!client||!projName) { showToast('Please fill in at least client and project name'); return; }
@@ -1100,14 +1123,14 @@ function erGenerate() {
       <table class="er-table">
         <tr><td>Client</td><td>${client}</td></tr>
         <tr><td>Nature of project</td><td>${nature}</td></tr>
-        <tr><td>Project name</td><td>${projName}</td></tr>
+        <tr><td>Project name</td><td>${projDisplay}</td></tr>
         <tr><td>Project value</td><td>${projValue?'USD '+Number(projValue).toLocaleString():'—'}</td></tr>
         <tr><td>Report writer</td><td>${writer||'—'}</td></tr>
         <tr><td>Project manager</td><td>${pm||'—'}</td></tr>
         <tr><td>Senior reviewer</td><td>${sr||'—'}</td></tr>
-        <tr><td>No. of pages of report</td><td>${pages||'—'}${pages?' ('+hoursNeeded+' hour'+(hoursNeeded>1?'s':'')+' editing)':''}</td></tr>
-        <tr><td>Send to Editor on</td><td>${fmtD(editorDate)}${timeSlot!=='custom'?' — '+timeLabel:' — time to be confirmed'}</td></tr>
-        <tr><td>Sent to senior reviewer on</td><td>${fmtD(srDate)}</td></tr>
+        <tr><td>No. of pages of report</td><td>${pages||'—'}</td></tr>
+        <tr><td>Send to Editor on</td><td>${fmtD(editorDate)}${timeSlot!=='custom'?' — '+timeSlot:'  — time to be confirmed'}</td></tr>
+        <tr><td>Send to senior reviewer on</td><td>${fmtD(srDate)}</td></tr>
         <tr><td>Send to Client on</td><td>${fmtD(clientDate)}</td></tr>
         <tr><td>Other useful details *</td><td>${otherDetails||'—'}</td></tr>
         <tr><td colspan="2" style="font-size:11px;color:#555;font-style:italic;background:#f5f5f5">${noteText}</td></tr>
