@@ -655,14 +655,15 @@ function updateExp(id,idx,field,value) { const p=projects.find(x=>x.id==id); if(
 function addExp(id) { const p=projects.find(x=>x.id==id); if(!p)return; p.expenses.push({category:'Airfare',description:'',currency:'USD',amount:'',date:'',poRequired:false,poNumber:''}); scheduleSave(id); reRender(id); }
 function removeExp(id,idx) { const p=projects.find(x=>x.id==id); if(!p)return; p.expenses.splice(idx,1); scheduleSave(id); reRender(id); }
 
-function daysFrom(d) { return d?Math.ceil((new Date(d)-new Date())/86400000):null; }
-function fmtDate(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
-function fmtDateLong(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}); }
+function safeDate(d) { if(!d) return null; const s=d.toString().slice(0,10); return new Date(s+'T00:00:00'); }
+function daysFrom(d) { return d?Math.ceil((safeDate(d)-new Date())/86400000):null; }
+function fmtDate(d) { if(!d)return'—'; return safeDate(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
+function fmtDateLong(d) { if(!d)return'—'; return safeDate(d).toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}); }
 function dotColor(wd) { if(wd===null)return'#ccc'; if(wd<0)return'#c0392b'; if(wd<=3)return'#c0392b'; if(wd<=5)return'#d68910'; return'#1e7e4a'; }
 function daysLabel(wd) { if(wd===null)return''; if(wd<0)return Math.abs(wd)+'wd overdue'; if(wd===0)return'TODAY'; return wd+'wd'; }
 function workDaysFrom(d) {
   if (!d) return null;
-  const target = new Date(d.toString().slice(0,10)+'T00:00:00');
+  const target = safeDate(d);
   const today = new Date(); today.setHours(0,0,0,0);
   if (target < today) { let c=0,x=new Date(target); while(x<today){x.setDate(x.getDate()+1);if(isWorkingDay(x))c++;} return -c; }
   let c=0,x=new Date(today); while(x<target){x.setDate(x.getDate()+1);if(isWorkingDay(x))c++;} return c;
@@ -976,7 +977,7 @@ function render() {
   const sorted=[...filtered].sort((a,b)=>{
     if(order[a.stage]!==order[b.stage])return(order[a.stage]??99)-(order[b.stage]??99);
     const da=a.finalDeadline||a.interimDeadline, db=b.finalDeadline||b.interimDeadline;
-    if(da&&db)return new Date(da)-new Date(db);
+    if(da&&db)return safeDate(da)-safeDate(db);
     return 0;
   });
   list.innerHTML=sorted.map(renderCard).join('');
@@ -1011,7 +1012,7 @@ function switchTab(tab,el) {
 function isWorkingDay(date) {
   const d = new Date(date); d.setHours(0,0,0,0);
   if (d.getDay()===0||d.getDay()===6) return false;
-  const key = d.toISOString().slice(0,10);
+  const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   if (SG_HOLIDAYS[key]||ID_HOLIDAYS[key]) return false;
   return true;
 }
@@ -1114,7 +1115,7 @@ function erSetInitialDates() {
   }
   if (!relevantDeadline) return;
 
-  const deadlineD = new Date(relevantDeadline+'T00:00:00');
+  const deadlineD = safeDate(relevantDeadline);
 
   // Client date = relevant deadline
   document.getElementById('erClientDate').value = relevantDeadline;
@@ -1590,7 +1591,7 @@ function renderTravelMatrix() {
     months.forEach(({y,m,label})=>{
       const monthStart=new Date(y,m,1);
       const monthEnd=new Date(y,m+1,0,23,59,59);
-      const d1=new Date(p.kickoffDate); const d2=new Date(p.finalDeadline);
+      const d1=safeDate(p.kickoffDate); const d2=safeDate(p.finalDeadline);
       if(d1<=monthEnd&&d2>=monthStart){
         juris.forEach(j=>{
           matrix[j][label].total+=avail;
