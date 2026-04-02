@@ -233,37 +233,61 @@ tr:hover td { background: #fafbfc; }
 .er-sign-off { margin-top:16px; color:#1a2332; }
 
 @media (max-width: 768px) {
-  .main { padding: 0.75rem; }
-  .topbar { padding: 0 1rem; height: 48px; }
+  html { font-size: 13px; }
+  .main { padding: 0.6rem; }
+  .topbar { padding: 0 0.75rem; height: 46px; }
   .topbar-left { gap: 0; }
   .logo { display: none; }
   .nav { display: none; }
   .topbar-right .btn-navy { font-size: 11px; padding: 5px 10px; }
-  .mob-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: var(--navy); border-top: 1px solid var(--navy2); z-index: 200; height: 56px; }
+  .mob-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: var(--navy); border-top: 1px solid var(--navy2); z-index: 200; height: 54px; }
   .mob-nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: transparent; border: none; color: rgba(255,255,255,0.55); font-size: 9px; font-family: var(--mono); letter-spacing: 0.04em; cursor: pointer; gap: 3px; padding: 6px 0; }
   .mob-nav-btn.active { color: #fff; }
-  .mob-nav-btn svg { width: 20px; height: 20px; }
-  .main { padding-bottom: 70px; }
-  .dash-grid { grid-template-columns: 1fr; }
+  .mob-nav-btn svg { width: 18px; height: 18px; }
+  .main { padding-bottom: 64px; }
+  .dash-grid { grid-template-columns: 1fr; gap: 8px; }
+  .dash-card { padding: 12px; }
   .dash-card.full { grid-column: 1; }
+  .dash-card-title { font-size: 9px; margin-bottom: 10px; }
   .fg-4 { grid-template-columns: 1fr 1fr; }
   .fg-3 { grid-template-columns: 1fr 1fr; }
   .fg-2 { grid-template-columns: 1fr; }
-  .cal-grid { gap: 2px; }
-  .cal-day { min-height: 52px; padding: 4px; }
+  .cal-grid { gap: 1px; }
+  .cal-day { min-height: 44px; padding: 3px 4px; }
+  .cal-date { font-size: 11px; margin-bottom: 2px; }
   .cal-event-pill { display: none; }
-  .cal-legend { display: none; }
-  .cal-header { flex-direction: column; gap: 10px; align-items: flex-start; }
-  .card-header { padding: 10px 12px; }
-  .card-name { font-size: 13px; }
-  .card-body { padding: 14px; }
+  .cal-dots { gap: 2px; }
+  .cal-dot { width: 5px; height: 5px; }
+  .cal-legend { flex-wrap: wrap; gap: 6px; }
+  .cal-legend-item { font-size: 10px; }
+  .cal-header { flex-direction: column; gap: 8px; }
+  .cal-month { font-size: 14px; min-width: auto; }
+  .card-header { padding: 9px 10px; gap: 8px; }
+  .card-name { font-size: 12px; }
+  .card-deadline { font-size: 10px; }
+  .card-body { padding: 12px; }
+  .sec-label { font-size: 9px; }
+  .stage-pill { font-size: 8px; padding: 2px 7px; }
   .sc-wrap { overflow-x: auto; }
-  table { min-width: 500px; }
-  .tl-date { display: none; }
+  table { min-width: 480px; font-size: 11px; }
+  th { font-size: 9px; }
+  .tl-date { font-size: 10px; }
+  .tl-name { font-size: 11px; }
   .na-deadline { display: none; }
   .sbar-label { width: 52px; font-size: 11px; }
-  .tracker-header h2 { font-size: 14px; }
-  .digest-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
+  .tracker-header h2 { font-size: 13px; }
+  .digest-bar { flex-direction: column; gap: 8px; padding: 10px 12px; }
+  .digest-info { font-size: 11px; }
+  .filter-btn { font-size: 9px; padding: 3px 9px; }
+  .summary-bar { display: none; }
+  .field input, .field select, .field textarea { font-size: 12px; padding: 6px 8px; }
+  .field label { font-size: 9px; }
+  .checks { gap: 10px; }
+  .check { font-size: 11px; }
+  .tl-list { gap: 4px; }
+  .tl-item { padding: 7px 8px; }
+  .flag-item { padding: 7px 8px; }
+  .flag-text { font-size: 10px; }
 }
 @media (min-width: 769px) {
   .mob-nav { display: none; }
@@ -435,7 +459,8 @@ tr:hover td { background: #fafbfc; }
             </div>
             <div class="field">
               <label>SEND TO CLIENT ON</label>
-              <input type="date" id="erClientDate" readonly style="background:var(--surface2);color:var(--text2)">
+              <input type="date" id="erClientDate">
+              <div id="erClientSuggestion" style="font-size:10px;color:var(--navy3);font-family:var(--mono);margin-top:3px"></div>
             </div>
           </div>
         </div>
@@ -682,13 +707,44 @@ function calcOPEBudget(p) {
   return fee * pct / 100;
 }
 
+/* ── CURRENCY CONVERSION ── */
+let fxRates = {}; // cache: { 'SGD': 0.74, 'IDR': 0.000061, ... } relative to USD
+let fxBase = 'USD';
+let fxLoading = false;
+
+async function fetchFXRates() {
+  if (fxLoading || Object.keys(fxRates).length > 0) return;
+  fxLoading = true;
+  try {
+    const r = await fetch('https://open.er-api.com/v6/latest/USD');
+    const data = await r.json();
+    if (data.rates) { fxRates = data.rates; fxRates['USD'] = 1; }
+  } catch(e) { console.warn('FX fetch failed, using 1:1 fallback'); }
+  fxLoading = false;
+}
+
+function convertToProjectCurrency(amount, fromCurrency, toCurrency) {
+  if (!amount || fromCurrency === toCurrency) return parseFloat(amount)||0;
+  if (!fxRates[fromCurrency] || !fxRates[toCurrency]) return parseFloat(amount)||0;
+  // Convert via USD: amount / fromRate * toRate
+  const usd = (parseFloat(amount)||0) / (fxRates[fromCurrency]||1);
+  return usd * (fxRates[toCurrency]||1);
+}
+
 function calcOPEUsed(p) {
+  const projCur = p.projectFeeCurrency||'USD';
   const scOPE = p.subcontractors.reduce((sum,sc)=>sum+(parseFloat(sc.ope)||0),0);
-  const expTotal = (p.expenses||[]).reduce((sum,ex)=>sum+(parseFloat(ex.amount)||0),0);
+  const expTotal = (p.expenses||[]).reduce((sum,ex)=>{
+    const converted = convertToProjectCurrency(ex.amount, ex.currency||'USD', projCur);
+    return sum + converted;
+  },0);
   return scOPE + expTotal;
 }
 function calcSubconOPE(p) { return p.subcontractors.reduce((sum,sc)=>sum+(parseFloat(sc.ope)||0),0); }
-function calcExpTotal(p) { return (p.expenses||[]).reduce((sum,ex)=>sum+(parseFloat(ex.amount)||0),0); }
+function calcExpTotal(p) {
+  const projCur = p.projectFeeCurrency||'USD';
+  return (p.expenses||[]).reduce((sum,ex)=>sum+convertToProjectCurrency(ex.amount,ex.currency||'USD',projCur),0);
+}
 
 function calcOPEAvailable(p) {
   return Math.max(0, calcOPEBudget(p) - calcOPEUsed(p));
@@ -746,9 +802,10 @@ function renderExpenses(p) {
       </div>
       <div class="fg fg-3" style="margin-bottom:6px">
         <div class="field"><label>CURRENCY</label><select onchange="updateExp(${p.id},${i},'currency',this.value)">${currencyOpts(ex.currency)}</select></div>
-        <div class="field"><label>AMOUNT</label><input type="number" min="0" value="${ex.amount||''}" placeholder="0" onchange="updateExp(${p.id},${i},'amount',this.value)"></div>
+        <div class="field"><label>AMOUNT</label><input type="number" min="0" value="${ex.amount||''}" placeholder="0" onchange="updateExp(${p.id},${i},'amount',this.value);reRender(${p.id})"></div>
         <div class="field"><label>DATE</label><input type="date" value="${(ex.date||'').toString().slice(0,10)}" onchange="updateExp(${p.id},${i},'date',this.value)"></div>
       </div>
+      ${(ex.currency&&ex.amount&&(ex.currency!==(p.projectFeeCurrency||'USD')))&&fxRates[ex.currency]?`<div style="font-size:10px;font-family:var(--mono);color:var(--navy3);margin-bottom:6px">≈ ${p.projectFeeCurrency||'USD'} ${fmtMoney(convertToProjectCurrency(ex.amount,ex.currency,p.projectFeeCurrency||'USD'))} (live rate)</div>`:''}
       <div class="fg fg-2">
         <div class="field"><label>PO NUMBER</label><input value="${ex.poNumber||''}" placeholder="${ex.poRequired?'Required':'N/A (leave blank)'}" ${!ex.poRequired?'disabled':''} onchange="updateExp(${p.id},${i},'poNumber',this.value)"></div>
         <div class="field" style="justify-content:flex-end;padding-bottom:2px">
@@ -1034,10 +1091,9 @@ function erOnEngSelect(val) {
       erUpdateSuggestions();
     }
   } else {
-    ['erClient','erProjectName','erProjectValue','erReportWriter','erProjectManager','erSeniorReviewer','erClientDate'].forEach(id=>{ const el=document.getElementById(id); if(el){el.value=''; if(id==='erClientDate')el.readOnly=true;} });
+    ['erClient','erProjectName','erProjectValue','erReportWriter','erProjectManager','erSeniorReviewer','erClientDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('erDeadlineRef').style.display='none';
     document.getElementById('erChecklistSection').style.display='none';
-    if (val==='__manual__') document.getElementById('erClientDate').readOnly=false;
   }
 }
 
@@ -1050,7 +1106,6 @@ function erCalcHours() {
 
 function erUpdateSuggestions() {
   const reportType = document.getElementById('erReportType').value;
-  let clientDate = document.getElementById('erClientDate').value;
   let p = null;
   if (erCurrentEngId) p = projects.find(x=>String(x.id)===String(erCurrentEngId));
 
@@ -1060,14 +1115,16 @@ function erUpdateSuggestions() {
     relevantDeadline = p.interimDeadline.toString().slice(0,10);
   } else if (p && p.finalDeadline) {
     relevantDeadline = p.finalDeadline.toString().slice(0,10);
-  } else if (clientDate) {
-    relevantDeadline = clientDate;
   }
   if (!relevantDeadline) return;
 
   const deadlineD = new Date(relevantDeadline+'T00:00:00');
 
-  // 1 WD before interim, 2 WD before final
+  // Set Send to Client = relevant deadline (interim deadline for interim, final for final)
+  document.getElementById('erClientDate').value = relevantDeadline;
+  document.getElementById('erClientSuggestion').textContent = 'Defaulted to '+(reportType==='interim'?'interim':'final')+' report deadline — change if needed';
+
+  // Suggest editor date: 1 WD before interim, 2 WD before final
   const wdBack = reportType === 'interim' ? 1 : 2;
   let editorD = new Date(deadlineD);
   let backCount = 0;
@@ -1076,27 +1133,10 @@ function erUpdateSuggestions() {
   document.getElementById('erEditorDate').value = editorStr;
   document.getElementById('erEditorSuggestion').textContent = 'Suggested: '+wdBack+' working day'+(wdBack>1?'s':'')+' before '+(reportType==='interim'?'interim':'final')+' deadline — change if needed';
 
-  // SR date: 1 WD after editor date (after editing window)
-  const pages = parseInt(document.getElementById('erPages').value)||8;
-  const editHours = Math.ceil(pages/8);
-  let srD = new Date(editorD);
-  // If editing spills past 6pm, next working day
-  const timeSlot = document.getElementById('erTimeSlot').value;
-  if (timeSlot !== 'custom') {
-    const [sh] = timeSlot.split(':').map(Number);
-    const endH = sh + editHours;
-    if (endH >= 18) srD = addWorkingDays(editorD, 1);
-    else srD = addWorkingDays(editorD, 1);
-  } else {
-    srD = addWorkingDays(editorD, 1);
-  }
+  // SR date: 1 WD after editor date
+  const srD = addWorkingDays(editorD, 1);
   document.getElementById('erSrDate').value = srD.toISOString().slice(0,10);
-  document.getElementById('erSrSuggestion').textContent = 'Suggested: 1 working day after editing';
-
-  // Set client date from final deadline
-  if (!clientDate && p && p.finalDeadline) {
-    document.getElementById('erClientDate').value = p.finalDeadline.toString().slice(0,10);
-  }
+  document.getElementById('erSrSuggestion').textContent = 'Suggested: 1 working day after editing — change if needed';
 }
 
 document.addEventListener('change', function(e) {
@@ -1662,7 +1702,7 @@ function showToast(msg,dur=3000) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  if (!checkAuth()) { showLoginScreen(); } else { loadAll(); }
+  if (!checkAuth()) { showLoginScreen(); } else { loadAll(); fetchFXRates(); }
 });
 </script>
 </body>
