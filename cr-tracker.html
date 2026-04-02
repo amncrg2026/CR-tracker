@@ -308,7 +308,7 @@ tr:hover td { background: #fafbfc; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.4</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.5</span>
       <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
     </div>
   </div>
@@ -607,10 +607,30 @@ async function loadAll() {
   } catch(e) { setSyncStatus('offline','err'); render(); }
 }
 
+function fixDateStr(val) {
+  if (!val) return '';
+  const s = val.toString();
+  // If it's an ISO datetime string from Sheets e.g. 2026-04-08T16:00:00.000Z
+  // parse as UTC and convert to SGT (UTC+8) local date
+  if (s.includes('T') || s.includes('Z')) {
+    const d = new Date(s);
+    // Add 8 hours to get SGT, then extract date
+    const sgt = new Date(d.getTime() + 8*60*60*1000);
+    return sgt.toISOString().slice(0,10);
+  }
+  // Already a plain date string YYYY-MM-DD
+  return s.slice(0,10);
+}
+
 function fixTypes(p) {
-  ['sharepointMade','billingReady','invoiceInitiated'].forEach(k=>{ p[k]=p[k]==='TRUE'||p[k]===true||p[k]==='true'; });
+  ['sharepointMade','billingReady','invoiceInitiated','allowTravel'].forEach(k=>{ p[k]=p[k]==='TRUE'||p[k]===true||p[k]==='true'; });
+  // Fix all date fields
+  ['clientLastContact','kickoffDate','interimDeadline','finalDeadline'].forEach(k=>{ if(p[k]) p[k]=fixDateStr(p[k]); });
   p.subcontractors = parseJSON(p.subcontractors,[]);
+  p.subcontractors.forEach(sc=>{ if(sc.deadline) sc.deadline=fixDateStr(sc.deadline); });
   p.expenses = parseJSON(p.expenses,[]);
+  p.expenses.forEach(ex=>{ if(ex.date) ex.date=fixDateStr(ex.date); });
+  p.databases = parseJSON(p.databases,[]);
   return p;
 }
 
