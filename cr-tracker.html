@@ -308,6 +308,7 @@ tr:hover td { background: #fafbfc; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.4</span>
       <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
     </div>
   </div>
@@ -377,7 +378,7 @@ tr:hover td { background: #fafbfc; }
             </div>
             <div class="field">
               <label>REPORT TYPE</label>
-              <select id="erReportType" onchange="erUpdateSuggestions()">
+              <select id="erReportType" onchange="erUpdateSuggestions(true)">
                 <option value="final">Final report</option>
                 <option value="interim">Interim report</option>
               </select>
@@ -438,7 +439,7 @@ tr:hover td { background: #fafbfc; }
           <div class="fg fg-2" style="margin-bottom:8px">
             <div class="field">
               <label>SEND TO EDITOR ON</label>
-              <input type="date" id="erEditorDate" onchange="erUpdateSuggestions()">
+              <input type="date" id="erEditorDate">
               <div id="erEditorSuggestion" style="font-size:10px;color:var(--navy3);font-family:var(--mono);margin-top:3px"></div>
             </div>
             <div class="field">
@@ -1067,8 +1068,6 @@ function erOnEngSelect(val) {
       document.getElementById('erReportWriter').value = p.researcher||'';
       document.getElementById('erProjectManager').value = p.projectLeader||'';
       document.getElementById('erSeniorReviewer').value = p.clientManager||'';
-      const finalD = p.finalDeadline?p.finalDeadline.toString().slice(0,10):'';
-      document.getElementById('erClientDate').value = finalD;
       const ref = document.getElementById('erDeadlineRef');
       if (p.interimDeadline||p.finalDeadline) {
         const wdInterim = p.interimDeadline?workingDaysFromToday(p.interimDeadline):null;
@@ -1088,30 +1087,27 @@ function erOnEngSelect(val) {
       genCb.parentElement.className='check '+(genCb.checked?'on':'');
       sentCb.parentElement.className='check '+(sentCb.checked?'on':'');
       document.getElementById('erChecklistSection').style.display='block';
-      erUpdateSuggestions();
+      erSetInitialDates();
     }
   } else {
-    ['erClient','erProjectName','erProjectValue','erReportWriter','erProjectManager','erSeniorReviewer','erClientDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+    ['erClient','erProjectName','erProjectValue','erReportWriter','erProjectManager','erSeniorReviewer','erClientDate','erEditorDate','erSrDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('erDeadlineRef').style.display='none';
     document.getElementById('erChecklistSection').style.display='none';
+    document.getElementById('erEditorSuggestion').textContent='';
+    document.getElementById('erSrSuggestion').textContent='';
+    document.getElementById('erClientSuggestion').textContent='';
   }
 }
 
-function erCalcHours() {
-  const pages = parseInt(document.getElementById('erPages').value)||0;
-  if (!pages) { document.getElementById('erHours').value=''; return; }
-  const hoursNeeded = Math.ceil(pages/8);
-  document.getElementById('erHours').value = hoursNeeded + (hoursNeeded===1?' hour':' hours')+' ('+pages+' pages ÷ 8)';
-}
-
-function erUpdateSuggestions() {
+function erSetInitialDates() {
+  // Called once when engagement selected or report type changes
+  // Sets all three date fields to suggested values
   const reportType = document.getElementById('erReportType').value;
   let p = null;
   if (erCurrentEngId) p = projects.find(x=>String(x.id)===String(erCurrentEngId));
 
-  // Use the relevant deadline based on report type
   let relevantDeadline = '';
-  if (reportType === 'interim' && p && p.interimDeadline) {
+  if (reportType==='interim' && p && p.interimDeadline) {
     relevantDeadline = p.interimDeadline.toString().slice(0,10);
   } else if (p && p.finalDeadline) {
     relevantDeadline = p.finalDeadline.toString().slice(0,10);
@@ -1120,23 +1116,34 @@ function erUpdateSuggestions() {
 
   const deadlineD = new Date(relevantDeadline+'T00:00:00');
 
-  // Set Send to Client = relevant deadline (interim deadline for interim, final for final)
+  // Client date = relevant deadline
   document.getElementById('erClientDate').value = relevantDeadline;
-  document.getElementById('erClientSuggestion').textContent = 'Defaulted to '+(reportType==='interim'?'interim':'final')+' report deadline — change if needed';
+  document.getElementById('erClientSuggestion').textContent = 'Defaulted to '+(reportType==='interim'?'interim':'final')+' deadline — change freely';
 
-  // Suggest editor date: 1 WD before interim, 2 WD before final
-  const wdBack = reportType === 'interim' ? 1 : 2;
+  // Editor date: 1 WD before interim, 2 WD before final
+  const wdBack = reportType==='interim' ? 1 : 2;
   let editorD = new Date(deadlineD);
   let backCount = 0;
   while (backCount < wdBack) { editorD.setDate(editorD.getDate()-1); if(isWorkingDay(editorD)) backCount++; }
-  const editorStr = editorD.toISOString().slice(0,10);
-  document.getElementById('erEditorDate').value = editorStr;
-  document.getElementById('erEditorSuggestion').textContent = 'Suggested: '+wdBack+' working day'+(wdBack>1?'s':'')+' before '+(reportType==='interim'?'interim':'final')+' deadline — change if needed';
+  document.getElementById('erEditorDate').value = editorD.toISOString().slice(0,10);
+  document.getElementById('erEditorSuggestion').textContent = 'Suggested: '+wdBack+'wd before deadline — change freely';
 
   // SR date: 1 WD after editor date
   const srD = addWorkingDays(editorD, 1);
   document.getElementById('erSrDate').value = srD.toISOString().slice(0,10);
-  document.getElementById('erSrSuggestion').textContent = 'Suggested: 1 working day after editing — change if needed';
+  document.getElementById('erSrSuggestion').textContent = 'Suggested: 1wd after editing — change freely';
+}
+
+function erUpdateSuggestions(resetDates) {
+  // Only called when report type dropdown changes
+  if (resetDates) erSetInitialDates();
+}
+
+function erCalcHours() {
+  const pages = parseInt(document.getElementById('erPages').value)||0;
+  if (!pages) { document.getElementById('erHours').value=''; return; }
+  const hoursNeeded = Math.ceil(pages/8);
+  document.getElementById('erHours').value = hoursNeeded + (hoursNeeded===1?' hour':' hours')+' ('+pages+' pages ÷ 8)';
 }
 
 document.addEventListener('change', function(e) {
@@ -1230,7 +1237,7 @@ function erGenerate() {
         <tr><td>Project manager</td><td>${pm||'—'}</td></tr>
         <tr><td>Senior reviewer</td><td>${sr||'—'}</td></tr>
         <tr><td>No. of pages of report</td><td>${pages||'—'}</td></tr>
-        <tr><td>Send to Editor on</td><td>${fmtD(editorDate)}${timeSlot!=='custom'?' — '+timeSlot:'  — time to be confirmed'}</td></tr>
+        <tr><td>Send to Editor on</td><td>${fmtD(editorDate)}</td></tr>
         <tr><td>Send to senior reviewer on</td><td>${fmtD(srDate)}</td></tr>
         <tr><td>Send to Client on</td><td>${fmtD(clientDate)}</td></tr>
         <tr><td>Other useful details *</td><td>${otherDetails||'—'}</td></tr>
