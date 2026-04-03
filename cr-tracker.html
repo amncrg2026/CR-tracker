@@ -340,7 +340,7 @@ tr:hover td { background: #fafbfc; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.8</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.0</span>
       <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
     </div>
   </div>
@@ -1851,9 +1851,10 @@ async function tsSaveEntry(entry) {
 
 async function tsDeleteEntry(id) {
   try {
-    await apiPost({action:'deleteTimesheet', id});
+    const result = await apiPost({action:'deleteTimesheet', id: String(id)});
     setSyncStatus('synced','ok');
-  } catch(e) { setSyncStatus('offline','err'); }
+    return true;
+  } catch(e) { setSyncStatus('offline','err'); return false; }
 }
 
 function initTimesheets() {
@@ -1870,12 +1871,18 @@ function initTimesheets() {
 }
 
 function tsPipelineOpts() {
-  const opts = projects.filter(p=>p.slCode).map(p=>`<option value="${p.id}|sl">${p.name||'Untitled'} [${p.slCode}]</option>`);
+  const opts = projects.filter(p=>p.stage==='Proposal').map(p=>{
+    const label = p.slCode ? `${p.name||'Untitled'} [${p.slCode}]` : (p.name||'Untitled');
+    return `<option value="${p.id}|sl">${label}</option>`;
+  });
   return `<option value="">— select —</option>${opts.join('')}`;
 }
 
 function tsEngagementOpts() {
-  const opts = projects.filter(p=>p.projectCode).map(p=>`<option value="${p.id}|pc">${p.name||'Untitled'} [${p.projectCode}]</option>`);
+  const opts = projects.filter(p=>['Active','Delivered','Closed'].includes(p.stage)).map(p=>{
+    const code = p.projectCode ? `[${p.projectCode}]` : p.slCode ? `[${p.slCode}]` : '(no code yet)';
+    return `<option value="${p.id}|pc">${p.name||'Untitled'} ${code}</option>`;
+  });
   return `<option value="">— select —</option>${opts.join('')}`;
 }
 
@@ -2128,8 +2135,14 @@ function renderTsMonth() {
 
 async function tsDeleteLocal(id) {
   if (!confirm('Delete this entry?')) return;
-  timesheets = timesheets.filter(e=>String(e.id)!==String(id));
-  await tsDeleteEntry(id);
+  const success = await tsDeleteEntry(id);
+  if (success) {
+    timesheets = timesheets.filter(e=>String(e.id)!==String(id));
+    showToast('Entry deleted');
+  } else {
+    showToast('Delete failed — check connection');
+    await loadTimesheets();
+  }
   renderTsDashboard();
   renderTsWeek();
   renderTsMonth();
