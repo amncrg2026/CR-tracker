@@ -340,7 +340,7 @@ tr:hover td { background: #fafbfc; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.7</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.8</span>
       <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
     </div>
   </div>
@@ -1833,7 +1833,12 @@ let tsRowCount = 0;
 async function loadTimesheets() {
   try {
     const data = await apiFetch({action:'getTimesheets'});
-    if (Array.isArray(data)) timesheets = data;
+    if (Array.isArray(data)) {
+      timesheets = data.map(e => ({
+        ...e,
+        date: e.date ? fixDateStr(e.date) : ''
+      }));
+    }
   } catch(e) { console.warn('Timesheets load failed'); }
 }
 
@@ -1988,7 +1993,7 @@ async function tsSaveAll() {
       const p = projects.find(x=>String(x.id)===engId);
       if (p) { engName=p.name||''; projectCode=p.projectCode||''; slCode=p.slCode||''; }
     }
-    const entry = { id: Date.now()+Math.random(), date, type, engagementName:engName, slCode, projectCode, activity:act, hours:hrs, notes:'' };
+    const entry = { id: 'ts-'+Date.now()+'-'+Math.floor(Math.random()*10000), date, type, engagementName:engName, slCode, projectCode, activity:act, hours:hrs, notes:'' };
     entries.push(entry);
   }
   if (!entries.length) { showToast('No valid entries to save'); return; }
