@@ -340,7 +340,7 @@ tr:hover td { background: #fafbfc; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.0</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.1</span>
       <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
     </div>
   </div>
@@ -1871,7 +1871,7 @@ function initTimesheets() {
 }
 
 function tsPipelineOpts() {
-  const opts = projects.filter(p=>p.stage==='Proposal').map(p=>{
+  const opts = projects.map(p=>{
     const label = p.slCode ? `${p.name||'Untitled'} [${p.slCode}]` : (p.name||'Untitled');
     return `<option value="${p.id}|sl">${label}</option>`;
   });
@@ -1879,9 +1879,9 @@ function tsPipelineOpts() {
 }
 
 function tsEngagementOpts() {
-  const opts = projects.filter(p=>['Active','Delivered','Closed'].includes(p.stage)).map(p=>{
-    const code = p.projectCode ? `[${p.projectCode}]` : p.slCode ? `[${p.slCode}]` : '(no code yet)';
-    return `<option value="${p.id}|pc">${p.name||'Untitled'} ${code}</option>`;
+  const opts = projects.filter(p=>p.stage!=='Proposal').map(p=>{
+    const label = p.projectCode ? `${p.name||'Untitled'} [${p.projectCode}]` : (p.name||'Untitled');
+    return `<option value="${p.id}|pc">${label}</option>`;
   });
   return `<option value="">— select —</option>${opts.join('')}`;
 }
