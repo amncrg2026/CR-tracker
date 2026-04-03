@@ -245,6 +245,7 @@ tr:hover td { background: #fafbfc; }
 .ts-type-bill { background:var(--green-light);color:var(--green); }
 .ts-type-pipe { background:var(--navy-light);color:var(--navy2); }
 .ts-type-int { background:var(--surface2);color:var(--text3); }
+.ts-type-leave { background:#e8f4f8;color:#2980b9; }
 .ts-pill { font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:20px;font-weight:500; }
 .ts-stat { background:var(--surface2);border-radius:var(--border-radius-md);padding:12px 14px;text-align:center; }
 .ts-stat-val { font-size:22px;font-weight:500;color:var(--text); }
@@ -340,7 +341,7 @@ tr:hover td { background: #fafbfc; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.1</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.2</span>
       <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
     </div>
   </div>
@@ -537,6 +538,9 @@ tr:hover td { background: #fafbfc; }
           </div>
           <div class="field" style="flex:0 0 auto;align-self:flex-end">
             <button class="btn" onclick="tsAddRow()" style="margin-top:0">+ Add row</button>
+          </div>
+          <div class="field" style="flex:0 0 auto;align-self:flex-end">
+            <button class="btn" onclick="tsAddLeaveRow()" style="margin-top:0;border-color:#aed6f1;color:#2980b9">+ Add leave</button>
           </div>
           <div style="flex:1"></div>
           <div style="font-family:var(--mono);font-size:11px;color:var(--text2)" id="tsRowTotal"></div>
@@ -1914,7 +1918,7 @@ function tsAddRow() {
     <div id="tsotherdiv-${id}" style="display:none;flex:1;min-width:140px">
       <div class="field"><label>DESCRIBE</label><input id="tsother-${id}" placeholder="e.g. CR all-hands"></div>
     </div>
-    <div class="field field-sm">
+    <div class="field field-sm" id="tsactfield-${id}">
       <label>ACTIVITY</label>
       <select id="tsact-${id}">${tsActivityOpts()}</select>
     </div>
@@ -1927,18 +1931,47 @@ function tsAddRow() {
   tsUpdateRowTotal();
 }
 
-function tsOnPipeSelect(id) {
+function tsAddLeaveRow() {
+  const id = ++tsRowCount;
+  const leaveTypes = ['Annual leave','Public holiday','Sick leave','Parental leave','Bereavement leave','Lieu day','Wellness day off','Volunteering day off','Compassionate leave'];
+  const row = document.createElement('div');
+  row.className = 'ts-row';
+  row.id = 'tsrow-'+id;
+  row.style.background = '#e8f4f8';
+  row.style.borderColor = '#aed6f1';
+  row.innerHTML = `
+    <div style="font-family:var(--mono);font-size:9px;color:#2980b9;letter-spacing:0.08em;font-weight:500;flex-shrink:0;align-self:center;padding:0 4px">LEAVE</div>
+    <div class="field" style="flex:1;min-width:160px">
+      <label>LEAVE TYPE</label>
+      <select id="tsleavetype-${id}" onchange="tsUpdateRowTotal()">
+        <option value="">— select —</option>
+        ${leaveTypes.map(t=>`<option value="${t}">${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field field-hrs">
+      <label>HOURS</label>
+      <input type="number" id="tshrs-${id}" min="0.25" max="12" step="0.25" placeholder="e.g. 8" style="text-align:center" onblur="this.value=tsRoundHours(this.value)||'';tsUpdateRowTotal()" onchange="tsUpdateRowTotal()">
+    </div>
+    <button class="ts-row-remove" onclick="tsRemoveRow(${id})" title="Remove row">✕</button>`;
+  document.getElementById('tsRows').appendChild(row);
+  tsUpdateRowTotal();
+}
+
+
   const val = document.getElementById('tspipe-'+id).value;
   const engField = document.getElementById('tsengfield-'+id);
   const otherDiv = document.getElementById('tsotherdiv-'+id);
   const engSel = document.getElementById('tseng-'+id);
+  const actField = document.getElementById('tsactfield-'+id);
   if (val) {
     engField.style.display = 'none';
     engSel.value = '';
     otherDiv.style.display = val==='__other__' ? 'flex' : 'none';
+    if (actField) actField.style.display = '';
   } else {
     engField.style.display = '';
     otherDiv.style.display = 'none';
+    if (actField) actField.style.display = '';
   }
   tsUpdateRowTotal();
 }
@@ -1977,6 +2010,17 @@ async function tsSaveAll() {
   const entries = [];
   for (const row of rows) {
     const id = row.id.replace('tsrow-','');
+    const leaveTypeEl = document.getElementById('tsleavetype-'+id);
+    // Leave row path
+    if (leaveTypeEl) {
+      const leaveType = leaveTypeEl.value;
+      const hrs = tsRoundHours(document.getElementById('tshrs-'+id)?.value);
+      if (!leaveType || hrs <= 0) continue;
+      const entry = { id: 'ts-'+Date.now()+'-'+Math.floor(Math.random()*10000), date, type:'leave', engagementName:leaveType, slCode:'', projectCode:'', activity:'', hours:hrs, notes:'' };
+      entries.push(entry);
+      continue;
+    }
+    // Standard row path
     const pipeVal = document.getElementById('tspipe-'+id)?.value||'';
     const engVal = document.getElementById('tseng-'+id)?.value||'';
     const act = document.getElementById('tsact-'+id)?.value||'';
@@ -1989,6 +2033,8 @@ async function tsSaveAll() {
       type='internal'; engName='Internal — non-billable';
     } else if (pipeVal === '__other__') {
       type='internal'; engName=otherText||'Other';
+    } else if (pipeVal && pipeVal.startsWith('__leave__')) {
+      type='leave'; engName=pipeVal.replace('__leave__','');
     } else if (pipeVal) {
       type='pipeline';
       engId = pipeVal.split('|')[0];
@@ -2029,13 +2075,16 @@ function renderTsDashboard() {
   const billable = monthEntries.filter(e=>e.type==='billable').reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
   const pipeline = monthEntries.filter(e=>e.type==='pipeline').reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
   const internal = monthEntries.filter(e=>e.type==='internal').reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
-  const total = billable+pipeline+internal;
+  const leave = monthEntries.filter(e=>e.type==='leave').reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  const total = billable+pipeline+internal+leave;
   const wdTotal = tsWorkingDaysInMonth(y,mo)*8;
-  const billPct = wdTotal ? Math.round(billable/wdTotal*100) : 0;
-  const pipePct = wdTotal ? Math.round(pipeline/wdTotal*100) : 0;
+  // Leave reduces effective working capacity — billable % targets actual available time
+  const effectiveCapacity = Math.max(wdTotal - leave, 0);
+  const billPct = effectiveCapacity ? Math.round(billable/effectiveCapacity*100) : 0;
+  const pipePct = effectiveCapacity ? Math.round(pipeline/effectiveCapacity*100) : 0;
   const billColor = billPct >= 50 ? 'var(--green)' : billPct >= 35 ? 'var(--amber)' : 'var(--red)';
 
-  // Unlogged working days this month so far
+  // Unlogged working days this month so far (leave days count as logged)
   const loggedDays = new Set(monthEntries.map(e=>e.date?.toString().slice(0,10)));
   let unlogged = 0;
   const d = new Date(y,mo,1);
@@ -2044,6 +2093,9 @@ function renderTsDashboard() {
     if (isWorkingDay(d) && !loggedDays.has(key)) unlogged++;
     d.setDate(d.getDate()+1);
   }
+
+  const leaveNote = leave > 0 ? ` &nbsp;·&nbsp; <span style="color:#2980b9">${leave}h leave taken</span>` : '';
+  const effectiveNote = leave > 0 ? `${effectiveCapacity}h effective capacity` : `${wdTotal}h working capacity this month`;
 
   document.getElementById('tsDashboard').innerHTML=`
     <div class="dash-grid" style="margin-bottom:0">
@@ -2054,7 +2106,7 @@ function renderTsDashboard() {
           <div class="ts-stat"><div class="ts-stat-val" style="color:var(--navy2)">${pipePct}%</div><div class="ts-stat-label">PIPELINE</div><div class="ts-bar-track"><div class="ts-bar-fill" style="width:${Math.min(pipePct,100)}%;background:var(--navy2)"></div></div></div>
           <div class="ts-stat"><div class="ts-stat-val">${Math.round(total*10)/10}h</div><div class="ts-stat-label">TOTAL LOGGED</div></div>
         </div>
-        <div style="font-size:11px;color:var(--text2)">Billable target: <strong>50%</strong> &nbsp;·&nbsp; Combined productive: <strong style="color:${(billPct+pipePct)>=50?'var(--green)':'var(--amber)'}">${billPct+pipePct}%</strong> &nbsp;·&nbsp; ${wdTotal}h working capacity this month</div>
+        <div style="font-size:11px;color:var(--text2)">Billable target: <strong>50%</strong> &nbsp;·&nbsp; Combined productive: <strong style="color:${(billPct+pipePct)>=50?'var(--green)':'var(--amber)'}">${billPct+pipePct}%</strong> &nbsp;·&nbsp; ${effectiveNote}${leaveNote}</div>
       </div>
       <div class="dash-card">
         <div class="dash-card-title">HOURS BREAKDOWN</div>
@@ -2062,6 +2114,7 @@ function renderTsDashboard() {
           <div class="sbar"><span class="sbar-label" style="width:80px;font-size:11px">Billable</span><div class="sbar-track"><div class="sbar-fill" style="width:${total?Math.round(billable/total*100):0}%;background:var(--green)"></div></div><span class="sbar-count" style="font-size:11px;width:36px">${billable}h</span></div>
           <div class="sbar"><span class="sbar-label" style="width:80px;font-size:11px">Pipeline</span><div class="sbar-track"><div class="sbar-fill" style="width:${total?Math.round(pipeline/total*100):0}%;background:var(--navy2)"></div></div><span class="sbar-count" style="font-size:11px;width:36px">${pipeline}h</span></div>
           <div class="sbar"><span class="sbar-label" style="width:80px;font-size:11px">Internal</span><div class="sbar-track"><div class="sbar-fill" style="width:${total?Math.round(internal/total*100):0}%;background:var(--text3)"></div></div><span class="sbar-count" style="font-size:11px;width:36px">${internal}h</span></div>
+          ${leave>0?`<div class="sbar"><span class="sbar-label" style="width:80px;font-size:11px">Leave</span><div class="sbar-track"><div class="sbar-fill" style="width:${total?Math.round(leave/total*100):0}%;background:#2980b9"></div></div><span class="sbar-count" style="font-size:11px;width:36px">${leave}h</span></div>`:''}
         </div>
         ${unlogged>0?`<div class="ts-unlogged" style="margin-top:12px">⚠ ${unlogged} working day${unlogged>1?'s':''} with no hours logged this month</div>`:''}
       </div>
@@ -2090,7 +2143,7 @@ function renderTsWeek() {
     html += `<div class="ts-week-day">
       <div class="ts-week-day-label" style="${isToday?'color:var(--navy)':''}">${days[i]} ${fmtWk(d)}${dayHrs>0?' — '+dayHrs+'h':''}${isPast&&!dayHrs&&isWorkingDay(d)?'<span style="color:var(--red);margin-left:6px">no hours logged</span>':''}</div>
       ${entries.map(e=>`<div class="ts-entry">
-        <div class="ts-entry-dot" style="background:${e.type==='billable'?'var(--green)':e.type==='pipeline'?'var(--navy2)':'var(--text3)'}"></div>
+        <div class="ts-entry-dot" style="background:${e.type==='billable'?'var(--green)':e.type==='pipeline'?'var(--navy2)':e.type==='leave'?'#2980b9':'var(--text3)'}"></div>
         <span class="ts-entry-name">${e.engagementName||'—'}</span>
         <span class="ts-entry-act">${e.activity||''}</span>
         <span class="ts-entry-hrs">${e.hours}h</span>
@@ -2112,8 +2165,8 @@ function renderTsMonth() {
     return;
   }
   const total = entries.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
-  const typeLabel = {billable:'Billable',pipeline:'Pipeline',internal:'Internal'};
-  const typeStyle = {billable:'ts-type-bill',pipeline:'ts-type-pipe',internal:'ts-type-int'};
+  const typeLabel = {billable:'Billable',pipeline:'Pipeline',internal:'Internal',leave:'Leave'};
+  const typeStyle = {billable:'ts-type-bill',pipeline:'ts-type-pipe',internal:'ts-type-int',leave:'ts-type-leave'};
   let html = `<div style="overflow-x:auto"><table class="ts-month-table"><thead><tr>
     <th>DATE</th><th>TYPE</th><th>ENGAGEMENT</th><th>SL CODE</th><th>PROJECT CODE</th><th>ACTIVITY</th><th>HOURS</th><th></th>
   </tr></thead><tbody>`;
@@ -2170,13 +2223,14 @@ function tsGenerateReport() {
         <th style="padding:8px 10px;text-align:right;font-weight:500">Hours</th>
       </tr></thead><tbody>`;
   entries.forEach((e,i)=>{
-    const code = e.projectCode||e.slCode||'—';
+    const code = e.type==='leave' ? '—' : (e.projectCode||e.slCode||'—');
+    const category = e.type==='leave' ? e.engagementName : (e.activity||'—');
     const bg = i%2===0?'#fff':'#f8f9fa';
     html+=`<tr style="background:${bg}">
       <td style="padding:7px 10px;border-bottom:1px solid #eee;white-space:nowrap">${fmtDateLong(e.date)}</td>
       <td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:monospace;font-size:11px">${code}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid #eee">${e.engagementName||'—'}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid #eee">${e.activity||'—'}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #eee">${e.type==='leave'?'—':(e.engagementName||'—')}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #eee">${category}</td>
       <td style="padding:7px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:500">${e.hours}</td>
     </tr>`;
   });
