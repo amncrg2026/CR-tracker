@@ -220,7 +220,38 @@ tr:hover td { background: #fafbfc; }
 .toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); border-radius: 4px; padding: 10px 18px; font-size: 12px; color: #fff; z-index: 998; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; font-family: var(--mono); }
 .toast.show { opacity: 1; transform: translateY(0); }
 
-/* Editing Request Preview */
+/* Timesheets */
+.ts-row { display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:8px 10px;flex-wrap:wrap; }
+.ts-row .field { flex:1;min-width:120px; }
+.ts-row .field-sm { flex:0 0 90px; }
+.ts-row .field-hrs { flex:0 0 80px; }
+.ts-row-remove { background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 4px;flex-shrink:0; }
+.ts-row-remove:hover { color:var(--red); }
+.ts-blocked { opacity:0.35;pointer-events:none; }
+.ts-week-day { margin-bottom:10px; }
+.ts-week-day-label { font-family:var(--mono);font-size:10px;color:var(--navy3);font-weight:500;margin-bottom:4px;letter-spacing:0.06em; }
+.ts-entry { display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:3px; }
+.ts-entry-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
+.ts-entry-name { flex:1;font-size:12px;color:var(--text); }
+.ts-entry-act { font-size:11px;color:var(--text3); }
+.ts-entry-hrs { font-family:var(--mono);font-size:11px;color:var(--text2);font-weight:500;white-space:nowrap; }
+.ts-entry-del { background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0 2px; }
+.ts-entry-del:hover { color:var(--red); }
+.ts-month-table { width:100%;border-collapse:collapse; }
+.ts-month-table th { font-family:var(--mono);font-size:9px;color:var(--navy3);text-align:left;padding:0 8px 8px 0;border-bottom:1px solid var(--border);letter-spacing:0.06em;white-space:nowrap; }
+.ts-month-table td { font-size:12px;color:var(--text);padding:7px 8px 7px 0;border-bottom:1px solid var(--border);vertical-align:middle; }
+.ts-month-table tr:last-child td { border-bottom:none; }
+.ts-month-table tr:hover td { background:var(--surface2); }
+.ts-type-bill { background:var(--green-light);color:var(--green); }
+.ts-type-pipe { background:var(--navy-light);color:var(--navy2); }
+.ts-type-int { background:var(--surface2);color:var(--text3); }
+.ts-pill { font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:20px;font-weight:500; }
+.ts-stat { background:var(--surface2);border-radius:var(--border-radius-md);padding:12px 14px;text-align:center; }
+.ts-stat-val { font-size:22px;font-weight:500;color:var(--text); }
+.ts-stat-label { font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.06em;margin-top:2px; }
+.ts-bar-track { height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-top:6px; }
+.ts-bar-fill { height:100%;border-radius:4px;transition:width 0.4s; }
+.ts-unlogged { font-size:11px;color:var(--red);font-family:var(--mono); }
 .er-preview { background:#fff; border:1px solid #ddd; border-radius:6px; padding:28px 32px; font-family:'Aptos','Calibri',sans-serif; font-size:13px; line-height:1.6; color:#1a2332; }
 .er-preview-subject { font-weight:700; font-size:14px; margin-bottom:16px; color:#1a2332; }
 .er-preview p { margin-bottom:12px; }
@@ -304,11 +335,12 @@ tr:hover td { background: #fafbfc; }
         <button class="nav-btn" onclick="switchTab('dashboard',this)" data-tab="dashboard">Dashboard</button>
         <button class="nav-btn" onclick="switchTab('calendar',this)" data-tab="calendar">Calendar & Travel</button>
         <button class="nav-btn" onclick="switchTab('editing',this)" data-tab="editing">Editing Request</button>
+        <button class="nav-btn" onclick="switchTab('timesheets',this)" data-tab="timesheets">Timesheets</button>
       </nav>
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.5</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.6</span>
       <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
     </div>
   </div>
@@ -490,6 +522,54 @@ tr:hover td { background: #fafbfc; }
         </div>
       </div>
     </div>
+    <!-- TIMESHEETS TAB -->
+    <div class="view" id="view-timesheets">
+      <!-- Dashboard -->
+      <div id="tsDashboard" style="margin-bottom:1.5rem"></div>
+
+      <!-- Entry form -->
+      <div class="dash-card" style="margin-bottom:1.25rem">
+        <div class="dash-card-title">LOG HOURS</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+          <div class="field" style="flex:0 0 140px">
+            <label>DATE</label>
+            <input type="date" id="tsDate">
+          </div>
+          <div class="field" style="flex:0 0 auto;align-self:flex-end">
+            <button class="btn" onclick="tsAddRow()" style="margin-top:0">+ Add row</button>
+          </div>
+          <div style="flex:1"></div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--text2)" id="tsRowTotal"></div>
+        </div>
+        <div id="tsRows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button class="btn" onclick="tsClearRows()">Clear</button>
+          <button class="btn btn-navy" onclick="tsSaveAll()">Save all entries</button>
+        </div>
+      </div>
+
+      <!-- Weekly summary -->
+      <div class="dash-card" style="margin-bottom:1.25rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="dash-card-title" style="margin-bottom:0">THIS WEEK</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3)" id="tsWeekRange"></div>
+        </div>
+        <div id="tsWeekView"></div>
+      </div>
+
+      <!-- Monthly log -->
+      <div class="dash-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="cal-nav-btn" onclick="tsMonthPrev()">&#8592;</button>
+            <div style="font-size:14px;font-weight:500;color:var(--text);min-width:140px;text-align:center" id="tsMonthLabel"></div>
+            <button class="cal-nav-btn" onclick="tsMonthNext()">&#8594;</button>
+          </div>
+          <button class="btn btn-navy" onclick="tsGenerateReport()">Generate D365 report</button>
+        </div>
+        <div id="tsMonthLog"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -507,6 +587,10 @@ tr:hover td { background: #fafbfc; }
   <button class="mob-nav-btn" onclick="switchTab('calendar',this)" data-tab="calendar">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
     CALENDAR
+  </button>
+  <button class="mob-nav-btn" onclick="switchTab('timesheets',this)" data-tab="timesheets">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    HOURS
   </button>
 </nav>
 
@@ -600,12 +684,17 @@ async function loadAll() {
     const data = await apiFetch({action:'getAll'});
     projects = data.map(fixTypes);
     if (projects.length) nextId = Math.max(...projects.map(p=>Number(p.id)||0))+1;
+    await loadTimesheets();
     setSyncStatus('synced','ok');
     render();
     if (document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
     if (document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
   } catch(e) { setSyncStatus('offline','err'); render(); }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (!checkAuth()) { showLoginScreen(); } else { loadAll(); fetchFXRates(); }
+});
 
 function fixDateStr(val) {
   if (!val) return '';
@@ -1026,6 +1115,7 @@ function switchTab(tab,el) {
   if(tab==='dashboard') renderDashboard();
   if(tab==='calendar') { renderCalendar(); renderTravelMatrix(); }
   if(tab==='editing') initEditingTab();
+  if(tab==='timesheets') initTimesheets();
 }
 
 /* ── WORKING DAYS ── */
@@ -1729,9 +1819,365 @@ function showToast(msg,dur=3000) {
   setTimeout(()=>t.classList.remove('show'),dur);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  if (!checkAuth()) { showLoginScreen(); } else { loadAll(); fetchFXRates(); }
-});
+/* ── TIMESHEETS ── */
+const TS_ACTIVITIES = [
+  'Admin Work','Business Development','Conference / Seminars',
+  'Document Writing & Review','External meeting','Internal meeting',
+  'Mentoring','Project Management','Proposals / Project Budgeting',
+  'Research & Analysis','Training','Travel'
+];
+const TS_HOURS = [0.25,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12];
+
+let timesheets = []; // loaded from API
+let tsViewMonth = new Date();
+let tsRowCount = 0;
+
+async function loadTimesheets() {
+  try {
+    const data = await apiFetch({action:'getTimesheets'});
+    if (Array.isArray(data)) timesheets = data;
+  } catch(e) { console.warn('Timesheets load failed'); }
+}
+
+async function tsSaveEntry(entry) {
+  try {
+    await apiPost({action:'saveTimesheet', data:entry});
+    setSyncStatus('synced','ok');
+  } catch(e) { setSyncStatus('offline','err'); }
+}
+
+async function tsDeleteEntry(id) {
+  try {
+    await apiPost({action:'deleteTimesheet', id});
+    setSyncStatus('synced','ok');
+  } catch(e) { setSyncStatus('offline','err'); }
+}
+
+function initTimesheets() {
+  // Set date to today
+  const today = new Date();
+  const todayStr = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  document.getElementById('tsDate').value = todayStr;
+  tsViewMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  // Start with one empty row
+  if (document.getElementById('tsRows').children.length === 0) tsAddRow();
+  renderTsDashboard();
+  renderTsWeek();
+  renderTsMonth();
+}
+
+function tsPipelineOpts() {
+  const opts = projects.filter(p=>p.slCode).map(p=>`<option value="${p.id}|sl">${p.name||'Untitled'} [${p.slCode}]</option>`);
+  return `<option value="">— select —</option>${opts.join('')}`;
+}
+
+function tsEngagementOpts() {
+  const opts = projects.filter(p=>p.projectCode).map(p=>`<option value="${p.id}|pc">${p.name||'Untitled'} [${p.projectCode}]</option>`);
+  return `<option value="">— select —</option>${opts.join('')}`;
+}
+
+function tsActivityOpts(selected) {
+  return TS_ACTIVITIES.map(a=>`<option ${a===(selected||'')?'selected':''}>${a}</option>`).join('');
+}
+
+function tsHoursOpts(selected) {
+  return TS_HOURS.map(h=>`<option ${h===(selected||1)?'selected':''}>${h}</option>`).join('');
+}
+
+function tsAddRow() {
+  const id = ++tsRowCount;
+  const row = document.createElement('div');
+  row.className = 'ts-row';
+  row.id = 'tsrow-'+id;
+  row.innerHTML = `
+    <div class="field" style="flex:1;min-width:140px">
+      <label>PIPELINE (SL)</label>
+      <select id="tspipe-${id}" onchange="tsOnPipeSelect(${id})"><optgroup label="Pipeline">${tsPipelineOpts()}</optgroup><optgroup label="Internal"><option value="__internal__">Internal — non-billable</option></optgroup><optgroup label="Other"><option value="__other__">Other (free text)</option></optgroup></select>
+    </div>
+    <div class="field" style="flex:1;min-width:140px" id="tsengfield-${id}">
+      <label>ENGAGEMENT (Project)</label>
+      <select id="tseng-${id}" onchange="tsOnEngSelect(${id})">${tsEngagementOpts()}</select>
+    </div>
+    <div id="tsotherdiv-${id}" style="display:none;flex:1;min-width:140px">
+      <div class="field"><label>DESCRIBE</label><input id="tsother-${id}" placeholder="e.g. CR all-hands"></div>
+    </div>
+    <div class="field field-sm">
+      <label>ACTIVITY</label>
+      <select id="tsact-${id}">${tsActivityOpts()}</select>
+    </div>
+    <div class="field field-hrs">
+      <label>HOURS</label>
+      <select id="tshrs-${id}">${tsHoursOpts()}</select>
+    </div>
+    <button class="ts-row-remove" onclick="tsRemoveRow(${id})" title="Remove row">✕</button>`;
+  document.getElementById('tsRows').appendChild(row);
+  tsUpdateRowTotal();
+}
+
+function tsOnPipeSelect(id) {
+  const val = document.getElementById('tspipe-'+id).value;
+  const engField = document.getElementById('tsengfield-'+id);
+  const otherDiv = document.getElementById('tsotherdiv-'+id);
+  const engSel = document.getElementById('tseng-'+id);
+  if (val) {
+    engField.style.display = 'none';
+    engSel.value = '';
+    otherDiv.style.display = val==='__other__' ? 'flex' : 'none';
+  } else {
+    engField.style.display = '';
+    otherDiv.style.display = 'none';
+  }
+  tsUpdateRowTotal();
+}
+
+function tsOnEngSelect(id) {
+  const val = document.getElementById('tseng-'+id).value;
+  const pipeSel = document.getElementById('tspipe-'+id);
+  if (val) { pipeSel.value = ''; document.getElementById('tsotherdiv-'+id).style.display='none'; document.getElementById('tsengfield-'+id).style.display=''; }
+  tsUpdateRowTotal();
+}
+
+function tsRemoveRow(id) {
+  const row = document.getElementById('tsrow-'+id);
+  if (row) row.remove();
+  tsUpdateRowTotal();
+}
+
+function tsUpdateRowTotal() {
+  let total = 0;
+  document.querySelectorAll('[id^="tshrs-"]').forEach(sel=>{ total += parseFloat(sel.value)||0; });
+  const el = document.getElementById('tsRowTotal');
+  if (el) el.textContent = total > 0 ? `Total: ${total}h` : '';
+}
+
+function tsClearRows() {
+  document.getElementById('tsRows').innerHTML = '';
+  tsRowCount = 0;
+  tsAddRow();
+  tsUpdateRowTotal();
+}
+
+async function tsSaveAll() {
+  const date = document.getElementById('tsDate').value;
+  if (!date) { showToast('Please set a date first'); return; }
+  const rows = document.querySelectorAll('[id^="tsrow-"]');
+  const entries = [];
+  for (const row of rows) {
+    const id = row.id.replace('tsrow-','');
+    const pipeVal = document.getElementById('tspipe-'+id)?.value||'';
+    const engVal = document.getElementById('tseng-'+id)?.value||'';
+    const act = document.getElementById('tsact-'+id)?.value||'';
+    const hrs = parseFloat(document.getElementById('tshrs-'+id)?.value)||0;
+    const otherText = document.getElementById('tsother-'+id)?.value||'';
+    if (!pipeVal && !engVal) continue;
+    if (hrs <= 0) continue;
+    let type='', engName='', slCode='', projectCode='', engId='';
+    if (pipeVal === '__internal__') {
+      type='internal'; engName='Internal — non-billable';
+    } else if (pipeVal === '__other__') {
+      type='internal'; engName=otherText||'Other';
+    } else if (pipeVal) {
+      type='pipeline';
+      engId = pipeVal.split('|')[0];
+      const p = projects.find(x=>String(x.id)===engId);
+      if (p) { engName=p.name||''; slCode=p.slCode||''; }
+    } else if (engVal) {
+      type='billable';
+      engId = engVal.split('|')[0];
+      const p = projects.find(x=>String(x.id)===engId);
+      if (p) { engName=p.name||''; projectCode=p.projectCode||''; slCode=p.slCode||''; }
+    }
+    const entry = { id: Date.now()+Math.random(), date, type, engagementName:engName, slCode, projectCode, activity:act, hours:hrs, notes:'' };
+    entries.push(entry);
+  }
+  if (!entries.length) { showToast('No valid entries to save'); return; }
+  for (const entry of entries) {
+    timesheets.push(entry);
+    await tsSaveEntry(entry);
+  }
+  showToast(`${entries.length} entr${entries.length>1?'ies':'y'} saved`);
+  tsClearRows();
+  renderTsDashboard();
+  renderTsWeek();
+  renderTsMonth();
+}
+
+function tsWorkingDaysInMonth(y, m) {
+  let count = 0;
+  const d = new Date(y,m,1);
+  while (d.getMonth()===m) { if(isWorkingDay(d)) count++; d.setDate(d.getDate()+1); }
+  return count;
+}
+
+function renderTsDashboard() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const y = today.getFullYear(), mo = today.getMonth();
+  const monthEntries = timesheets.filter(e=>{ const d=safeDate(e.date); return d&&d.getFullYear()===y&&d.getMonth()===mo; });
+  const billable = monthEntries.filter(e=>e.type==='billable').reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  const pipeline = monthEntries.filter(e=>e.type==='pipeline').reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  const internal = monthEntries.filter(e=>e.type==='internal').reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  const total = billable+pipeline+internal;
+  const wdTotal = tsWorkingDaysInMonth(y,mo)*8;
+  const billPct = wdTotal ? Math.round(billable/wdTotal*100) : 0;
+  const pipePct = wdTotal ? Math.round(pipeline/wdTotal*100) : 0;
+  const billColor = billPct >= 50 ? 'var(--green)' : billPct >= 35 ? 'var(--amber)' : 'var(--red)';
+
+  // Unlogged working days this month so far
+  const loggedDays = new Set(monthEntries.map(e=>e.date?.toString().slice(0,10)));
+  let unlogged = 0;
+  const d = new Date(y,mo,1);
+  while (d <= today && d.getMonth()===mo) {
+    const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    if (isWorkingDay(d) && !loggedDays.has(key)) unlogged++;
+    d.setDate(d.getDate()+1);
+  }
+
+  document.getElementById('tsDashboard').innerHTML=`
+    <div class="dash-grid" style="margin-bottom:0">
+      <div class="dash-card">
+        <div class="dash-card-title">THIS MONTH — UTILISATION</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+          <div class="ts-stat"><div class="ts-stat-val" style="color:${billColor}">${billPct}%</div><div class="ts-stat-label">BILLABLE</div><div class="ts-bar-track"><div class="ts-bar-fill" style="width:${Math.min(billPct,100)}%;background:${billColor}"></div></div></div>
+          <div class="ts-stat"><div class="ts-stat-val" style="color:var(--navy2)">${pipePct}%</div><div class="ts-stat-label">PIPELINE</div><div class="ts-bar-track"><div class="ts-bar-fill" style="width:${Math.min(pipePct,100)}%;background:var(--navy2)"></div></div></div>
+          <div class="ts-stat"><div class="ts-stat-val">${Math.round(total*10)/10}h</div><div class="ts-stat-label">TOTAL LOGGED</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2)">Billable target: <strong>50%</strong> &nbsp;·&nbsp; Combined productive: <strong style="color:${(billPct+pipePct)>=50?'var(--green)':'var(--amber)'}">${billPct+pipePct}%</strong> &nbsp;·&nbsp; ${wdTotal}h working capacity this month</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">HOURS BREAKDOWN</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="sbar"><span class="sbar-label" style="width:80px;font-size:11px">Billable</span><div class="sbar-track"><div class="sbar-fill" style="width:${total?Math.round(billable/total*100):0}%;background:var(--green)"></div></div><span class="sbar-count" style="font-size:11px;width:36px">${billable}h</span></div>
+          <div class="sbar"><span class="sbar-label" style="width:80px;font-size:11px">Pipeline</span><div class="sbar-track"><div class="sbar-fill" style="width:${total?Math.round(pipeline/total*100):0}%;background:var(--navy2)"></div></div><span class="sbar-count" style="font-size:11px;width:36px">${pipeline}h</span></div>
+          <div class="sbar"><span class="sbar-label" style="width:80px;font-size:11px">Internal</span><div class="sbar-track"><div class="sbar-fill" style="width:${total?Math.round(internal/total*100):0}%;background:var(--text3)"></div></div><span class="sbar-count" style="font-size:11px;width:36px">${internal}h</span></div>
+        </div>
+        ${unlogged>0?`<div class="ts-unlogged" style="margin-top:12px">⚠ ${unlogged} working day${unlogged>1?'s':''} with no hours logged this month</div>`:''}
+      </div>
+    </div>`;
+}
+
+function renderTsWeek() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dow = today.getDay();
+  const monday = new Date(today); monday.setDate(today.getDate()-(dow===0?6:dow-1));
+  const sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+  const fmtWk = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  document.getElementById('tsWeekRange').textContent = fmtWk(monday)+' – '+fmtWk(sunday);
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = '';
+  let weekTotal = 0;
+  for (let i=0; i<7; i++) {
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const entries = timesheets.filter(e=>e.date?.toString().slice(0,10)===key);
+    const dayHrs = entries.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+    weekTotal += dayHrs;
+    const isToday = d.getTime()===today.getTime();
+    const isPast = d < today;
+    if (!entries.length && !isToday && d > today) continue;
+    html += `<div class="ts-week-day">
+      <div class="ts-week-day-label" style="${isToday?'color:var(--navy)':''}">${days[i]} ${fmtWk(d)}${dayHrs>0?' — '+dayHrs+'h':''}${isPast&&!dayHrs&&isWorkingDay(d)?'<span style="color:var(--red);margin-left:6px">no hours logged</span>':''}</div>
+      ${entries.map(e=>`<div class="ts-entry">
+        <div class="ts-entry-dot" style="background:${e.type==='billable'?'var(--green)':e.type==='pipeline'?'var(--navy2)':'var(--text3)'}"></div>
+        <span class="ts-entry-name">${e.engagementName||'—'}</span>
+        <span class="ts-entry-act">${e.activity||''}</span>
+        <span class="ts-entry-hrs">${e.hours}h</span>
+        <button class="ts-entry-del" onclick="tsDeleteLocal('${e.id}')" title="Delete">✕</button>
+      </div>`).join('')}
+      ${entries.length===0&&(isToday||isPast)?`<div style="font-size:11px;color:var(--text3);padding:4px 0">—</div>`:''}
+    </div>`;
+  }
+  document.getElementById('tsWeekView').innerHTML = html || `<div style="font-size:12px;color:var(--text3)">No entries this week yet</div>`;
+}
+
+function renderTsMonth() {
+  const y = tsViewMonth.getFullYear(), mo = tsViewMonth.getMonth();
+  document.getElementById('tsMonthLabel').textContent = tsViewMonth.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const entries = timesheets.filter(e=>{ const d=safeDate(e.date); return d&&d.getFullYear()===y&&d.getMonth()===mo; });
+  entries.sort((a,b)=>a.date>b.date?1:-1);
+  if (!entries.length) {
+    document.getElementById('tsMonthLog').innerHTML=`<div style="font-size:12px;color:var(--text3);padding:1rem 0">No entries for this month</div>`;
+    return;
+  }
+  const total = entries.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  const typeLabel = {billable:'Billable',pipeline:'Pipeline',internal:'Internal'};
+  const typeStyle = {billable:'ts-type-bill',pipeline:'ts-type-pipe',internal:'ts-type-int'};
+  let html = `<div style="overflow-x:auto"><table class="ts-month-table"><thead><tr>
+    <th>DATE</th><th>TYPE</th><th>ENGAGEMENT</th><th>SL CODE</th><th>PROJECT CODE</th><th>ACTIVITY</th><th>HOURS</th><th></th>
+  </tr></thead><tbody>`;
+  entries.forEach(e=>{
+    html+=`<tr>
+      <td style="font-family:var(--mono);font-size:11px">${fmtDate(e.date)}</td>
+      <td><span class="ts-pill ${typeStyle[e.type]||'ts-type-int'}">${typeLabel[e.type]||e.type}</span></td>
+      <td>${e.engagementName||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px">${e.slCode||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px">${e.projectCode||'—'}</td>
+      <td>${e.activity||'—'}</td>
+      <td style="font-family:var(--mono);font-weight:500">${e.hours}h</td>
+      <td><button class="ts-entry-del" onclick="tsDeleteLocal('${e.id}')">✕</button></td>
+    </tr>`;
+  });
+  html+=`</tbody><tfoot><tr><td colspan="6" style="font-weight:500;padding-top:10px">Total</td><td style="font-family:var(--mono);font-weight:500;padding-top:10px">${total}h</td><td></td></tr></tfoot></table></div>`;
+  document.getElementById('tsMonthLog').innerHTML = html;
+}
+
+async function tsDeleteLocal(id) {
+  if (!confirm('Delete this entry?')) return;
+  timesheets = timesheets.filter(e=>String(e.id)!==String(id));
+  await tsDeleteEntry(id);
+  renderTsDashboard();
+  renderTsWeek();
+  renderTsMonth();
+}
+
+function tsMonthPrev() { tsViewMonth.setMonth(tsViewMonth.getMonth()-1); renderTsMonth(); }
+function tsMonthNext() { tsViewMonth.setMonth(tsViewMonth.getMonth()+1); renderTsMonth(); }
+
+function tsGenerateReport() {
+  const y = tsViewMonth.getFullYear(), mo = tsViewMonth.getMonth();
+  const entries = timesheets.filter(e=>{ const d=safeDate(e.date); return d&&d.getFullYear()===y&&d.getMonth()===mo; });
+  entries.sort((a,b)=>a.date>b.date?1:-1);
+  if (!entries.length) { showToast('No entries for this month'); return; }
+  const monthLabel = tsViewMonth.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const total = entries.reduce((s,e)=>s+(parseFloat(e.hours)||0),0);
+  let html = `<div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;max-width:700px">
+    <div style="font-weight:500;font-size:15px;margin-bottom:4px;color:var(--navy)">D365 Timesheet Report — ${monthLabel}</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px">Enter each row into D365 in order. Total: ${total}h</div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="background:var(--navy);color:#fff">
+        <th style="padding:8px 10px;text-align:left;font-weight:500">Date</th>
+        <th style="padding:8px 10px;text-align:left;font-weight:500">Project / SL Code</th>
+        <th style="padding:8px 10px;text-align:left;font-weight:500">Engagement</th>
+        <th style="padding:8px 10px;text-align:left;font-weight:500">Time Category</th>
+        <th style="padding:8px 10px;text-align:right;font-weight:500">Hours</th>
+      </tr></thead><tbody>`;
+  entries.forEach((e,i)=>{
+    const code = e.projectCode||e.slCode||'—';
+    const bg = i%2===0?'#fff':'#f8f9fa';
+    html+=`<tr style="background:${bg}">
+      <td style="padding:7px 10px;border-bottom:1px solid #eee;white-space:nowrap">${fmtDateLong(e.date)}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:monospace;font-size:11px">${code}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #eee">${e.engagementName||'—'}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #eee">${e.activity||'—'}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:500">${e.hours}</td>
+    </tr>`;
+  });
+  html+=`</tbody><tfoot><tr style="background:var(--navy-light)">
+    <td colspan="4" style="padding:8px 10px;font-weight:500">Total</td>
+    <td style="padding:8px 10px;text-align:right;font-weight:500">${total}h</td>
+  </tr></tfoot></table></div>`;
+
+  // Show in a modal-style overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto';
+  overlay.innerHTML=`<div style="background:#fff;border-radius:8px;padding:28px 32px;max-width:760px;width:100%;position:relative">
+    <button onclick="this.closest('div').parentElement.remove()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3)">✕</button>
+    ${html}
+    <div style="margin-top:16px;display:flex;justify-content:flex-end">
+      <button class="btn btn-navy" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
 </script>
 </body>
 </html>
