@@ -340,7 +340,7 @@ tr:hover td { background: #fafbfc; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.6</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v2.7</span>
       <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
     </div>
   </div>
@@ -1826,8 +1826,6 @@ const TS_ACTIVITIES = [
   'Mentoring','Project Management','Proposals / Project Budgeting',
   'Research & Analysis','Training','Travel'
 ];
-const TS_HOURS = [0.25,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12];
-
 let timesheets = []; // loaded from API
 let tsViewMonth = new Date();
 let tsRowCount = 0;
@@ -1880,8 +1878,11 @@ function tsActivityOpts(selected) {
   return TS_ACTIVITIES.map(a=>`<option ${a===(selected||'')?'selected':''}>${a}</option>`).join('');
 }
 
-function tsHoursOpts(selected) {
-  return TS_HOURS.map(h=>`<option ${h===(selected||1)?'selected':''}>${h}</option>`).join('');
+function tsRoundHours(val) {
+  const n = parseFloat(val)||0;
+  if (n <= 0) return 0;
+  // Round to nearest 0.25
+  return Math.round(n*4)/4;
 }
 
 function tsAddRow() {
@@ -1907,7 +1908,7 @@ function tsAddRow() {
     </div>
     <div class="field field-hrs">
       <label>HOURS</label>
-      <select id="tshrs-${id}">${tsHoursOpts()}</select>
+      <input type="number" id="tshrs-${id}" min="0.25" max="12" step="0.25" placeholder="e.g. 1.5" style="text-align:center" onblur="this.value=tsRoundHours(this.value)||'';tsUpdateRowTotal()" onchange="tsUpdateRowTotal()">
     </div>
     <button class="ts-row-remove" onclick="tsRemoveRow(${id})" title="Remove row">✕</button>`;
   document.getElementById('tsRows').appendChild(row);
@@ -1967,7 +1968,7 @@ async function tsSaveAll() {
     const pipeVal = document.getElementById('tspipe-'+id)?.value||'';
     const engVal = document.getElementById('tseng-'+id)?.value||'';
     const act = document.getElementById('tsact-'+id)?.value||'';
-    const hrs = parseFloat(document.getElementById('tshrs-'+id)?.value)||0;
+    const hrs = tsRoundHours(document.getElementById('tshrs-'+id)?.value);
     const otherText = document.getElementById('tsother-'+id)?.value||'';
     if (!pipeVal && !engVal) continue;
     if (hrs <= 0) continue;
