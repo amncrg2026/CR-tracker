@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CR Engagement Tracker</title>
+<title>CR Project Tracker</title>
 <style>
 
 :root {
@@ -784,7 +784,7 @@ tr:hover td { background: #fbfcfd; }
     <div class="topbar-left">
       <div class="logo">CR // TRACKER</div>
       <nav class="nav">
-        <button class="nav-btn active" onclick="switchTab('tracker',this)" data-tab="tracker">Engagements</button>
+        <button class="nav-btn active" onclick="switchTab('tracker',this)" data-tab="tracker">Projects</button>
         <button class="nav-btn" onclick="switchTab('dashboard',this)" data-tab="dashboard">Dashboard</button>
         <button class="nav-btn" onclick="switchTab('calendar',this)" data-tab="calendar">Calendar & Travel</button>
         <button class="nav-btn" onclick="switchTab('editing',this)" data-tab="editing">Editing Request</button>
@@ -793,15 +793,15 @@ tr:hover td { background: #fbfcfd; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.4</span>
-      <button class="btn btn-navy" onclick="addProject()">+ New engagement</button>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.5</span>
+      <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
 
   <div class="main">
     <!-- TRACKER TAB -->
     <div class="view active" id="view-tracker">
-      <div class="tracker-header"><h2>Active engagements</h2></div>
+      <div class="tracker-header"><h2>Active projects</h2></div>
       <div class="filters">
         <button class="filter-btn active" onclick="setFilter('all',this)">ALL</button>
         <button class="filter-btn" onclick="setFilter('Proposal',this)">PROPOSAL</button>
@@ -809,7 +809,7 @@ tr:hover td { background: #fbfcfd; }
         <button class="filter-btn" onclick="setFilter('Delivered',this)">DELIVERED</button>
         <button class="filter-btn" onclick="setFilter('Closed',this)">CLOSED</button>
       </div>
-      <div id="projectList"><div class="loading">LOADING ENGAGEMENTS...</div></div>
+      <div id="projectList"><div class="loading">LOADING PROJECTS...</div></div>
     </div>
 
     <!-- DASHBOARD TAB -->
@@ -852,10 +852,10 @@ tr:hover td { background: #fbfcfd; }
         <div style="font-size:12px;color:var(--text3);margin-bottom:1.5rem">Generate a formatted editing brief and Outlook calendar invite for the editing team.</div>
 
         <div class="dash-card" style="margin-bottom:1.5rem">
-          <div class="dash-card-title">ENGAGEMENT</div>
+          <div class="dash-card-title">PROJECT</div>
           <div class="fg fg-2" style="margin-bottom:8px">
             <div class="field">
-              <label>SELECT ENGAGEMENT</label>
+              <label>SELECT PROJECT</label>
               <select id="erEngSelect" onchange="erOnEngSelect(this.value)">
                 <option value="">— select —</option>
                 <option value="__manual__">Not listed — fill in manually</option>
@@ -1128,6 +1128,8 @@ let currentFilter = 'all';
 let saveTimers = {};
 let calDate = new Date();
 let naOrder = JSON.parse(localStorage.getItem('cr_na_order') || '[]');
+let dashHidden = JSON.parse(localStorage.getItem('cr_dash_hidden') || '[]'); // manual hide overrides
+let dashShowHidden = false;
 let dragSrcId = null;
 
 function parseJSON(val, fallback) { try { return JSON.parse(val)||fallback; } catch(e) { return fallback; } }
@@ -1141,6 +1143,7 @@ async function loadAll() {
     projects = data.map(fixTypes);
     if (projects.length) nextId = Math.max(...projects.map(p=>Number(p.id)||0))+1;
     await loadTimesheets();
+    await loadDashPrefs();
     setSyncStatus('synced','ok');
     render();
     if (document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
@@ -1187,7 +1190,7 @@ async function saveProject(id) {
   if (ind) { ind.textContent='saving...'; ind.className='save-indicator saving'; }
   setSyncStatus('saving...','');
   try {
-    const payload = {...p, subcontractors:JSON.stringify(p.subcontractors), expenses:JSON.stringify(p.expenses)};
+    const payload = {...p, subcontractors:JSON.stringify(p.subcontractors), expenses:JSON.stringify(p.expenses), lastModified: new Date().toISOString().slice(0,10)};
     await apiPost({action:'save',data:payload});
     if (ind) { ind.textContent='saved'; ind.className='save-indicator saved'; setTimeout(()=>{if(ind){ind.textContent='';ind.className='save-indicator';}},2000); }
     setSyncStatus('synced','ok');
@@ -1197,14 +1200,14 @@ async function saveProject(id) {
 function scheduleSave(id) { clearTimeout(saveTimers[id]); saveTimers[id]=setTimeout(()=>saveProject(id),1200); }
 
 async function deleteProject(id) {
-  if (!confirm('Delete this engagement?')) return;
+  if (!confirm('Delete this project?')) return;
   projects=projects.filter(x=>x.id!=id); render();
   try { await apiPost({action:'delete',id:String(id)}); setSyncStatus('synced','ok'); }
   catch(e) { setSyncStatus('offline','err'); }
 }
 
 function blankProject(id) {
-  return {id,name:'',client:'',stage:'Proposal',projectCode:'',slCode:'',sharepointMade:false,clientLastContact:'',kickoffDate:'',interimDeadline:'',interimStatus:'Not started',finalDeadline:'',finalStatus:'Not started',nextAction:'',originator:'',clientManager:'',projectLeader:'',researcher:'',subcontractors:[],expenses:[],billingReady:false,invoiceInitiated:false,notes:'',projectFeeCurrency:'USD',projectFee:'',opePercent:'10',opeOverride:'',allowTravel:false,jurisdiction1:'',jurisdiction2:''};
+  return {id,name:'',client:'',stage:'Proposal',projectCode:'',slCode:'',sharepointMade:false,clientLastContact:'',kickoffDate:'',interimDeadline:'',interimStatus:'Not started',finalDeadline:'',finalStatus:'Not started',nextAction:'',originator:'',clientManager:'',projectLeader:'',researcher:'',subcontractors:[],expenses:[],billingReady:false,invoiceInitiated:false,notes:'',projectFeeCurrency:'USD',projectFee:'',opePercent:'10',opeOverride:'',allowTravel:false,jurisdiction1:'',jurisdiction2:'',lastModified:''};
 }
 
 function addProject() {
@@ -1403,9 +1406,9 @@ function renderCard(p) {
       <div class="field"><label>CLIENT LAST CONTACTED</label><input type="date" value="${(p.clientLastContact||'').toString().slice(0,10)}" onchange="uf(${p.id},'clientLastContact',this.value)" style="max-width:220px"></div>
     </div>` : `
     <div class="sec">
-      <div class="sec-label">ENGAGEMENT DETAILS</div>
+      <div class="sec-label">PROJECT DETAILS</div>
       <div class="fg fg-2">
-        <div class="field"><label>ENGAGEMENT NAME</label><input value="${p.name||''}" onchange="uf(${p.id},'name',this.value)"></div>
+        <div class="field"><label>PROJECT NAME</label><input value="${p.name||''}" onchange="uf(${p.id},'name',this.value)"></div>
         <div class="field"><label>CLIENT</label><input value="${p.client||''}" onchange="uf(${p.id},'client',this.value)"></div>
       </div>
       <div class="fg fg-3">
@@ -1522,7 +1525,7 @@ function renderCard(p) {
       ${adminSection}
       <div class="card-footer">
         <span class="save-indicator" id="save-${p.id}"></span>
-        <button class="btn btn-danger" onclick="deleteProject(${p.id})">Delete engagement</button>
+        <button class="btn btn-danger" onclick="deleteProject(${p.id})">Delete project</button>
       </div>
     </div>
   </div>`;
@@ -1537,7 +1540,7 @@ function reRender(id) {
 function render() {
   const list=document.getElementById('projectList');
   const filtered=currentFilter==='all'?projects:projects.filter(p=>p.stage===currentFilter);
-  if(!filtered.length){list.innerHTML=`<div class="empty">No engagements${currentFilter!=='all'?' in this stage':''}</div>`;return;}
+  if(!filtered.length){list.innerHTML=`<div class="empty">No projects${currentFilter!=='all'?' in this stage':''}</div>`;return;}
   const order={Delivered:0,Active:1,Proposal:2,Closed:3};
   const sorted=[...filtered].sort((a,b)=>{
     if(order[a.stage]!==order[b.stage])return(order[a.stage]??99)-(order[b.stage]??99);
@@ -1741,7 +1744,7 @@ function erBuildICS(editorDate, timeSlot, hours) {
   const client = document.getElementById('erClient').value||'';
   const projName = document.getElementById('erProjectName').value||'';
   const subject = `BI – SEA – ${client} – ${projName}`;
-  const desc = `Editing request for ${projName}\\nClient: ${client}\\nSee invite description for full brief.\\n\\nGenerated by CR Engagement Tracker`;
+  const desc = `Editing request for ${projName}\\nClient: ${client}\\nSee invite description for full brief.\\n\\nGenerated by CR Project Tracker`;
   const uid = 'cr-editing-'+Date.now()+'@cr';
   const now = new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
   return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CR Tracker//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
@@ -1878,15 +1881,63 @@ function erReset() {
   document.getElementById('erSrSuggestion').textContent='';
 }
 
+/* ── DASHBOARD PREFS ── */
+async function loadDashPrefs() {
+  try {
+    const data = await apiFetch({action:'getDashPrefs'});
+    if (data && data.naOrder) { naOrder = data.naOrder; localStorage.setItem('cr_na_order', JSON.stringify(naOrder)); }
+    if (data && data.dashHidden) { dashHidden = data.dashHidden; localStorage.setItem('cr_dash_hidden', JSON.stringify(dashHidden)); }
+  } catch(e) {
+    naOrder = JSON.parse(localStorage.getItem('cr_na_order') || '[]');
+    dashHidden = JSON.parse(localStorage.getItem('cr_dash_hidden') || '[]');
+  }
+}
+
+async function saveDashPrefs() {
+  localStorage.setItem('cr_na_order', JSON.stringify(naOrder));
+  localStorage.setItem('cr_dash_hidden', JSON.stringify(dashHidden));
+  try { await apiPost({action:'saveDashPrefs', naOrder, dashHidden}); } catch(e) {}
+}
+
+function isDashAutoHidden(p) {
+  return p.stage === 'Proposal';
+}
+
+function isDashEligible(p) {
+  return projectAgeDays(p) <= 30;
+}
+
+function isDashHidden(p) {
+  const id = String(p.id);
+  const manual = dashHidden.find(h => h.id === id);
+  if (manual !== undefined) return manual.hidden;
+  return isDashAutoHidden(p);
+}
+
+function toggleDashHidden(id) {
+  const p = projects.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const current = isDashHidden(p);
+  dashHidden = dashHidden.filter(h => h.id !== String(id));
+  dashHidden.push({id: String(id), hidden: !current});
+  saveDashPrefs();
+  renderDashboard();
+}
+
+function toggleShowHidden() {
+  dashShowHidden = !dashShowHidden;
+  renderDashboard();
+}
+
 /* ── DASHBOARD ── */
 function renderDashboard() {
-  const active=projects.filter(p=>p.stage!=='Closed');
-  const counts={Proposal:0,Active:0,Delivered:0,Closed:0};
+  const active = projects.filter(p => p.stage !== 'Closed');
+  const counts = {Proposal:0,Active:0,Delivered:0,Closed:0};
   projects.forEach(p=>{if(counts[p.stage]!==undefined)counts[p.stage]++;});
-  const max=Math.max(...Object.values(counts),1);
-  const stageColors={Proposal:'#6c5ce7',Active:'#1e7e4a',Delivered:'#d68910',Closed:'#aaa'};
+  const max = Math.max(...Object.values(counts),1);
+  const stageColors = {Proposal:'#6c5ce7',Active:'#1e7e4a',Delivered:'#d68910',Closed:'#aaa'};
 
-  const deadlines=[];
+  const deadlines = [];
   active.forEach(p=>{
     if(p.interimDeadline&&p.interimStatus!=='Delivered'&&p.interimStatus!=='N/A')
       deadlines.push({name:displayName(p),type:p.stage==='Proposal'?'Proposal submission':'Interim',date:p.interimDeadline,wd:workDaysFrom(p.interimDeadline)});
@@ -1895,7 +1946,7 @@ function renderDashboard() {
   });
   deadlines.sort((a,b)=>(a.wd??999)-(b.wd??999));
 
-  const flags=[];
+  const flags = [];
   active.forEach(p=>{
     if(p.stage!=='Proposal'){
       if(!p.sharepointMade) flags.push({eng:displayName(p),text:'SharePoint entry not made'});
@@ -1913,68 +1964,112 @@ function renderDashboard() {
     });
   });
 
-  const allScs=[];
+  const allScs = [];
   active.forEach(p=>p.subcontractors.forEach(sc=>allScs.push({eng:displayName(p),sc})));
 
-  // Build ordered next actions
-  const naProjects = active.filter(p=>p.stage!=='Closed');
-  const orderedNa = getOrderedNa(naProjects);
+  const eligibleProjects = projects.filter(p => isDashEligible(p));
+  const visibleNa = getOrderedNa(eligibleProjects.filter(p => !isDashHidden(p)));
+  const hiddenNa = eligibleProjects.filter(p => isDashHidden(p));
 
-  document.getElementById('dashGrid').innerHTML=`
-    <div class="dash-card full">
-      <div class="dash-card-title">CURRENT STATUS & NEXT ACTIONS <span style="color:var(--text3);font-weight:400;font-size:9px">— drag to reprioritise</span></div>
-      ${orderedNa.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No active engagements</div>`:`<div id="naList" style="display:flex;flex-direction:column;gap:6px">${orderedNa.map(p=>renderNaBlock(p)).join('')}</div>`}
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-title">STAGE OVERVIEW</div>
-      <div class="stage-bars">
-        ${Object.entries(counts).map(([k,v])=>`<div class="sbar"><span class="sbar-label">${k}</span><div class="sbar-track"><div class="sbar-fill" style="width:${Math.round(v/max*100)}%;background:${stageColors[k]}"></div></div><span class="sbar-count">${v}</span></div>`).join('')}
-      </div>
-    </div>
-    <div class="dash-card">
-      <div class="dash-card-title">OUTSTANDING FLAGS</div>
-      ${flags.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">All clear</div>`:`<div class="flag-list">${flags.map(f=>`<div class="flag-item"><div class="flag-dot"></div><div class="flag-text">${f.text}<br><span class="flag-eng">${f.eng.length>42?f.eng.slice(0,42)+'…':f.eng}</span></div></div>`).join('')}</div>`}
-    </div>
-    <div class="dash-card full">
-      <div class="dash-card-title">DEADLINE TIMELINE</div>
-      ${deadlines.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No upcoming deadlines</div>`:`<div class="tl-list">${deadlines.map(d=>`<div class="tl-item"><div class="tl-dot" style="background:${dotColor(d.wd)}"></div><span class="tl-name">${d.name.length>45?d.name.slice(0,45)+'…':d.name}</span><span class="tl-type">${d.type}</span><span class="tl-date">${fmtDateLong(d.date)}</span><span class="tl-days" style="color:${dotColor(d.wd)}">${daysLabel(d.wd)}</span></div>`).join('')}</div>`}
-    </div>
-    <div class="dash-card full">
-      <div class="dash-card-title">SUBCONTRACTOR STATUS</div>
-      ${allScs.length===0?`<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active engagements</div>`:`<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>ENGAGEMENT</th><th>CURRENCY</th><th>PROF FEE</th><th>OPEs</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="font-family:var(--mono);font-size:10px">${sc.currency||'USD'}</td><td>${sc.fee?Number(sc.fee).toLocaleString():'—'}</td><td>${sc.ope?Number(sc.ope).toLocaleString():'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">${sc.invoiceReceived?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">${sc.invoiceProcessed?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`}
-    </div>`;
+  document.getElementById('dashGrid').innerHTML =
+    `<div class="dash-card full">` +
+      `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">` +
+        `<div class="dash-card-title" style="margin-bottom:0">CURRENT STATUS &amp; NEXT ACTIONS <span style="color:var(--text3);font-weight:400;font-size:9px">— drag to reprioritise</span></div>` +
+        (hiddenNa.length > 0 ? `<button class="btn" style="font-size:10px;padding:4px 10px;color:var(--text3)" onclick="toggleShowHidden()">${dashShowHidden ? 'Hide hidden' : 'Show hidden (' + hiddenNa.length + ')'}</button>` : '') +
+      `</div>` +
+      (visibleNa.length === 0 && !dashShowHidden ? `<div class="empty" style="padding:1rem;font-size:11px;border:none">No active projects in the last 30 days</div>` : `<div id="naList" style="display:flex;flex-direction:column;gap:6px">${visibleNa.map(p=>renderNaBlock(p,false)).join('')}</div>`) +
+      (dashShowHidden && hiddenNa.length > 0 ?
+        `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">` +
+          `<div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.08em;margin-bottom:8px">HIDDEN</div>` +
+          `<div style="display:flex;flex-direction:column;gap:6px">${hiddenNa.map(p=>renderNaBlock(p,true)).join('')}</div>` +
+        `</div>` : '') +
+    `</div>` +
+    `<div class="dash-card">` +
+      `<div class="dash-card-title">STAGE OVERVIEW</div>` +
+      `<div class="stage-bars">${Object.entries(counts).map(([k,v])=>`<div class="sbar"><span class="sbar-label">${k}</span><div class="sbar-track"><div class="sbar-fill" style="width:${Math.round(v/max*100)}%;background:${stageColors[k]}"></div></div><span class="sbar-count">${v}</span></div>`).join('')}</div>` +
+    `</div>` +
+    `<div class="dash-card">` +
+      `<div class="dash-card-title">OUTSTANDING FLAGS</div>` +
+      (flags.length === 0 ? `<div class="empty" style="padding:1rem;font-size:11px;border:none">All clear</div>` : `<div class="flag-list">${flags.map(f=>`<div class="flag-item"><div class="flag-dot"></div><div class="flag-text">${f.text}<br><span class="flag-eng">${f.eng.length>42?f.eng.slice(0,42)+'…':f.eng}</span></div></div>`).join('')}</div>`) +
+    `</div>` +
+    `<div class="dash-card full">` +
+      `<div class="dash-card-title">DEADLINE TIMELINE</div>` +
+      (deadlines.length === 0 ? `<div class="empty" style="padding:1rem;font-size:11px;border:none">No upcoming deadlines</div>` : `<div class="tl-list">${deadlines.map(d=>`<div class="tl-item"><div class="tl-dot" style="background:${dotColor(d.wd)}"></div><span class="tl-name">${d.name.length>45?d.name.slice(0,45)+'…':d.name}</span><span class="tl-type">${d.type}</span><span class="tl-date">${fmtDateLong(d.date)}</span><span class="tl-days" style="color:${dotColor(d.wd)}">${daysLabel(d.wd)}</span></div>`).join('')}</div>`) +
+    `</div>` +
+    `<div class="dash-card full">` +
+      `<div class="dash-card-title">SUBCONTRACTOR STATUS</div>` +
+      (allScs.length === 0 ? `<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active projects</div>` :
+        `<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>PROJECT</th><th>CURRENCY</th><th>PROF FEE</th><th>OPEs</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="font-family:var(--mono);font-size:10px">${sc.currency||'USD'}</td><td>${sc.fee?Number(sc.fee).toLocaleString():'—'}</td><td>${sc.ope?Number(sc.ope).toLocaleString():'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">${sc.invoiceReceived?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">${sc.invoiceProcessed?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`) +
+    `</div>`;
 
   initDragDrop();
 }
 
 /* ── DRAG AND DROP ── */
 function getOrderedNa(naProjects) {
-  if(!naOrder.length) return naProjects;
-  const ordered=[];
-  naOrder.forEach(id=>{ const p=naProjects.find(x=>String(x.id)===String(id)); if(p)ordered.push(p); });
+  if (!naOrder.length) return naProjects;
+  const ordered = [];
+  naOrder.forEach(id=>{ const p=naProjects.find(x=>String(x.id)===String(id)); if(p) ordered.push(p); });
   naProjects.forEach(p=>{ if(!naOrder.includes(String(p.id))&&!naOrder.includes(p.id)) ordered.push(p); });
   return ordered;
 }
 
-function renderNaBlock(p) {
-  const codes=[p.projectCode,p.slCode].filter(Boolean).join(' — ');
-  return `<div class="na-block" id="na-${p.id}" draggable="true" data-id="${p.id}">
-    <div class="drag-handle" title="Drag to reorder">⠿</div>
-    <div class="na-content">
-      <div class="na-header">
-        <span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>
-        <span class="na-name">${p.name||'Untitled'}${codes?` <span style="color:var(--text3)">[${codes}]</span>`:''}</span>
-        ${p.client?`<span class="na-client">— ${p.client}</span>`:''}
-      </div>
-      <div class="na-action">${p.nextAction?'→ '+p.nextAction:'<span style="color:var(--text3);font-style:italic">No next action recorded</span>'}</div>
-    </div>
-    <div class="na-deadline">${fmtDate(p.finalDeadline||p.interimDeadline)}</div>
-  </div>`;
+function renderNaBlock(p, isHidden) {
+  const codes = [p.projectCode,p.slCode].filter(Boolean).join(' — ');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const interimPending = p.interimDeadline && p.interimStatus !== 'Delivered' && p.interimStatus !== 'N/A' && safeDate(p.interimDeadline) >= today;
+  const finalPending = p.finalDeadline && p.finalStatus !== 'Delivered' && p.finalStatus !== 'N/A';
+  let deadlineHtml = '';
+  if (interimPending && finalPending) {
+    deadlineHtml = `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-align:right;line-height:1.8;flex-shrink:0"><div>Int: ${fmtDate(p.interimDeadline)}</div><div>Final: ${fmtDate(p.finalDeadline)}</div></div>`;
+  } else if (interimPending) {
+    deadlineHtml = `<div class="na-deadline">Int: ${fmtDate(p.interimDeadline)}</div>`;
+  } else if (finalPending) {
+    deadlineHtml = `<div class="na-deadline">Final: ${fmtDate(p.finalDeadline)}</div>`;
+  }
+  const hiddenStyle = isHidden ? 'opacity:0.5;' : '';
+  const actionHtml = p.nextAction
+    ? `<span style="color:var(--text2)">→ ${p.nextAction}</span>`
+    : `<span style="color:var(--text3);font-style:italic">No next action — click to add</span>`;
+  return `<div class="na-block" id="na-${p.id}" draggable="${!isHidden}" data-id="${p.id}" style="${hiddenStyle}">` +
+    (!isHidden ? `<div class="drag-handle" title="Drag to reorder">⠿</div>` : `<div style="width:20px;flex-shrink:0"></div>`) +
+    `<div class="na-content">` +
+      `<div class="na-header">` +
+        `<span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>` +
+        `<span class="na-name">${p.name||'Untitled'}${codes ? ` <span style="color:var(--text3)">[${codes}]</span>` : ''}</span>` +
+        (p.client ? `<span class="na-client">— ${p.client}</span>` : '') +
+      `</div>` +
+      `<div class="na-action" id="naaction-${p.id}" onclick="startEditNextAction(${p.id})" title="Click to edit" style="cursor:pointer">${actionHtml}</div>` +
+    `</div>` +
+    deadlineHtml +
+    `<button onclick="toggleDashHidden(${p.id})" style="background:none;border:none;font-size:13px;color:var(--text4);cursor:pointer;padding:2px 6px;flex-shrink:0" title="${isHidden ? 'Show in panel' : 'Hide from panel'}">${isHidden ? '↩' : '✕'}</button>` +
+  `</div>`;
+}
+
+function startEditNextAction(id) {
+  const el = document.getElementById('naaction-'+id);
+  if (!el) return;
+  const p = projects.find(x => x.id == id);
+  if (!p) return;
+  const current = p.nextAction || '';
+  el.innerHTML = `<input type="text" value="${current.replace(/"/g,'&quot;')}" style="width:100%;font-size:12px;padding:3px 6px;border:1px solid var(--navy3);border-radius:4px;font-family:var(--sans)" onblur="saveNextAction(${id},this.value)" onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape'){this.blur();}" onclick="event.stopPropagation()">`;
+  const input = el.querySelector('input');
+  input.focus();
+  input.select();
+}
+
+function saveNextAction(id, val) {
+  const p = projects.find(x => x.id == id);
+  if (!p) return;
+  p.nextAction = val.trim();
+  scheduleSave(id);
+  reRender(id);
+  renderDashboard();
 }
 
 function initDragDrop() {
-  const list=document.getElementById('naList'); if(!list)return;
-  list.querySelectorAll('.na-block').forEach(block=>{
+  const list = document.getElementById('naList'); if (!list) return;
+  list.querySelectorAll('.na-block[draggable="true"]').forEach(block => {
     block.addEventListener('dragstart',e=>{ dragSrcId=block.dataset.id; block.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
     block.addEventListener('dragend',()=>{ block.classList.remove('dragging'); list.querySelectorAll('.na-block').forEach(b=>b.classList.remove('drag-over')); saveNaOrder(); });
     block.addEventListener('dragover',e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; block.classList.add('drag-over'); });
@@ -1984,10 +2079,12 @@ function initDragDrop() {
 }
 
 function saveNaOrder() {
-  const list=document.getElementById('naList'); if(!list)return;
-  naOrder=[...list.querySelectorAll('.na-block')].map(b=>b.dataset.id);
-  localStorage.setItem('cr_na_order',JSON.stringify(naOrder));
+  const list = document.getElementById('naList'); if (!list) return;
+  naOrder = [...list.querySelectorAll('.na-block')].map(b=>b.dataset.id);
+  saveDashPrefs();
 }
+
+
 
 /* ── CALENDAR ── */
 function renderCalendar() {
@@ -2121,7 +2218,7 @@ function showCalTooltip(e,el) {
 function renderTravelMatrix() {
   const travelProjects = projects.filter(p=>p.allowTravel&&p.kickoffDate&&p.finalDeadline&&p.stage!=='Closed'&&p.stage!=='Proposal'&&p.projectFee);
   if (!travelProjects.length) {
-    document.getElementById('travelMatrix').innerHTML=`<div class="empty" style="font-size:12px">No projects with travel enabled. Add kick-off date, project fee, and tick "Allow travel" on active engagements.</div>`;
+    document.getElementById('travelMatrix').innerHTML=`<div class="empty" style="font-size:12px">No projects with travel enabled. Add kick-off date, project fee, and tick "Allow travel" on active projects.</div>`;
     return;
   }
 
@@ -2181,7 +2278,7 @@ function renderTravelMatrix() {
 
   // Project detail table
   html+=`<div style="margin-top:1.5rem"><div style="font-family:var(--mono);font-size:10px;color:var(--navy3);letter-spacing:0.1em;font-weight:500;margin-bottom:12px">PROJECT DETAIL</div>`;
-  html+=`<div class="sc-wrap"><table><thead><tr><th>ENGAGEMENT</th><th>JURISDICTION</th><th>DAY 1</th><th>FINAL DEADLINE</th><th>FEE</th><th>OPE %</th><th>OPE BUDGET</th><th>SUBCON OPEs</th><th>EXPENSES</th><th>OPE AVAILABLE</th></tr></thead><tbody>`;
+  html+=`<div class="sc-wrap"><table><thead><tr><th>PROJECT</th><th>JURISDICTION</th><th>DAY 1</th><th>FINAL DEADLINE</th><th>FEE</th><th>OPE %</th><th>OPE BUDGET</th><th>SUBCON OPEs</th><th>EXPENSES</th><th>OPE AVAILABLE</th></tr></thead><tbody>`;
   travelProjects.forEach(p=>{
     const cur=p.projectFeeCurrency||'USD';
     const juris=[p.jurisdiction1,p.jurisdiction2].filter(j=>j&&j!=='— none —').join(', ')||'—';
@@ -2219,7 +2316,7 @@ function downloadICS(ev) {
     codes ? 'Codes: ' + codes : '',
     ev.nextAction ? 'Next action: ' + ev.nextAction : '',
     '',
-    'Generated by CR Engagement Tracker'
+    'Generated by CR Project Tracker'
   ].filter(l=>l!==undefined).join('\\n').replace(/,/g,'\\,');
 
   const uid = 'cr-tracker-' + Date.now() + '@cr';
@@ -2326,8 +2423,33 @@ function initTimesheets() {
   renderTsMonth();
 }
 
+// Reference date for 30/45-day eligibility — final deadline → interim deadline → lastModified
+function projectRefDate(p) {
+  if (p.finalDeadline) return safeDate(p.finalDeadline);
+  if (p.interimDeadline) return safeDate(p.interimDeadline);
+  if (p.lastModified) return safeDate(p.lastModified);
+  return null;
+}
+
+function projectAgeDays(p) {
+  const ref = projectRefDate(p);
+  if (!ref) return 0; // no date — treat as current
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.floor((today - ref) / 86400000);
+}
+
 function tsPipelineOpts() {
-  const opts = projects.map(p=>{
+  const cutoff = 45;
+  const filtered = projects
+    .filter(p => projectAgeDays(p) <= cutoff)
+    .sort((a,b) => {
+      const ra = projectRefDate(a), rb = projectRefDate(b);
+      if (!ra && !rb) return 0;
+      if (!ra) return 1;
+      if (!rb) return -1;
+      return rb - ra; // newest first
+    });
+  const opts = filtered.map(p=>{
     const label = p.slCode ? `${p.name||'Untitled'} [${p.slCode}]` : (p.name||'Untitled');
     return `<option value="${p.id}|sl">${label}</option>`;
   });
@@ -2335,7 +2457,17 @@ function tsPipelineOpts() {
 }
 
 function tsEngagementOpts() {
-  const opts = projects.filter(p=>p.stage!=='Proposal').map(p=>{
+  const cutoff = 45;
+  const filtered = projects
+    .filter(p => p.stage !== 'Proposal' && projectAgeDays(p) <= cutoff)
+    .sort((a,b) => {
+      const ra = projectRefDate(a), rb = projectRefDate(b);
+      if (!ra && !rb) return 0;
+      if (!ra) return 1;
+      if (!rb) return -1;
+      return rb - ra; // newest first
+    });
+  const opts = filtered.map(p=>{
     const label = p.projectCode ? `${p.name||'Untitled'} [${p.projectCode}]` : (p.name||'Untitled');
     return `<option value="${p.id}|pc">${label}</option>`;
   });
@@ -2364,7 +2496,7 @@ function tsAddRow() {
       <select id="tspipe-${id}" onchange="tsOnPipeSelect(${id})"><optgroup label="Pipeline">${tsPipelineOpts()}</optgroup><optgroup label="Internal"><option value="__internal__">Internal — non-billable</option></optgroup><optgroup label="Other"><option value="__other__">Other (free text)</option></optgroup></select>
     </div>
     <div class="field" style="flex:1;min-width:140px" id="tsengfield-${id}">
-      <label>ENGAGEMENT (Project)</label>
+      <label>PROJECT</label>
       <select id="tseng-${id}" onchange="tsOnEngSelect(${id})">${tsEngagementOpts()}</select>
     </div>
     <div id="tsotherdiv-${id}" style="display:none;flex:1;min-width:140px">
@@ -2614,7 +2746,7 @@ function renderTsMonth() {
   const typeLabel = {billable:'Billable',pipeline:'Pipeline',internal:'Internal',leave:'Leave'};
   const typeStyle = {billable:'ts-type-bill',pipeline:'ts-type-pipe',internal:'ts-type-int',leave:'ts-type-leave'};
   let html = `<div style="overflow-x:auto"><table class="ts-month-table"><thead><tr>
-    <th>DATE</th><th>TYPE</th><th>ENGAGEMENT</th><th>SL CODE</th><th>PROJECT CODE</th><th>ACTIVITY</th><th>HOURS</th><th></th>
+    <th>DATE</th><th>TYPE</th><th>PROJECT</th><th>SL CODE</th><th>PROJECT CODE</th><th>ACTIVITY</th><th>HOURS</th><th></th>
   </tr></thead><tbody>`;
   entries.forEach(e=>{
     html+=`<tr>
@@ -2664,7 +2796,7 @@ function tsGenerateReport() {
       <thead><tr style="background:var(--navy);color:#fff">
         <th style="padding:8px 10px;text-align:left;font-weight:500">Date</th>
         <th style="padding:8px 10px;text-align:left;font-weight:500">Project / SL Code</th>
-        <th style="padding:8px 10px;text-align:left;font-weight:500">Engagement</th>
+        <th style="padding:8px 10px;text-align:left;font-weight:500">Project</th>
         <th style="padding:8px 10px;text-align:left;font-weight:500">Time Category</th>
         <th style="padding:8px 10px;text-align:right;font-weight:500">Hours</th>
       </tr></thead><tbody>`;
