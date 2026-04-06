@@ -473,6 +473,10 @@ tr:hover td { background: #fbfcfd; }
   max-width: 100%;
   overflow: hidden;
 }
+.na-block-top { display: flex; align-items: flex-start; gap: 10px; width: 100%; min-width: 0; }
+.na-block-bottom { display: none; } /* hidden on desktop, shown on mobile via media query */
+.na-mobile-hide { display: none; } /* hide button shown in top row on desktop */
+.na-desktop-right { display: flex; } /* visible on desktop */
 .na-block.dragging { opacity: 0.4; }
 .na-block.drag-over { border-color: #98abc3; background: var(--navy-light); }
 .drag-handle { color: var(--text3); font-size: 14px; cursor: grab; padding: 2px 4px; flex-shrink: 0; margin-top: 2px; line-height: 1; }
@@ -714,48 +718,83 @@ tr:hover td { background: #fbfcfd; }
   .mob-nav {
     display: flex;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0; left: 0; right: 0;
     background: rgba(27,45,70,0.98);
-    border-top: 1px solid rgba(198, 214, 232, 0.16);
-    z-index: 200;
-    height: 58px;
+    border-top: 1px solid rgba(198,214,232,0.16);
+    z-index: 200; height: 58px;
     backdrop-filter: blur(12px);
   }
-  .mob-nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: transparent; border: none; color: rgba(255,255,255,0.58); font-size: 9px; font-family: var(--mono); letter-spacing: 0.04em; cursor: pointer; gap: 3px; padding: 6px 0; }
-  .mob-nav-btn.active { color: #fff; }
-  .mob-nav-btn svg { width: 18px; height: 18px; }
+  .mob-nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; border:none; color:rgba(255,255,255,0.58); font-size:9px; font-family:var(--mono); letter-spacing:0.04em; cursor:pointer; gap:3px; padding:6px 0; }
+  .mob-nav-btn.active { color:#fff; }
+  .mob-nav-btn svg { width:18px; height:18px; }
   .main { padding-bottom: 68px; }
   .dash-grid { grid-template-columns: 1fr; gap: 10px; }
-  .dash-card { padding: 16px; }
+  .dash-card { padding: 14px; }
   .dash-card.full { grid-column: 1; }
   .dash-card-title { font-size: 9px; margin-bottom: 10px; }
   .fg-4 { grid-template-columns: 1fr 1fr; }
   .fg-3 { grid-template-columns: 1fr 1fr; }
   .fg-2 { grid-template-columns: 1fr; }
-  .cal-grid { gap: 3px; }
-  .cal-day { min-height: 52px; padding: 5px 5px; border-radius: 10px; }
+
+  /* ── CALENDAR ── */
+  .cal-grid { gap: 2px; }
+  .cal-day { min-height: 44px; padding: 4px 4px; border-radius: 8px; }
   .cal-date { font-size: 11px; margin-bottom: 2px; }
   .cal-event-pill { display: none; }
   .cal-dots { gap: 2px; }
   .cal-dot { width: 5px; height: 5px; }
-  .cal-legend { gap: 6px; }
+  .cal-legend { gap: 6px; flex-wrap: wrap; }
   .cal-legend-item { font-size: 10px; }
   .cal-header { flex-direction: column; gap: 8px; align-items: flex-start; }
   .cal-month { font-size: 15px; min-width: auto; }
+  /* Holiday labels — hide text on mobile, keep background tint only */
+  .cal-hol-label { display: none; }
+
+  /* ── ENGAGEMENT CARDS ── */
   .card-header { padding: 11px 12px; gap: 9px; min-height: auto; }
   .card-name { font-size: 13px; }
   .card-deadline { font-size: 10px; }
   .card-body { padding: 14px; }
   .sec-label { font-size: 9px; }
   .stage-pill { font-size: 8px; padding: 3px 7px; }
-  .sc-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table { min-width: 0; width: 100%; font-size: 11px; }
+
+  /* ── TABLES — scroll within wrapper only ── */
+  .sc-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; display: block; }
+  table { min-width: 0; font-size: 11px; }
   th { font-size: 9px; }
-  .tl-date { font-size: 10px; }
-  .tl-name { font-size: 11px; }
-  .na-deadline { display: none; }
+  .ts-month-table { min-width: 480px; }
+
+  /* ── NA CARDS — vertical reflow ── */
+  .na-block { flex-direction: column; gap: 6px; padding: 12px 14px; max-width: 100%; overflow: hidden; }
+  .na-block-top { display: flex; align-items: flex-start; gap: 8px; width: 100%; min-width: 0; }
+  .na-desktop-right { display: none; } /* hide desktop right panel */
+  .na-block-bottom { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-top: 6px; border-top: 1px solid var(--border); margin-top: 2px; }
+  .na-mobile-hide { display: block; }
+  .na-content { min-width: 0; width: 100%; }
+  .na-header { flex-wrap: wrap; gap: 6px; margin-bottom: 2px; }
+  .na-name { white-space: normal; word-break: break-word; font-size: 11px; }
+  .na-client { white-space: normal; word-break: break-word; }
+  .na-action { white-space: normal; word-break: break-word; font-size: 12px; line-height: 1.5; }
+  .na-deadline { display: block; font-size: 10px; color: var(--text3); font-family: var(--mono); white-space: normal; }
+  #naList { max-width: 100%; overflow: hidden; }
+
+  /* ── OUTSTANDING FLAGS — vertical stack ── */
+  .flag-item { flex-direction: column; gap: 4px; padding: 10px 12px; }
+  .flag-item-row { display: flex; align-items: flex-start; gap: 8px; }
+  .flag-dot { margin-top: 3px; }
+  .flag-text { font-size: 12px; word-break: break-word; }
+  .flag-eng { font-size: 10px; word-break: break-word; display: block; margin-top: 2px; }
+
+  /* ── DEADLINE TIMELINE — two-line reflow ── */
+  .tl-list { gap: 5px; }
+  .tl-item { flex-wrap: wrap; gap: 4px; padding: 8px 10px; }
+  .tl-name { font-size: 11px; word-break: break-word; min-width: 0; flex: 1 1 100%; order: 1; }
+  .tl-type { order: 2; font-size: 9px; }
+  .tl-date { order: 3; font-size: 10px; white-space: nowrap; }
+  .tl-days { order: 4; font-size: 10px; white-space: nowrap; margin-left: auto; }
+  .tl-dot { order: 0; margin-top: 3px; align-self: flex-start; }
+
+  /* ── GENERAL ── */
   .sbar-label { width: 56px; font-size: 11px; }
   .tracker-header h2 { font-size: 15px; }
   .digest-bar { flex-direction: column; gap: 8px; padding: 12px 14px; }
@@ -766,25 +805,21 @@ tr:hover td { background: #fbfcfd; }
   .field label { font-size: 9px; }
   .checks { gap: 10px; }
   .check { font-size: 11px; }
-  .tl-list { gap: 5px; }
-  .tl-item, .flag-item { padding: 8px 9px; }
+  .flag-item, .tl-item { padding: 8px 9px; }
   .flag-text { font-size: 10px; }
-  /* NA cards — prevent overflow */
-  .na-block { max-width: calc(100vw - 1.5rem); overflow: hidden; }
-  .na-content { min-width: 0; max-width: 100%; }
-  #naList { max-width: 100%; overflow: hidden; }
-  /* Deadline timeline — stack date below name */
-  .tl-item { flex-wrap: wrap; gap: 4px; }
-  .tl-date { white-space: normal; }
-  .tl-days { white-space: nowrap; }
-  /* Subcon table — horizontal scroll only within its container */
-  .sc-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
-  .ts-row { flex-wrap: wrap; }
-  .ts-row .field { min-width: 0 !important; flex: 1 1 40%; }
-  .ts-row .field-hrs { flex: 0 0 70px; }
-  .ts-row-remove { align-self: flex-end; margin-bottom: 2px; }
-  .ts-month-table { min-width: 480px; }
-}
+
+  /* ── LOG HOURS — full vertical stack per row ── */
+  .ts-row { flex-direction: column; gap: 8px; padding: 12px; align-items: stretch; }
+  .ts-row .field { min-width: 0 !important; flex: none; width: 100%; }
+  .ts-row .field-sm { flex: none; width: 100%; }
+  .ts-row .field-hrs { flex: none; width: 100%; }
+  .ts-row-bottom { display: flex; align-items: center; gap: 8px; }
+  .ts-row-bottom .field-hrs { flex: 1; }
+  .ts-row-remove { align-self: flex-end; padding: 4px 8px; }
+  .ts-log-actions { flex-direction: column-reverse; gap: 8px; }
+  .ts-log-actions .btn { width: 100%; text-align: center; }
+}'
+
 @media (min-width: 769px) {
   .mob-nav { display: none; }
 }
@@ -837,7 +872,7 @@ tr:hover td { background: #fbfcfd; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.7</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.8</span>
       <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
@@ -1042,7 +1077,7 @@ tr:hover td { background: #fbfcfd; }
           <div style="font-family:var(--mono);font-size:11px;color:var(--text2)" id="tsRowTotal"></div>
         </div>
         <div id="tsRows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
-        <div style="display:flex;justify-content:flex-end;gap:10px">
+        <div class="ts-log-actions" style="display:flex;justify-content:flex-end;gap:10px">
           <button class="btn" onclick="tsClearRows()">Clear</button>
           <button class="btn btn-navy" onclick="tsSaveAll()">Save all entries</button>
         </div>
@@ -2082,30 +2117,43 @@ function renderNaBlock(p, isHidden) {
   const today = new Date(); today.setHours(0,0,0,0);
   const interimPending = p.interimDeadline && p.interimStatus !== 'Delivered' && p.interimStatus !== 'N/A' && safeDate(p.interimDeadline) >= today;
   const finalPending = p.finalDeadline && p.finalStatus !== 'Delivered' && p.finalStatus !== 'N/A';
-  let deadlineHtml = '';
+  let deadlineText = '';
   if (interimPending && finalPending) {
-    deadlineHtml = `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-align:right;line-height:1.8;flex-shrink:0"><div>Int: ${fmtDate(p.interimDeadline)}</div><div>Final: ${fmtDate(p.finalDeadline)}</div></div>`;
+    deadlineText = `Int: ${fmtDate(p.interimDeadline)} · Final: ${fmtDate(p.finalDeadline)}`;
   } else if (interimPending) {
-    deadlineHtml = `<div class="na-deadline">Int: ${fmtDate(p.interimDeadline)}</div>`;
+    deadlineText = `Int: ${fmtDate(p.interimDeadline)}`;
   } else if (finalPending) {
-    deadlineHtml = `<div class="na-deadline">Final: ${fmtDate(p.finalDeadline)}</div>`;
+    deadlineText = `Final: ${fmtDate(p.finalDeadline)}`;
   }
   const hiddenStyle = isHidden ? 'opacity:0.5;' : '';
   const actionHtml = p.nextAction
     ? `<span style="color:var(--text2)">→ ${p.nextAction}</span>`
     : `<span style="color:var(--text3);font-style:italic">No next action — click to add</span>`;
+  const hideBtn = `<button onclick="toggleDashHidden(${p.id})" style="background:none;border:none;font-size:13px;color:var(--text4);cursor:pointer;padding:2px 6px;flex-shrink:0" title="${isHidden ? 'Show in panel' : 'Hide from panel'}">${isHidden ? '↩' : '✕'}</button>`;
+
   return `<div class="na-block" id="na-${p.id}" draggable="${!isHidden}" data-id="${p.id}" style="${hiddenStyle}">` +
-    (!isHidden ? `<div class="drag-handle" title="Drag to reorder">⠿</div>` : `<div style="width:20px;flex-shrink:0"></div>`) +
-    `<div class="na-content">` +
-      `<div class="na-header">` +
-        `<span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>` +
-        `<span class="na-name">${p.name||'Untitled'}${codes ? ` <span style="color:var(--text3)">[${codes}]</span>` : ''}</span>` +
-        (p.client ? `<span class="na-client">— ${p.client}</span>` : '') +
+    // Top row: drag handle + content + deadline (desktop) + hide btn (desktop)
+    `<div class="na-block-top">` +
+      (!isHidden ? `<div class="drag-handle" title="Drag to reorder">⠿</div>` : `<div style="width:20px;flex-shrink:0"></div>`) +
+      `<div class="na-content">` +
+        `<div class="na-header">` +
+          `<span class="stage-pill ${stageClass(p.stage)}">${p.stage.toUpperCase()}</span>` +
+          `<span class="na-name">${p.name||'Untitled'}${codes ? ` <span style="color:var(--text3);font-weight:400">[${codes}]</span>` : ''}</span>` +
+          (p.client ? `<span class="na-client">— ${p.client}</span>` : '') +
+        `</div>` +
+        `<div class="na-action" id="naaction-${p.id}" onclick="startEditNextAction(${p.id})" title="Click to edit" style="cursor:pointer">${actionHtml}</div>` +
       `</div>` +
-      `<div class="na-action" id="naaction-${p.id}" onclick="startEditNextAction(${p.id})" title="Click to edit" style="cursor:pointer">${actionHtml}</div>` +
+      // Desktop-only: deadline right side + hide button
+      `<div class="na-desktop-right" style="display:flex;align-items:flex-start;gap:6px;flex-shrink:0">` +
+        (deadlineText ? `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-align:right;line-height:1.8;white-space:nowrap">${deadlineText.replace(' · ','<br>')}</div>` : '') +
+        hideBtn +
+      `</div>` +
     `</div>` +
-    deadlineHtml +
-    `<button onclick="toggleDashHidden(${p.id})" style="background:none;border:none;font-size:13px;color:var(--text4);cursor:pointer;padding:2px 6px;flex-shrink:0" title="${isHidden ? 'Show in panel' : 'Hide from panel'}">${isHidden ? '↩' : '✕'}</button>` +
+    // Bottom row: deadline + hide btn — mobile only via na-block-bottom class
+    (deadlineText || true ? `<div class="na-block-bottom">` +
+      `<span class="na-deadline">${deadlineText||''}</span>` +
+      `<div class="na-mobile-hide">${hideBtn}</div>` +
+    `</div>` : '') +
   `</div>`;
 }
 
@@ -2239,8 +2287,8 @@ function renderCalendar() {
     else if(idHol) bgStyle='background:#fff8f8';
 
     const holLabels=[
-      sgHol?`<div style="font-size:9px;font-family:var(--mono);color:#c0392b;background:#fde8e8;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${sgHol}">🇸🇬 ${sgHol.length>14?sgHol.slice(0,14)+'…':sgHol}</div>`:'',
-      idHol?`<div style="font-size:9px;font-family:var(--mono);color:#b03030;background:#fdf0f0;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${idHol}">🇮🇩 ${idHol.length>14?idHol.slice(0,14)+'…':idHol}</div>`:''
+      sgHol?`<div class="cal-hol-label" style="font-size:9px;font-family:var(--mono);color:#c0392b;background:#fde8e8;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${sgHol}">🇸🇬 ${sgHol.length>14?sgHol.slice(0,14)+'…':sgHol}</div>`:'',
+      idHol?`<div class="cal-hol-label" style="font-size:9px;font-family:var(--mono);color:#b03030;background:#fdf0f0;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${idHol}">🇮🇩 ${idHol.length>14?idHol.slice(0,14)+'…':idHol}</div>`:''
     ].filter(Boolean).join('');
 
     const travelTag = hasTravelOPE ? `<div style="font-size:9px;font-family:var(--mono);color:#085041;background:#e1f5ee;padding:1px 5px;border-radius:3px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">✈ ${Object.keys(travelByJuris).join(', ')}</div>` : '';
