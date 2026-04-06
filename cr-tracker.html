@@ -728,9 +728,10 @@ tr:hover td { background: #fbfcfd; }
   .mob-nav-btn.active { color:#fff; }
   .mob-nav-btn svg { width:18px; height:18px; }
   .main { padding-bottom: 68px; }
-  .dash-grid { grid-template-columns: 1fr; gap: 10px; }
-  .dash-card { padding: 14px; }
-  .dash-card.full { grid-column: 1; }
+  .dash-grid { grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 100%; overflow: hidden; }
+  #dashGrid { width: 100%; max-width: 100%; overflow: hidden; }
+  .dash-card { padding: 14px; max-width: 100%; overflow: hidden; }
+  .dash-card.full { grid-column: 1; max-width: 100%; overflow: hidden; }
   .dash-card-title { font-size: 9px; margin-bottom: 10px; }
   .fg-4 { grid-template-columns: 1fr 1fr; }
   .fg-3 { grid-template-columns: 1fr 1fr; }
@@ -760,39 +761,57 @@ tr:hover td { background: #fbfcfd; }
 
   /* ── TABLES — scroll within wrapper only ── */
   .sc-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; display: block; }
-  table { min-width: 0; font-size: 11px; }
-  th { font-size: 9px; }
   .ts-month-table { min-width: 480px; }
+  /* Subcon table — hide on mobile, replaced by card list */
+  .sc-table-desktop { display: none; }
+  .sc-card-list { display: flex; flex-direction: column; gap: 8px; }
+  .sc-card-mobile {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-card-vendor { font-size: 13px; font-weight: 600; color: var(--text); }
+  .sc-card-project { font-size: 11px; color: var(--text3); font-family: var(--mono); word-break: break-word; }
+  .sc-card-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text2); }
+  .sc-card-label { color: var(--text4); font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; }
+  .sc-card-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
 
   /* ── NA CARDS — vertical reflow ── */
-  .na-block { flex-direction: column; gap: 6px; padding: 12px 14px; max-width: 100%; overflow: hidden; }
-  .na-block-top { display: flex; align-items: flex-start; gap: 8px; width: 100%; min-width: 0; }
-  .na-desktop-right { display: none; } /* hide desktop right panel */
-  .na-block-bottom { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-top: 6px; border-top: 1px solid var(--border); margin-top: 2px; }
-  .na-mobile-hide { display: block; }
-  .na-content { min-width: 0; width: 100%; }
-  .na-header { flex-wrap: wrap; gap: 6px; margin-bottom: 2px; }
-  .na-name { white-space: normal; word-break: break-word; font-size: 11px; }
-  .na-client { white-space: normal; word-break: break-word; }
-  .na-action { white-space: normal; word-break: break-word; font-size: 12px; line-height: 1.5; }
-  .na-deadline { display: block; font-size: 10px; color: var(--text3); font-family: var(--mono); white-space: normal; }
-  #naList { max-width: 100%; overflow: hidden; }
+  #naList { max-width: 100%; overflow: hidden; width: 100%; }
+  .na-block { flex-direction: column; gap: 6px; padding: 12px 14px; max-width: 100%; overflow: hidden; box-sizing: border-box; width: 100%; }
+  .na-block-top { display: flex; align-items: flex-start; gap: 8px; width: 100%; min-width: 0; overflow: hidden; }
+  .na-desktop-right { display: none; }
+  .na-block-bottom { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-top: 6px; border-top: 1px solid var(--border); margin-top: 2px; overflow: hidden; }
+  .na-mobile-hide { display: block; flex-shrink: 0; }
+  .na-content { min-width: 0; width: 100%; overflow: hidden; }
+  .na-header { flex-wrap: wrap; gap: 4px; margin-bottom: 2px; min-width: 0; overflow: hidden; }
+  .na-name { white-space: normal; word-break: break-word; overflow-wrap: break-word; font-size: 11px; min-width: 0; max-width: 100%; }
+  .na-client { white-space: normal; word-break: break-word; overflow-wrap: break-word; min-width: 0; max-width: 100%; }
+  .na-action { white-space: normal; word-break: break-word; overflow-wrap: break-word; font-size: 12px; line-height: 1.5; min-width: 0; max-width: 100%; }
+  .na-deadline { display: block; font-size: 10px; color: var(--text3); font-family: var(--mono); white-space: normal; word-break: break-word; min-width: 0; flex: 1; }
 
   /* ── OUTSTANDING FLAGS — vertical stack ── */
-  .flag-item { flex-direction: column; gap: 4px; padding: 10px 12px; }
-  .flag-item-row { display: flex; align-items: flex-start; gap: 8px; }
-  .flag-dot { margin-top: 3px; }
-  .flag-text { font-size: 12px; word-break: break-word; }
-  .flag-eng { font-size: 10px; word-break: break-word; display: block; margin-top: 2px; }
+  .flag-list { width: 100%; max-width: 100%; overflow: hidden; }
+  .flag-item { flex-direction: column; gap: 4px; padding: 10px 12px; max-width: 100%; overflow: hidden; box-sizing: border-box; }
+  .flag-item-row { display: flex; align-items: flex-start; gap: 8px; max-width: 100%; }
+  .flag-dot { margin-top: 3px; flex-shrink: 0; }
+  .flag-text { font-size: 12px; word-break: break-word; overflow-wrap: break-word; max-width: 100%; }
+  .flag-eng { font-size: 10px; word-break: break-word; overflow-wrap: break-word; display: block; margin-top: 2px; max-width: 100%; }
 
   /* ── DEADLINE TIMELINE — two-line reflow ── */
-  .tl-list { gap: 5px; }
-  .tl-item { flex-wrap: wrap; gap: 4px; padding: 8px 10px; }
-  .tl-name { font-size: 11px; word-break: break-word; min-width: 0; flex: 1 1 100%; order: 1; }
-  .tl-type { order: 2; font-size: 9px; }
-  .tl-date { order: 3; font-size: 10px; white-space: nowrap; }
-  .tl-days { order: 4; font-size: 10px; white-space: nowrap; margin-left: auto; }
-  .tl-dot { order: 0; margin-top: 3px; align-self: flex-start; }
+  .tl-list { gap: 5px; width: 100%; max-width: 100%; }
+  .tl-item { flex-wrap: wrap; gap: 4px; padding: 8px 10px; max-width: 100%; overflow: hidden; box-sizing: border-box; }
+  .tl-name { font-size: 11px; word-break: break-word; overflow-wrap: break-word; min-width: 0; flex: 1 1 100%; order: 1; max-width: 100%; }
+  .tl-type { order: 2; font-size: 9px; flex-shrink: 0; }
+  .tl-date { order: 3; font-size: 10px; white-space: nowrap; flex-shrink: 0; }
+  .tl-days { order: 4; font-size: 10px; white-space: nowrap; margin-left: auto; flex-shrink: 0; }
+  .tl-dot { order: 0; margin-top: 3px; align-self: flex-start; flex-shrink: 0; }
 
   /* ── GENERAL ── */
   .sbar-label { width: 56px; font-size: 11px; }
@@ -818,10 +837,12 @@ tr:hover td { background: #fbfcfd; }
   .ts-row-remove { align-self: flex-end; padding: 4px 8px; }
   .ts-log-actions { flex-direction: column-reverse; gap: 8px; }
   .ts-log-actions .btn { width: 100%; text-align: center; }
-}'
+}
 
 @media (min-width: 769px) {
   .mob-nav { display: none; }
+  .sc-table-desktop { display: block; }
+  .sc-card-list { display: none; }
 }
 
 /* Mobile calendar bottom sheet */
@@ -872,7 +893,7 @@ tr:hover td { background: #fbfcfd; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.8</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.9</span>
       <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
@@ -2097,7 +2118,23 @@ function renderDashboard() {
     `<div class="dash-card full">` +
       `<div class="dash-card-title">SUBCONTRACTOR STATUS</div>` +
       (allScs.length === 0 ? `<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active projects</div>` :
-        `<div class="sc-wrap"><table><thead><tr><th>VENDOR</th><th>PROJECT</th><th>CURRENCY</th><th>PROF FEE</th><th>OPEs</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="font-family:var(--mono);font-size:10px">${sc.currency||'USD'}</td><td>${sc.fee?Number(sc.fee).toLocaleString():'—'}</td><td>${sc.ope?Number(sc.ope).toLocaleString():'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">${sc.invoiceReceived?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">${sc.invoiceProcessed?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>`) +
+        `<div class="sc-wrap sc-table-desktop"><table><thead><tr><th>VENDOR</th><th>PROJECT</th><th>CURRENCY</th><th>PROF FEE</th><th>OPEs</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="font-family:var(--mono);font-size:10px">${sc.currency||'USD'}</td><td>${sc.fee?Number(sc.fee).toLocaleString():'—'}</td><td>${sc.ope?Number(sc.ope).toLocaleString():'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">${sc.invoiceReceived?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">${sc.invoiceProcessed?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>
+        <div class="sc-card-list">${allScs.map(({eng,sc})=>`
+          <div class="sc-card-mobile">
+            <div class="sc-card-vendor">${sc.name||'—'}</div>
+            <div class="sc-card-project">${eng}</div>
+            <div class="sc-card-row"><span class="sc-card-label">CURRENCY</span><span>${sc.currency||'USD'}</span></div>
+            <div class="sc-card-row"><span class="sc-card-label">PROF FEE</span><span>${sc.fee?Number(sc.fee).toLocaleString():'—'}</span></div>
+            <div class="sc-card-row"><span class="sc-card-label">OPEs</span><span>${sc.ope?Number(sc.ope).toLocaleString():'—'}</span></div>
+            <div class="sc-card-row"><span class="sc-card-label">DEADLINE</span><span>${fmtDate(sc.deadline)}</span></div>
+            <div class="sc-card-row"><span class="sc-card-label">PO</span><span>${sc.po||'<span style="color:var(--red);font-family:var(--mono);font-size:10px">MISSING</span>'}</span></div>
+            <div class="sc-card-pills">
+              <span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">BRIEFED: ${sc.briefed?'YES':'NO'}</span>
+              <span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">INV REC: ${sc.invoiceReceived?'YES':'NO'}</span>
+              <span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">INV PROC: ${sc.invoiceProcessed?'YES':'NO'}</span>
+            </div>
+          </div>
+        `).join('')}</div>`) +
     `</div>`;
 
   initDragDrop();
