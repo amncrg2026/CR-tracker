@@ -876,6 +876,71 @@ tr:hover td { background: #fbfcfd; }
 .cal-sheet-overlay.open { display: block; }
 @media (min-width: 769px) { .cal-bottom-sheet, .cal-sheet-overlay { display: none !important; } }
 
+/* ── PO GUIDANCE MODAL ── */
+.po-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 500;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.po-modal-overlay.open { display: flex; }
+.po-modal {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(16,24,40,0.22);
+}
+.po-modal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.po-modal-sub {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--mono);
+  margin-bottom: 18px;
+  letter-spacing: 0.04em;
+}
+.po-modal-step {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: var(--surface2);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.po-modal-step-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--navy3);
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.po-modal-step p {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+.po-modal-step strong { color: var(--navy); }
+.po-modal-close {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.po-modal-close:hover { background: var(--navy2); }
 </style>
 </head>
 <body>
@@ -893,7 +958,7 @@ tr:hover td { background: #fbfcfd; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v3.9</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.0</span>
       <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
@@ -1327,7 +1392,7 @@ function addProject() {
 
 function uf(id,field,value) { const p=projects.find(x=>x.id==id); if(p){p[field]=value; scheduleSave(id);} }
 function updateSubcon(id,idx,field,value) { const p=projects.find(x=>x.id==id); if(p&&p.subcontractors[idx]){p.subcontractors[idx][field]=value; scheduleSave(id);} }
-function addSubcon(id) { const p=projects.find(x=>x.id==id); if(!p)return; p.subcontractors.push({name:'',briefed:false,deadline:'',po:'',currency:'USD',fee:'',ope:'',invoiceReceived:false,invoiceProcessed:false,email:'',reminderEnabled:true}); scheduleSave(id); reRender(id); }
+function addSubcon(id) { const p=projects.find(x=>x.id==id); if(!p)return; p.subcontractors.push({name:'',briefed:false,deadline:'',po:'',currency:'USD',fee:'',ope:'',invoiceNumber:'',invoiceDate:'',confirmedPurchase:false,confirmedReceipt:false,sentToFinance:false,email:'',reminderEnabled:true}); scheduleSave(id); reRender(id); }
 function removeSubcon(id,idx) { const p=projects.find(x=>x.id==id); if(!p)return; p.subcontractors.splice(idx,1); scheduleSave(id); reRender(id); }
 function updateExp(id,idx,field,value) { const p=projects.find(x=>x.id==id); if(p&&p.expenses[idx]){p.expenses[idx][field]=value; scheduleSave(id);} }
 function addExp(id) { const p=projects.find(x=>x.id==id); if(!p)return; p.expenses.push({category:'Airfare',description:'',currency:'USD',amount:'',date:'',poRequired:false,poNumber:''}); scheduleSave(id); reRender(id); }
@@ -1468,17 +1533,34 @@ function renderSubcons(p) {
           </label>
         </div>
       </div>
-      <div class="checks">
+      <div class="checks" style="margin-bottom:10px">
         ${chkSc(p.id,i,'briefed',sc.briefed,'Briefed & confirmed')}
-        ${chkSc(p.id,i,'invoiceReceived',sc.invoiceReceived,'Invoice received')}
-        ${chkSc(p.id,i,'invoiceProcessed',sc.invoiceProcessed,'Invoice processed')}
+      </div>
+      <div style="background:var(--navy-light);border:1px solid var(--navy-mid);border-radius:10px;padding:12px 14px;margin-top:4px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--navy3);font-weight:600;letter-spacing:0.08em">INVOICE & PO PROCESSING</div>
+          <button onclick="showPoGuidance(event)" style="background:var(--navy-mid);border:none;border-radius:50%;width:16px;height:16px;font-size:9px;color:var(--navy);cursor:pointer;font-weight:600;line-height:16px;text-align:center;flex-shrink:0;padding:0" title="D365 guidance">?</button>
+        </div>
+        <div class="fg fg-2" style="margin-bottom:8px">
+          <div class="field"><label>INVOICE NUMBER</label><input value="${sc.invoiceNumber||''}" placeholder="e.g. INV-2026-0042" onchange="updateSubcon(${p.id},${i},'invoiceNumber',this.value)"></div>
+          <div class="field"><label>INVOICE RECEIVED DATE</label><input type="date" value="${(sc.invoiceDate||'').toString().slice(0,10)}" onchange="updateSubcon(${p.id},${i},'invoiceDate',this.value)"></div>
+        </div>
+        <div class="checks">
+          ${chkSc(p.id,i,'confirmedPurchase',sc.confirmedPurchase,'Confirmed purchase (D365)')}
+          ${chkSc(p.id,i,'confirmedReceipt',sc.confirmedReceipt,'Confirmed receipt (D365)')}
+          ${chkSc(p.id,i,'sentToFinance',sc.sentToFinance,'Invoice sent to finance')}
+        </div>
       </div>
     </div>`).join('');
   return blocks+`<button class="add-subcon" onclick="addSubcon(${p.id})">+ Add external resource</button>`;
 }
 
-const EXP_CATS = ['Airfare','Hotel / accommodation','Ground transport','Database / records','Restaurant / Cafe / Dining','Other'];
-function expCatOpts(selected) { return EXP_CATS.map(c=>`<option ${c===(selected||'Airfare')?'selected':''}>${c}</option>`).join(''); }
+const EXP_CATS = [
+  'Subsistence','Taxi fares','Accommodation','Airfare','Database / records',
+  'Entertainment staff','Venue','Entertainment client',
+  'Car hire','Equipment rent','Parking','Petrol','Others'
+];
+function expCatOpts(selected) { return EXP_CATS.map(c=>`<option ${c===(selected||EXP_CATS[0])?'selected':''}>${c}</option>`).join(''); }
 
 function renderExpenses(p) {
   const blocks=(p.expenses||[]).map((ex,i)=>`
@@ -1625,7 +1707,8 @@ function renderCard(p) {
     </div>`;
 
   const headerName = isProposal ? (p.name||'New proposal') : displayName(p);
-  const headerDeadline = p.interimDeadline||p.finalDeadline||'';
+  const interimDone = p.interimStatus==='Delivered'||p.interimStatus==='N/A';
+  const headerDeadline = (!interimDone&&p.interimDeadline) ? p.interimDeadline : (p.finalDeadline||p.interimDeadline||'');
   const wd = workDaysFrom(headerDeadline);
 
   return `<div class="project-card" id="card-${p.id}">
@@ -1660,7 +1743,7 @@ function render() {
   const list=document.getElementById('projectList');
   const filtered=currentFilter==='all'?projects:projects.filter(p=>p.stage===currentFilter);
   if(!filtered.length){list.innerHTML=`<div class="empty">No projects${currentFilter!=='all'?' in this stage':''}</div>`;return;}
-  const order={Delivered:0,Active:1,Proposal:2,Closed:3};
+  const order={Proposal:0,Active:1,Delivered:2,Closed:3};
   const sorted=[...filtered].sort((a,b)=>{
     if(order[a.stage]!==order[b.stage])return(order[a.stage]??99)-(order[b.stage]??99);
     const da=a.finalDeadline||a.interimDeadline, db=b.finalDeadline||b.interimDeadline;
@@ -2076,7 +2159,9 @@ function renderDashboard() {
     p.subcontractors.forEach(sc=>{
       if(!sc.briefed) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — not briefed`});
       if(!sc.po) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — no PO`});
-      if(sc.invoiceReceived&&!sc.invoiceProcessed) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — invoice not processed`});
+      if(sc.invoiceDate&&!sc.confirmedPurchase) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — invoice received, purchase not confirmed in D365`});
+      if(sc.invoiceDate&&!sc.confirmedReceipt) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — invoice received, receipt not confirmed in D365`});
+      if(sc.confirmedPurchase&&sc.confirmedReceipt&&!sc.sentToFinance) flags.push({eng:displayName(p),text:`${sc.name||'Subcontractor'} — D365 confirmed, invoice not sent to finance`});
     });
     (p.expenses||[]).forEach(ex=>{
       if(ex.poRequired&&!ex.poNumber) flags.push({eng:displayName(p),text:`${ex.description||ex.category} — PO required but missing`});
@@ -2118,7 +2203,7 @@ function renderDashboard() {
     `<div class="dash-card full">` +
       `<div class="dash-card-title">SUBCONTRACTOR STATUS</div>` +
       (allScs.length === 0 ? `<div class="empty" style="padding:1rem;font-size:11px;border:none">No external resources on active projects</div>` :
-        `<div class="sc-wrap sc-table-desktop"><table><thead><tr><th>VENDOR</th><th>PROJECT</th><th>CURRENCY</th><th>PROF FEE</th><th>OPEs</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV REC</th><th>INV PROC</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="font-family:var(--mono);font-size:10px">${sc.currency||'USD'}</td><td>${sc.fee?Number(sc.fee).toLocaleString():'—'}</td><td>${sc.ope?Number(sc.ope).toLocaleString():'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td><span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">${sc.invoiceReceived?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">${sc.invoiceProcessed?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>
+        `<div class="sc-wrap sc-table-desktop"><table><thead><tr><th>VENDOR</th><th>PROJECT</th><th>CURRENCY</th><th>PROF FEE</th><th>OPEs</th><th>DEADLINE</th><th>BRIEFED</th><th>PO</th><th>INV NO.</th><th>INV DATE</th><th>CONF PURCH</th><th>CONF RCPT</th><th>TO FINANCE</th></tr></thead><tbody>${allScs.map(({eng,sc})=>`<tr><td>${sc.name||'—'}</td><td style="color:var(--text3)">${eng.length>28?eng.slice(0,28)+'…':eng}</td><td style="font-family:var(--mono);font-size:10px">${sc.currency||'USD'}</td><td>${sc.fee?Number(sc.fee).toLocaleString():'—'}</td><td>${sc.ope?Number(sc.ope).toLocaleString():'—'}</td><td>${fmtDate(sc.deadline)}</td><td><span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">${sc.briefed?'YES':'NO'}</span></td><td>${sc.po||'<span style="color:var(--red);font-size:10px;font-family:var(--mono)">MISSING</span>'}</td><td style="font-family:var(--mono);font-size:11px">${sc.invoiceNumber||'—'}</td><td style="font-family:var(--mono);font-size:11px">${sc.invoiceDate?sc.invoiceDate.toString().slice(0,10):'—'}</td><td><span class="sc-pill ${sc.confirmedPurchase?'sc-yes':'sc-no'}">${sc.confirmedPurchase?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.confirmedReceipt?'sc-yes':'sc-no'}">${sc.confirmedReceipt?'YES':'NO'}</span></td><td><span class="sc-pill ${sc.sentToFinance?'sc-yes':'sc-no'}">${sc.sentToFinance?'YES':'NO'}</span></td></tr>`).join('')}</tbody></table></div>
         <div class="sc-card-list">${allScs.map(({eng,sc})=>`
           <div class="sc-card-mobile">
             <div class="sc-card-vendor">${sc.name||'—'}</div>
@@ -2128,10 +2213,13 @@ function renderDashboard() {
             <div class="sc-card-row"><span class="sc-card-label">OPEs</span><span>${sc.ope?Number(sc.ope).toLocaleString():'—'}</span></div>
             <div class="sc-card-row"><span class="sc-card-label">DEADLINE</span><span>${fmtDate(sc.deadline)}</span></div>
             <div class="sc-card-row"><span class="sc-card-label">PO</span><span>${sc.po||'<span style="color:var(--red);font-family:var(--mono);font-size:10px">MISSING</span>'}</span></div>
+            <div class="sc-card-row"><span class="sc-card-label">INV NO.</span><span style="font-family:var(--mono);font-size:11px">${sc.invoiceNumber||'—'}</span></div>
+            <div class="sc-card-row"><span class="sc-card-label">INV DATE</span><span style="font-family:var(--mono);font-size:11px">${sc.invoiceDate?sc.invoiceDate.toString().slice(0,10):'—'}</span></div>
             <div class="sc-card-pills">
               <span class="sc-pill ${sc.briefed?'sc-yes':'sc-no'}">BRIEFED: ${sc.briefed?'YES':'NO'}</span>
-              <span class="sc-pill ${sc.invoiceReceived?'sc-yes':'sc-no'}">INV REC: ${sc.invoiceReceived?'YES':'NO'}</span>
-              <span class="sc-pill ${sc.invoiceProcessed?'sc-yes':'sc-no'}">INV PROC: ${sc.invoiceProcessed?'YES':'NO'}</span>
+              <span class="sc-pill ${sc.confirmedPurchase?'sc-yes':'sc-no'}">CONF PURCH: ${sc.confirmedPurchase?'YES':'NO'}</span>
+              <span class="sc-pill ${sc.confirmedReceipt?'sc-yes':'sc-no'}">CONF RCPT: ${sc.confirmedReceipt?'YES':'NO'}</span>
+              <span class="sc-pill ${sc.sentToFinance?'sc-yes':'sc-no'}">TO FINANCE: ${sc.sentToFinance?'YES':'NO'}</span>
             </div>
           </div>
         `).join('')}</div>`) +
@@ -2363,8 +2451,20 @@ function showCalTooltip(e,el) {
   }).join('')}`;
   tt.classList.add('show');
   const r=el.getBoundingClientRect();
-  let left=r.left+window.scrollX,top=r.bottom+window.scrollY+4;
-  if(left+290>window.innerWidth)left=window.innerWidth-295;
+  const ttH=tt.offsetHeight||160;
+  const ttW=290;
+  const gap=6;
+  // Default: below the cell, aligned to left edge
+  let left=r.left;
+  let top=r.bottom+gap;
+  // Flip above if not enough space below
+  if(top+ttH>window.innerHeight-10) top=r.top-ttH-gap;
+  // Flip left if overflows right edge
+  if(left+ttW>window.innerWidth-8) left=window.innerWidth-ttW-8;
+  // Never go off left edge
+  if(left<8) left=8;
+  // Never go off top
+  if(top<8) top=8;
   tt.style.left=left+'px'; tt.style.top=top+'px';
 }
 
@@ -2453,6 +2553,14 @@ function renderTravelMatrix() {
 }
 
 function hideCalTooltip() { document.getElementById('calTooltip').classList.remove('show'); }
+
+function showPoGuidance(e) {
+  e.stopPropagation();
+  document.getElementById('poGuidanceModal').classList.add('open');
+}
+function closePoGuidance() {
+  document.getElementById('poGuidanceModal').classList.remove('open');
+}
 
 /* ── MOBILE CALENDAR BOTTOM SHEET ── */
 function openCalSheet(dateKey, dayEvents, holidays) {
@@ -2579,10 +2687,10 @@ function showToast(msg,dur=3000) {
 
 /* ── TIMESHEETS ── */
 const TS_ACTIVITIES = [
+  'Proposals / Project Budgeting','Project Management','Document Writing & Review',
+  'Research & Analysis','External meeting','Internal meeting',
   'Admin Work','Business Development','Conference / Seminars',
-  'Document Writing & Review','External meeting','Internal meeting',
-  'Mentoring','Project Management','Proposals / Project Budgeting',
-  'Research & Analysis','Training','Travel'
+  'Mentoring','Training','Travel'
 ];
 let timesheets = []; // loaded from API
 let tsViewMonth = new Date();
@@ -2655,7 +2763,8 @@ function tsPipelineOpts() {
       return rb - ra; // newest first
     });
   const opts = filtered.map(p=>{
-    const label = p.slCode ? `${p.name||'Untitled'} [${p.slCode}]` : (p.name||'Untitled');
+    const base = p.slCode ? `${p.name||'Untitled'} [${p.slCode}]` : (p.name||'Untitled');
+    const label = p.client ? `${base} — ${p.client}` : base;
     return `<option value="${p.id}|sl">${label}</option>`;
   });
   return `<option value="">— select —</option>${opts.join('')}`;
@@ -2673,7 +2782,8 @@ function tsEngagementOpts() {
       return rb - ra; // newest first
     });
   const opts = filtered.map(p=>{
-    const label = p.projectCode ? `${p.name||'Untitled'} [${p.projectCode}]` : (p.name||'Untitled');
+    const base = p.projectCode ? `${p.name||'Untitled'} [${p.projectCode}]` : (p.name||'Untitled');
+    const label = p.client ? `${base} — ${p.client}` : base;
     return `<option value="${p.id}|pc">${label}</option>`;
   });
   return `<option value="">— select —</option>${opts.join('')}`;
@@ -3021,5 +3131,26 @@ function tsGenerateReport() {
   showToast(`Downloaded CSV for ${monthLabel}`);
 }
 </script>
+<!-- PO Guidance Modal -->
+<div class="po-modal-overlay" id="poGuidanceModal" onclick="if(event.target===this)closePoGuidance()">
+  <div class="po-modal">
+    <div class="po-modal-title">Confirming Purchase &amp; Recording Receipt in D365</div>
+    <div class="po-modal-sub">PREREQUISITES: PO MUST BE IN APPROVED STATUS BEFORE STARTING</div>
+    <div class="po-modal-step">
+      <div class="po-modal-step-label">STEP 1 — CONFIRM THE PO</div>
+      <p>Open the PO record. In the top ribbon, click the <strong>Purchase</strong> tab, then click <strong>Confirm</strong>. Status updates to Confirmed.</p>
+    </div>
+    <div class="po-modal-step">
+      <div class="po-modal-step-label">STEP 2 — RECORD PRODUCT RECEIPT</div>
+      <p>Top ribbon → <strong>Receive</strong> tab → <strong>Product receipt</strong> section → click <strong>Product receipt</strong>. The "Posting product receipt" screen opens.</p>
+      <p style="margin-top:8px">In the Overview grid, find the relevant line item. In the <strong>Product receipt</strong> cell for that row, paste the supplier invoice number. Check the <strong>Product receipt date</strong> — adjust if needed to match the correct reporting month. Click <strong>OK</strong> at the bottom right corner. Status updates to Received.</p>
+    </div>
+    <div class="po-modal-step">
+      <div class="po-modal-step-label">STEP 3 — INFORM FINANCE</div>
+      <p>Forward the supplier invoice to finance with the <strong>PO number</strong> in the email. The PO is now fully processed on your end.</p>
+    </div>
+    <button class="po-modal-close" onclick="closePoGuidance()">Got it</button>
+  </div>
+</div>
 </body>
 </html>
