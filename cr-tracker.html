@@ -1077,7 +1077,7 @@ tr:hover td { background: #fbfcfd; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.1</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.2</span>
       <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
@@ -2303,7 +2303,7 @@ function initExpenses() {
 
 function expRefreshProjectDropdowns() {
   const opts = projects
-    .filter(p => p.stage !== 'Closed')
+    .filter(p => p.stage !== 'Closed' && p.stage !== 'Proposal')
     .sort((a,b) => { const na=a.name||'', nb=b.name||''; return na.localeCompare(nb); })
     .map(p => {
       const label = [p.name||'Untitled', p.projectCode||p.slCode||''].filter(Boolean).join(' — ');
@@ -2501,6 +2501,7 @@ function renderExpensesList() {
       html += `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">`;
       html += `<div class="exp-list-amount">${ex.currency||'SGD'} ${parseFloat(ex.amount||0).toFixed(2)}</div>`;
       html += receiptEl;
+      html += `<button onclick="expDeleteItem(${p.id},${idx})" style="background:none;border:none;font-size:10px;color:var(--text4);cursor:pointer;font-family:var(--mono);padding:0;margin-top:2px" title="Delete expense">✕ remove</button>`;
       html += `</div>`;
       html += `</div>`;
     });
@@ -2508,6 +2509,16 @@ function renderExpensesList() {
   });
 
   container.innerHTML = html;
+}
+
+function expDeleteItem(projectId, expIdx) {
+  if (!confirm('Remove this expense?')) return;
+  const p = projects.find(x => String(x.id) === String(projectId));
+  if (!p || !p.expenses) return;
+  p.expenses.splice(expIdx, 1);
+  scheduleSave(p.id);
+  renderExpensesList();
+  showToast('Expense removed');
 }
 
 async function expDownloadZip(projectId) {
