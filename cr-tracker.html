@@ -876,6 +876,124 @@ tr:hover td { background: #fbfcfd; }
 .cal-sheet-overlay.open { display: block; }
 @media (min-width: 769px) { .cal-bottom-sheet, .cal-sheet-overlay { display: none !important; } }
 
+
+/* ── EXPENSES TAB ── */
+.exp-form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px;
+}
+.exp-section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--navy3);
+  letter-spacing: 0.11em;
+  font-weight: 600;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.exp-photo-btn {
+  width: 100%;
+  padding: 18px 12px;
+  border: 2px dashed var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface2);
+  color: var(--text3);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.exp-photo-btn:hover { border-color: var(--navy3); color: var(--navy); background: var(--navy-light); }
+.exp-photo-btn.has-file { border-color: var(--green); color: var(--green); background: var(--green-light); border-style: solid; }
+.exp-photo-icon { font-size: 24px; line-height: 1; }
+.exp-submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background 0.15s;
+}
+.exp-submit-btn:hover { background: var(--navy2); }
+.exp-submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.exp-list-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.exp-list-project {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--navy3);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.exp-list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf0f4;
+}
+.exp-list-row:last-child { border-bottom: none; }
+.exp-list-meta { flex: 1; min-width: 0; }
+.exp-list-desc { font-size: 13px; font-weight: 500; color: var(--text); }
+.exp-list-detail { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+.exp-list-amount { font-size: 14px; font-weight: 600; color: var(--navy); white-space: nowrap; font-family: var(--mono); }
+.exp-receipt-link {
+  font-size: 10px;
+  color: var(--navy3);
+  font-family: var(--mono);
+  text-decoration: none;
+  border: 1px solid var(--navy-mid);
+  border-radius: 4px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+.exp-receipt-link:hover { background: var(--navy-light); color: var(--navy); }
+.exp-uploading {
+  font-size: 11px;
+  color: var(--amber);
+  font-family: var(--mono);
+  text-align: center;
+  padding: 8px 0;
+  display: none;
+}
+.exp-project-group {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+@media (max-width: 768px) {
+  .exp-form-card { padding: 14px; }
+  .exp-submit-btn { padding: 16px; font-size: 16px; }
+  .exp-photo-btn { padding: 22px 12px; }
+  .exp-photo-icon { font-size: 30px; }
+}
+
 /* ── PO GUIDANCE MODAL ── */
 .po-modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -954,11 +1072,12 @@ tr:hover td { background: #fbfcfd; }
         <button class="nav-btn" onclick="switchTab('calendar',this)" data-tab="calendar">Calendar & Travel</button>
         <button class="nav-btn" onclick="switchTab('editing',this)" data-tab="editing">Editing Request</button>
         <button class="nav-btn" onclick="switchTab('timesheets',this)" data-tab="timesheets">Timesheets</button>
+        <button class="nav-btn" onclick="switchTab('expenses',this)" data-tab="expenses">Expenses</button>
       </nav>
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.0</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.1</span>
       <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
@@ -1191,6 +1310,74 @@ tr:hover td { background: #fbfcfd; }
         <div id="tsMonthLog"></div>
       </div>
     </div>
+
+    <!-- EXPENSES TAB -->
+    <div class="view" id="view-expenses">
+
+      <!-- CAPTURE FORM -->
+      <div class="exp-form-card">
+        <div class="exp-section-label">CAPTURE EXPENSE</div>
+
+        <div class="field" style="margin-bottom:12px">
+          <label>PROJECT</label>
+          <select id="expProject" onchange="expOnProjectChange()">
+            <option value="">— select project —</option>
+          </select>
+        </div>
+
+        <div class="fg fg-2" style="margin-bottom:12px">
+          <div class="field">
+            <label>CATEGORY</label>
+            <select id="expCategory"></select>
+          </div>
+          <div class="field">
+            <label>DATE</label>
+            <input type="date" id="expDate">
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:12px">
+          <label>DESCRIPTION</label>
+          <input id="expDesc" type="text" placeholder="e.g. Lunch with source, Orchard Road" autocomplete="off">
+        </div>
+
+        <div class="fg fg-2" style="margin-bottom:16px">
+          <div class="field">
+            <label>CURRENCY</label>
+            <select id="expCurrency"></select>
+          </div>
+          <div class="field">
+            <label>AMOUNT</label>
+            <input id="expAmount" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal">
+          </div>
+        </div>
+
+        <!-- Photo upload -->
+        <input type="file" id="expPhotoInput" accept="image/*,application/pdf" style="display:none" onchange="expOnFileSelect(this)">
+        <button class="exp-photo-btn" id="expPhotoBtn" onclick="document.getElementById('expPhotoInput').click()">
+          <span class="exp-photo-icon">📎</span>
+          <span id="expPhotoBtnLabel">Attach receipt (photo or PDF)</span>
+        </button>
+        <div class="exp-uploading" id="expUploading">Uploading receipt…</div>
+
+        <button class="exp-submit-btn" id="expSubmitBtn" onclick="expSubmit()" style="margin-top:14px">Save expense</button>
+      </div>
+
+      <!-- EXPORT / VIEW -->
+      <div class="exp-form-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div class="exp-section-label" style="margin-bottom:0;padding-bottom:0;border-bottom:none">EXPENSES RECORD</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="expFilterProject" onchange="renderExpensesList()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;color:var(--text2);background:var(--surface)">
+              <option value="">All projects</option>
+            </select>
+            <button class="btn btn-navy" onclick="expDownloadZip()" id="expZipBtn" style="font-size:11px">Download receipts ZIP</button>
+          </div>
+        </div>
+        <div id="expListContainer"><div style="font-size:12px;color:var(--text3);font-family:var(--mono)">Loading…</div></div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -1222,6 +1409,10 @@ tr:hover td { background: #fbfcfd; }
   <button class="mob-nav-btn" onclick="switchTab('timesheets',this)" data-tab="timesheets">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     HOURS
+  </button>
+  <button class="mob-nav-btn" onclick="switchTab('expenses',this)" data-tab="expenses">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 14l2 2 4-4"/><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M7 5V3m10 2V3"/></svg>
+    EXPENSES
   </button>
 </nav>
 
@@ -1323,6 +1514,7 @@ async function loadAll() {
     render();
     if (document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
     if (document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
+    if (document.getElementById('view-expenses').classList.contains('active')) renderExpensesList();
   } catch(e) { setSyncStatus('offline','err'); render(); }
 }
 
@@ -1777,6 +1969,7 @@ function switchTab(tab,el) {
   if(tab==='calendar') { renderCalendar(); renderTravelMatrix(); }
   if(tab==='editing') initEditingTab();
   if(tab==='timesheets') initTimesheets();
+  if(tab==='expenses') initExpenses();
 }
 
 /* ── WORKING DAYS ── */
@@ -2082,6 +2275,282 @@ function erReset() {
   document.getElementById('erEditorSuggestion').textContent='';
   document.getElementById('erSrSuggestion').textContent='';
 }
+
+
+/* ── EXPENSES TAB ── */
+let expSelectedFile = null;
+let expSelectedFileName = '';
+
+function initExpenses() {
+  // Populate category dropdown
+  const catSel = document.getElementById('expCategory');
+  catSel.innerHTML = EXP_CATS.map(c => `<option>${c}</option>`).join('');
+
+  // Populate currency dropdown
+  const curSel = document.getElementById('expCurrency');
+  const currencies = ['SGD','USD','IDR','EUR','GBP','AUD','MYR','THB'];
+  curSel.innerHTML = currencies.map(c => `<option ${c==='SGD'?'selected':''}>${c}</option>`).join('');
+
+  // Populate project dropdowns
+  expRefreshProjectDropdowns();
+
+  // Default date to today
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('expDate').value = today;
+
+  renderExpensesList();
+}
+
+function expRefreshProjectDropdowns() {
+  const opts = projects
+    .filter(p => p.stage !== 'Closed')
+    .sort((a,b) => { const na=a.name||'', nb=b.name||''; return na.localeCompare(nb); })
+    .map(p => {
+      const label = [p.name||'Untitled', p.projectCode||p.slCode||''].filter(Boolean).join(' — ');
+      return `<option value="${p.id}">${label}</option>`;
+    });
+  const base = `<option value="">— select project —</option>` + opts.join('');
+  document.getElementById('expProject').innerHTML = base;
+
+  // Filter dropdown for list view
+  const filterSel = document.getElementById('expFilterProject');
+  filterSel.innerHTML = `<option value="">All projects</option>` + opts.join('');
+}
+
+function expOnProjectChange() {
+  // nothing special needed — project code pulled at submit time
+}
+
+function expOnFileSelect(input) {
+  if (!input.files || !input.files[0]) return;
+  expSelectedFile = input.files[0];
+  expSelectedFileName = input.files[0].name;
+  const btn = document.getElementById('expPhotoBtn');
+  btn.classList.add('has-file');
+  document.getElementById('expPhotoBtnLabel').textContent = expSelectedFile.name;
+}
+
+function expBuildFilename(p, category, date, desc, amount, currency, ext) {
+  // Format: 2026-Apr-08 - 85.00 - Subsistence - Source meeting lunch - 64007195.01 - Goblet
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const d = new Date(date + 'T00:00:00');
+  const dateStr = `${d.getFullYear()}-${months[d.getMonth()]}-${String(d.getDate()).padStart(2,'0')}`;
+  const amountStr = parseFloat(amount).toFixed(2);
+  const descClean = (desc||'').replace(/[/\\:*?"<>|]/g,'').trim().slice(0,40);
+  const projCode = p.projectCode || p.slCode || String(p.id);
+  const projName = (p.name||'Untitled').replace(/[/\\:*?"<>|]/g,'').trim().slice(0,30);
+  return `${dateStr} - ${currency} ${amountStr} - ${category} - ${descClean} - ${projCode} - ${projName}.${ext}`;
+}
+
+async function expSubmit() {
+  const projId = document.getElementById('expProject').value;
+  const category = document.getElementById('expCategory').value;
+  const date = document.getElementById('expDate').value;
+  const desc = document.getElementById('expDesc').value.trim();
+  const currency = document.getElementById('expCurrency').value;
+  const amount = document.getElementById('expAmount').value;
+
+  if (!projId) { showToast('Select a project'); return; }
+  if (!date) { showToast('Enter a date'); return; }
+  if (!desc) { showToast('Enter a description'); return; }
+  if (!amount || isNaN(parseFloat(amount))) { showToast('Enter an amount'); return; }
+
+  const p = projects.find(x => String(x.id) === String(projId));
+  if (!p) { showToast('Project not found'); return; }
+
+  const btn = document.getElementById('expSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  let receiptFileId = '';
+  let receiptFileName = '';
+  let receiptUrl = '';
+
+  // Upload photo if selected
+  if (expSelectedFile) {
+    document.getElementById('expUploading').style.display = 'block';
+    try {
+      const ext = expSelectedFileName.split('.').pop().toLowerCase() || 'jpg';
+      const newName = expBuildFilename(p, category, date, desc, amount, currency, ext);
+      const base64 = await expFileToBase64(expSelectedFile);
+      const mimeType = expSelectedFile.type || 'image/jpeg';
+      const result = await apiPost({
+        action: 'uploadReceipt',
+        fileName: newName,
+        base64Data: base64,
+        mimeType: mimeType,
+        projectName: p.name || 'Untitled'
+      });
+      if (result && result.fileId) {
+        receiptFileId = result.fileId;
+        receiptFileName = newName;
+        receiptUrl = result.url || '';
+      } else {
+        showToast('Receipt upload failed — expense saved without photo');
+      }
+    } catch(err) {
+      showToast('Receipt upload failed — expense saved without photo');
+    }
+    document.getElementById('expUploading').style.display = 'none';
+  }
+
+  // Build expense object and add to project
+  const expense = {
+    category,
+    description: desc,
+    currency,
+    amount: parseFloat(amount),
+    date,
+    poRequired: false,
+    poNumber: '',
+    receiptFileId,
+    receiptFileName,
+    receiptUrl
+  };
+
+  if (!p.expenses) p.expenses = [];
+  p.expenses.push(expense);
+  scheduleSave(p.id);
+
+  // Reset form
+  document.getElementById('expDesc').value = '';
+  document.getElementById('expAmount').value = '';
+  document.getElementById('expDate').value = new Date().toISOString().slice(0,10);
+  expSelectedFile = null;
+  expSelectedFileName = '';
+  const photoBtn = document.getElementById('expPhotoBtn');
+  photoBtn.classList.remove('has-file');
+  document.getElementById('expPhotoBtnLabel').textContent = 'Attach receipt (photo or PDF)';
+  document.getElementById('expPhotoInput').value = '';
+
+  btn.disabled = false;
+  btn.textContent = 'Save expense';
+  showToast('Expense saved' + (receiptFileId ? ' with receipt' : ''));
+  renderExpensesList();
+}
+
+function expFileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderExpensesList() {
+  const filterProjId = document.getElementById('expFilterProject')?.value || '';
+  const container = document.getElementById('expListContainer');
+  if (!container) return;
+
+  // Gather all expenses across projects
+  const allItems = [];
+  projects.forEach(p => {
+    if (!p.expenses || !p.expenses.length) return;
+    if (filterProjId && String(p.id) !== String(filterProjId)) return;
+    p.expenses.forEach((ex, idx) => {
+      allItems.push({ p, ex, idx });
+    });
+  });
+
+  if (!allItems.length) {
+    container.innerHTML = `<div style="font-size:12px;color:var(--text3);padding:1rem 0;font-family:var(--mono)">No expenses recorded yet</div>`;
+    return;
+  }
+
+  // Group by project
+  const byProject = {};
+  allItems.forEach(({ p, ex, idx }) => {
+    const key = String(p.id);
+    if (!byProject[key]) byProject[key] = { p, items: [] };
+    byProject[key].items.push({ ex, idx });
+  });
+
+  let html = '';
+  Object.values(byProject).forEach(({ p, items }) => {
+    const projTotal = items.reduce((s, { ex }) => s + (parseFloat(ex.amount)||0), 0);
+    // Group currencies for total display
+    const byCurrency = {};
+    items.forEach(({ ex }) => {
+      const c = ex.currency || 'SGD';
+      byCurrency[c] = (byCurrency[c] || 0) + (parseFloat(ex.amount)||0);
+    });
+    const totalsStr = Object.entries(byCurrency).map(([c,v]) => `${c} ${v.toFixed(2)}`).join(' · ');
+    const projLabel = [p.name||'Untitled', p.projectCode||p.slCode||''].filter(Boolean).join(' — ');
+
+    html += `<div class="exp-project-group">`;
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px">`;
+    html += `<div class="exp-list-project" style="margin-bottom:0;padding-bottom:0;border-bottom:none">${projLabel}</div>`;
+    html += `<div style="display:flex;align-items:center;gap:8px">`;
+    html += `<span style="font-family:var(--mono);font-size:11px;color:var(--text2)">${totalsStr}</span>`;
+    html += `<button class="btn" onclick="expDownloadZip('${p.id}')" style="font-size:10px;padding:4px 10px">ZIP receipts</button>`;
+    html += `</div></div>`;
+
+    // Sort by date
+    items.sort((a,b) => (a.ex.date||'') > (b.ex.date||'') ? -1 : 1);
+    items.forEach(({ ex, idx }) => {
+      const hasReceipt = !!ex.receiptFileId;
+      const receiptEl = hasReceipt
+        ? `<a class="exp-receipt-link" href="${ex.receiptUrl||'https://drive.google.com/file/d/'+ex.receiptFileId}" target="_blank">📎 receipt</a>`
+        : `<span style="font-size:10px;color:var(--text4);font-family:var(--mono)">no receipt</span>`;
+      html += `<div class="exp-list-row">`;
+      html += `<div class="exp-list-meta">`;
+      html += `<div class="exp-list-desc">${ex.description||'—'}</div>`;
+      html += `<div class="exp-list-detail">${ex.category||''} · ${(ex.date||'').toString().slice(0,10)}</div>`;
+      html += `</div>`;
+      html += `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">`;
+      html += `<div class="exp-list-amount">${ex.currency||'SGD'} ${parseFloat(ex.amount||0).toFixed(2)}</div>`;
+      html += receiptEl;
+      html += `</div>`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+async function expDownloadZip(projectId) {
+  // If called from top-level button with no arg, use filter dropdown value
+  const pid = projectId || document.getElementById('expFilterProject')?.value || '';
+  if (!pid) { showToast('Select a project to download receipts'); return; }
+
+  const p = projects.find(x => String(x.id) === String(pid));
+  if (!p) { showToast('Project not found'); return; }
+
+  const receipts = (p.expenses||[]).filter(ex => ex.receiptFileId);
+  if (!receipts.length) { showToast('No receipts on file for this project'); return; }
+
+  const zipBtn = document.getElementById('expZipBtn');
+  if (zipBtn) { zipBtn.disabled = true; zipBtn.textContent = 'Building ZIP…'; }
+  showToast('Preparing ZIP…');
+
+  try {
+    const result = await apiPost({
+      action: 'getReceiptZip',
+      projectId: String(pid),
+      projectName: p.name || 'Untitled'
+    });
+    if (result && result.base64) {
+      const bytes = Uint8Array.from(atob(result.base64), c => c.charCodeAt(0));
+      const blob = new Blob([bytes], { type: 'application/zip' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Receipts - ${p.name||'Project'} - ${new Date().toISOString().slice(0,10)}.zip`;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+      showToast('ZIP downloaded');
+    } else {
+      showToast('ZIP failed — ' + (result?.error || 'unknown error'));
+    }
+  } catch(err) {
+    showToast('ZIP failed — check connection');
+  }
+
+  if (zipBtn) { zipBtn.disabled = false; zipBtn.textContent = 'Download receipts ZIP'; }
+}
+
 
 /* ── DASHBOARD PREFS ── */
 async function loadDashPrefs() {
