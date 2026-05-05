@@ -1077,7 +1077,7 @@ tr:hover td { background: #fbfcfd; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.3</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.4</span>
       <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
@@ -1417,7 +1417,7 @@ tr:hover td { background: #fbfcfd; }
 </nav>
 
 <script>
-const AUTH = { user: 'adimas.mulya@controlrisks.com', pass: 'CR2026' };
+const AUTH = { user: 'crtracker', pass: 'CR2026' };
 
 /* ── PUBLIC HOLIDAYS ──
    To add a new year: copy the pattern below and add entries.
@@ -1465,7 +1465,7 @@ function showLoginScreen() {
         <div id="loginError" style="display:none;background:#fdf0ee;border:1px solid #f0cac6;border-radius:4px;padding:8px 12px;font-size:12px;color:#c0392b;margin-bottom:16px">Incorrect username or password</div>
         <div style="margin-bottom:12px">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8a96a8;letter-spacing:0.06em;margin-bottom:4px">USERNAME</div>
-          <input id="loginUser" type="email" placeholder="your@email.com" style="width:100%;padding:8px 10px;border:1px solid #e2e6ed;border-radius:4px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:#1a2332;outline:none" onkeydown="if(event.key==='Enter')doLogin()">
+          <input id="loginUser" type="text" placeholder="username" style="width:100%;padding:8px 10px;border:1px solid #e2e6ed;border-radius:4px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:#1a2332;outline:none" onkeydown="if(event.key==='Enter')doLogin()">
         </div>
         <div style="margin-bottom:20px">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8a96a8;letter-spacing:0.06em;margin-bottom:4px">PASSWORD</div>
