@@ -1077,7 +1077,7 @@ tr:hover td { background: #fbfcfd; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.4</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.5</span>
       <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
@@ -3310,10 +3310,13 @@ function tsAddRow() {
     </div>
     <div class="field" style="flex:1;min-width:140px" id="tsengfield-${id}">
       <label>PROJECT</label>
-      <select id="tseng-${id}" onchange="tsOnEngSelect(${id})">${tsEngagementOpts()}</select>
+      <select id="tseng-${id}" onchange="tsOnEngSelect(${id})"><optgroup label="Projects">${tsEngagementOpts()}</optgroup><optgroup label="Other"><option value="__billother__">Other billable (free text)</option></optgroup></select>
     </div>
     <div id="tsotherdiv-${id}" style="display:none;flex:1;min-width:140px">
-      <div class="field"><label>DESCRIBE</label><input id="tsother-${id}" placeholder="e.g. CR all-hands"></div>
+      <div class="field"><label>DESCRIBE (PIPELINE)</label><input id="tsother-${id}" placeholder="SL code / opportunity name"></div>
+    </div>
+    <div id="tsbillotherdiv-${id}" style="display:none;flex:1;min-width:140px">
+      <div class="field"><label>DESCRIBE (BILLABLE)</label><input id="tsbillother-${id}" placeholder="Project code / description"></div>
     </div>
     <div class="field field-sm">
       <label>ACTIVITY</label>
@@ -3358,14 +3361,17 @@ function tsOnPipeSelect(id) {
   const val = document.getElementById('tspipe-'+id).value;
   const engField = document.getElementById('tsengfield-'+id);
   const otherDiv = document.getElementById('tsotherdiv-'+id);
+  const billOtherDiv = document.getElementById('tsbillotherdiv-'+id);
   const engSel = document.getElementById('tseng-'+id);
   if (val) {
     engField.style.display = 'none';
     engSel.value = '';
-    otherDiv.style.display = val==='__other__' ? 'flex' : 'none';
+    otherDiv.style.display = val==='__other__' ? '' : 'none';
+    if (billOtherDiv) billOtherDiv.style.display = 'none';
   } else {
     engField.style.display = '';
     otherDiv.style.display = 'none';
+    if (billOtherDiv) billOtherDiv.style.display = 'none';
   }
   tsUpdateRowTotal();
 }
@@ -3373,7 +3379,13 @@ function tsOnPipeSelect(id) {
 function tsOnEngSelect(id) {
   const val = document.getElementById('tseng-'+id).value;
   const pipeSel = document.getElementById('tspipe-'+id);
-  if (val) { pipeSel.value = ''; document.getElementById('tsotherdiv-'+id).style.display='none'; document.getElementById('tsengfield-'+id).style.display=''; }
+  const billOtherDiv = document.getElementById('tsbillotherdiv-'+id);
+  if (val) {
+    pipeSel.value = '';
+    document.getElementById('tsotherdiv-'+id).style.display='none';
+    document.getElementById('tsengfield-'+id).style.display='';
+    if (billOtherDiv) billOtherDiv.style.display = val==='__billother__' ? '' : 'none';
+  }
   tsUpdateRowTotal();
 }
 
@@ -3420,18 +3432,21 @@ async function tsSaveAll() {
     const act = document.getElementById('tsact-'+id)?.value||'';
     const hrs = tsRoundHours(document.getElementById('tshrs-'+id)?.value);
     const otherText = document.getElementById('tsother-'+id)?.value||'';
+    const billOtherText = document.getElementById('tsbillother-'+id)?.value||'';
     if (!pipeVal && !engVal) continue;
     if (hrs <= 0) continue;
     let type='', engName='', slCode='', projectCode='', engId='';
     if (pipeVal === '__internal__') {
       type='internal'; engName='Internal — non-billable';
     } else if (pipeVal === '__other__') {
-      type='internal'; engName=otherText||'Other';
+      type='pipeline'; engName=otherText||'Other pipeline';
     } else if (pipeVal) {
       type='pipeline';
       engId = pipeVal.split('|')[0];
       const p = projects.find(x=>String(x.id)===engId);
       if (p) { engName=p.name||''; slCode=p.slCode||''; }
+    } else if (engVal === '__billother__') {
+      type='billable'; engName=billOtherText||'Other billable';
     } else if (engVal) {
       type='billable';
       engId = engVal.split('|')[0];
