@@ -1078,7 +1078,7 @@ tr:hover td { background: #fbfcfd; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.6</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.7</span>
       <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
@@ -1576,7 +1576,7 @@ async function deleteProject(id) {
 }
 
 function blankProject(id) {
-  return {id,name:'',client:'',stage:'Proposal',projectCode:'',slCode:'',sharepointMade:false,clientLastContact:'',kickoffDate:'',interimDeadline:'',interimStatus:'Not started',finalDeadline:'',finalStatus:'Not started',nextAction:'',originator:'',clientManager:'',projectLeader:'',researcher:'',subcontractors:[],expenses:[],billingReady:false,invoiceInitiated:false,notes:'',projectFeeCurrency:'USD',projectFee:'',opePercent:'10',opeOverride:'',allowTravel:false,jurisdiction1:'',jurisdiction2:'',lastModified:'',estimatedFeeUSD:'',isSLOwner:false,bdDraftedProposal:false,bdSLOwnerName:'',bdQuotedFeeUSD:'',bdContributionNote:'',bdConfirmedFeeUSD:''};
+  return {id,name:'',client:'',stage:'Proposal',projectCode:'',slCode:'',sharepointMade:false,clientLastContact:'',kickoffDate:'',interimDeadline:'',interimStatus:'Not started',finalDeadline:'',finalStatus:'Not started',nextAction:'',originator:'',clientManager:'',projectLeader:'',researcher:'',subcontractors:[],expenses:[],billingReady:false,invoiceInitiated:false,notes:'',projectFeeCurrency:'USD',projectFee:'',opePercent:'10',opeOverride:'',allowTravel:false,jurisdiction1:'',jurisdiction2:'',lastModified:'',estimatedFeeUSD:'',isSLOwner:false,bdIsOriginator:false,bdDraftedProposal:false,bdSLOwnerName:'',bdQuotedFeeUSD:'',bdContributionNote:'',bdConfirmedFeeUSD:''};
 }
 
 function addProject() {
@@ -1811,6 +1811,7 @@ function renderCard(p) {
           <div class="field"><label>ESTIMATED FEE (USD)</label><input type="number" value="${p.estimatedFeeUSD||''}" placeholder="0" min="0" onchange="uf(${p.id},'estimatedFeeUSD',this.value)"></div>
           <div class="field"><label>CONFIRMED FEE (USD)</label><input type="number" value="${p.bdConfirmedFeeUSD||''}" placeholder="Override when active" min="0" onchange="uf(${p.id},'bdConfirmedFeeUSD',this.value)"></div>
         </div>
+        <div class="checks" style="margin-bottom:8px">${chkRr(p.id,'bdIsOriginator',p.bdIsOriginator,'I am the originator of this opportunity')}</div>
         <div class="checks" style="margin-bottom:${p.isSLOwner?'0':'12px'}">${chkRr(p.id,'isSLOwner',p.isSLOwner,'I am the SL owner (captured in CRM)')}</div>
         ${!p.isSLOwner ? `
         <div class="checks" style="margin-bottom:${p.bdDraftedProposal?'12px':'0'}">${chkRr(p.id,'bdDraftedProposal',p.bdDraftedProposal,'I drafted this proposal')}</div>
@@ -2782,12 +2783,7 @@ function bdYear(p) {
 function renderBDAttribution() {
   // Collect all BD-attributed proposals
   const bdProjects = projects.filter(p => {
-    if (p.stage === 'Active' || p.stage === 'Delivered' || p.stage === 'Closed' || p.stage === 'Closed - Lost') {
-      // Include if they were once a proposal with BD data
-      return p.isSLOwner || p.bdDraftedProposal;
-    }
-    if (p.stage === 'Proposal') return p.isSLOwner || p.bdDraftedProposal;
-    return false;
+    return p.isSLOwner || p.bdIsOriginator || p.bdDraftedProposal;
   });
 
   if (!bdProjects.length) {
@@ -2810,15 +2806,18 @@ function renderBDAttribution() {
   years.forEach(yr => {
     const ps = byYear[yr];
     const slOwner = ps.filter(p=>p.isSLOwner);
+    const originated = ps.filter(p=>p.bdIsOriginator);
     const drafted = ps.filter(p=>!p.isSLOwner&&p.bdDraftedProposal);
     const totalSL = slOwner.reduce((s,p)=>s+bdEffectiveFee(p),0);
     const totalDraft = drafted.reduce((s,p)=>s+bdEffectiveFee(p),0);
-    const total = totalSL + totalDraft;
+    const totalOrigination = originated.reduce((s,p)=>s+bdEffectiveFee(p),0);
+    // Ownership = SL owner + drafted-not-owner (distinct KPI)
+    const totalOwnership = totalSL + totalDraft;
 
-    // Conversion rate — proposals that became Active/Delivered/Closed (not Lost)
-    const allDrafted = ps.filter(p=>p.isSLOwner||p.bdDraftedProposal);
-    const converted = allDrafted.filter(p=>p.stage==='Active'||p.stage==='Delivered'||p.stage==='Closed').length;
-    const convRate = allDrafted.length ? Math.round(converted/allDrafted.length*100) : 0;
+    // Conversion rate — all BD-attributed proposals that converted
+    const allBD = ps.filter(p=>p.isSLOwner||p.bdIsOriginator||p.bdDraftedProposal);
+    const converted = allBD.filter(p=>p.stage==='Active'||p.stage==='Delivered'||p.stage==='Closed').length;
+    const convRate = allBD.length ? Math.round(converted/allBD.length*100) : 0;
 
     html += `<div style="margin-bottom:20px">`;
     html += `<div style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--navy);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--navy-mid)">${yr}${yr===currentYear?' (current)':''}</div>`;
@@ -2826,20 +2825,18 @@ function renderBDAttribution() {
     // Summary row
     html += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">`;
     html += `<div style="background:var(--navy-light);border:1px solid var(--navy-mid);border-radius:8px;padding:10px 14px;min-width:140px">`;
-    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--navy3);letter-spacing:0.08em;margin-bottom:4px">TOTAL BD VALUE</div>`;
-    html += `<div style="font-size:18px;font-weight:700;color:var(--navy);font-family:var(--mono)">USD ${total.toLocaleString()}</div>`;
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--navy3);letter-spacing:0.08em;margin-bottom:4px">ORIGINATION TARGET</div>`;
+    html += `<div style="font-size:18px;font-weight:700;color:var(--navy);font-family:var(--mono)">USD ${totalOrigination.toLocaleString()}</div>`;
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:3px">${originated.length} opp${originated.length!==1?'s':''}</div>`;
     html += `</div>`;
-    html += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:120px">`;
-    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.08em;margin-bottom:4px">AS SL OWNER</div>`;
-    html += `<div style="font-size:15px;font-weight:600;color:var(--text);font-family:var(--mono)">USD ${totalSL.toLocaleString()}</div>`;
-    html += `</div>`;
-    html += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:120px">`;
-    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.08em;margin-bottom:4px">DRAFTED (NOT SL OWNER)</div>`;
-    html += `<div style="font-size:15px;font-weight:600;color:var(--text);font-family:var(--mono)">USD ${totalDraft.toLocaleString()}</div>`;
+    html += `<div style="background:var(--navy-light);border:1px solid var(--navy-mid);border-radius:8px;padding:10px 14px;min-width:140px">`;
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--navy3);letter-spacing:0.08em;margin-bottom:4px">OWNERSHIP TARGET</div>`;
+    html += `<div style="font-size:18px;font-weight:700;color:var(--navy);font-family:var(--mono)">USD ${totalOwnership.toLocaleString()}</div>`;
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:3px">SL owner: USD ${totalSL.toLocaleString()} · drafted: USD ${totalDraft.toLocaleString()}</div>`;
     html += `</div>`;
     html += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:100px">`;
     html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.08em;margin-bottom:4px">WIN RATE</div>`;
-    html += `<div style="font-size:15px;font-weight:600;color:${convRate>=50?'var(--green)':'var(--amber)'};font-family:var(--mono)">${convRate}% <span style="font-size:11px;color:var(--text3)">(${converted}/${allDrafted.length})</span></div>`;
+    html += `<div style="font-size:15px;font-weight:600;color:${convRate>=50?'var(--green)':'var(--amber)'};font-family:var(--mono)">${convRate}% <span style="font-size:11px;color:var(--text3)">(${converted}/${allBD.length})</span></div>`;
     html += `</div>`;
     html += `</div>`;
 
@@ -2856,7 +2853,9 @@ function renderBDAttribution() {
       html += `<span style="width:7px;height:7px;border-radius:50%;background:${stageDot};flex-shrink:0;display:inline-block"></span>`;
       html += `<span style="font-size:13px;font-weight:500;color:var(--text)">${p.name||'Untitled'}</span>`;
       html += `<span style="font-family:var(--mono);font-size:9px;color:var(--text3)">${stageLabel}</span>`;
+      if (p.bdIsOriginator) html += `<span style="font-family:var(--mono);font-size:9px;background:#f0faf4;color:var(--green);padding:1px 6px;border-radius:4px;border:1px solid #c7e8d5">ORIGINATOR</span>`;
       if (p.isSLOwner) html += `<span style="font-family:var(--mono);font-size:9px;background:var(--navy-light);color:var(--navy3);padding:1px 6px;border-radius:4px">SL OWNER</span>`;
+      if (!p.isSLOwner&&p.bdDraftedProposal) html += `<span style="font-family:var(--mono);font-size:9px;background:#fff8e6;color:var(--amber);padding:1px 6px;border-radius:4px;border:1px solid #edd7a0">DRAFTED</span>`;
       html += `</div>`;
       if (!p.isSLOwner&&p.bdSLOwnerName) html += `<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">SL owner: ${p.bdSLOwnerName}</div>`;
       if (!p.isSLOwner&&p.bdContributionNote) html += `<div style="font-size:11px;color:var(--text2);margin-top:2px">${p.bdContributionNote}</div>`;
