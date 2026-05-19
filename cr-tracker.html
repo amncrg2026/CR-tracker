@@ -224,6 +224,7 @@ button, input, select, textarea { font: inherit; }
 .pill-active { background: var(--green-light); color: var(--green); border: 1px solid #c7e8d5; }
 .pill-delivered { background: var(--amber-light); color: var(--amber); border: 1px solid #edd7a0; }
 .pill-closed { background: #f5f7f9; color: #7f8998; border: 1px solid #dfe5eb; }
+.pill-closed-lost { background: #fef2f2; color: #c0392b; border: 1px solid #f5c6c6; }
 .card-name {
   flex: 1;
   font-size: 15px;
@@ -1077,7 +1078,7 @@ tr:hover td { background: #fbfcfd; }
     </div>
     <div class="topbar-right">
       <span class="sync-status" id="syncStatus">connecting...</span>
-      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.5</span>
+      <span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">v4.6</span>
       <button class="btn btn-navy" onclick="addProject()">+ New project</button>
     </div>
   </div>
@@ -1092,6 +1093,7 @@ tr:hover td { background: #fbfcfd; }
         <button class="filter-btn" onclick="setFilter('Active',this)">ACTIVE</button>
         <button class="filter-btn" onclick="setFilter('Delivered',this)">DELIVERED</button>
         <button class="filter-btn" onclick="setFilter('Closed',this)">CLOSED</button>
+        <button class="filter-btn" onclick="setFilter('Closed - Lost',this)">LOST</button>
       </div>
       <div id="projectList"><div class="loading">LOADING PROJECTS...</div></div>
     </div>
@@ -1574,7 +1576,7 @@ async function deleteProject(id) {
 }
 
 function blankProject(id) {
-  return {id,name:'',client:'',stage:'Proposal',projectCode:'',slCode:'',sharepointMade:false,clientLastContact:'',kickoffDate:'',interimDeadline:'',interimStatus:'Not started',finalDeadline:'',finalStatus:'Not started',nextAction:'',originator:'',clientManager:'',projectLeader:'',researcher:'',subcontractors:[],expenses:[],billingReady:false,invoiceInitiated:false,notes:'',projectFeeCurrency:'USD',projectFee:'',opePercent:'10',opeOverride:'',allowTravel:false,jurisdiction1:'',jurisdiction2:'',lastModified:''};
+  return {id,name:'',client:'',stage:'Proposal',projectCode:'',slCode:'',sharepointMade:false,clientLastContact:'',kickoffDate:'',interimDeadline:'',interimStatus:'Not started',finalDeadline:'',finalStatus:'Not started',nextAction:'',originator:'',clientManager:'',projectLeader:'',researcher:'',subcontractors:[],expenses:[],billingReady:false,invoiceInitiated:false,notes:'',projectFeeCurrency:'USD',projectFee:'',opePercent:'10',opeOverride:'',allowTravel:false,jurisdiction1:'',jurisdiction2:'',lastModified:'',estimatedFeeUSD:'',isSLOwner:false,bdDraftedProposal:false,bdSLOwnerName:'',bdQuotedFeeUSD:'',bdContributionNote:'',bdConfirmedFeeUSD:''};
 }
 
 function addProject() {
@@ -1604,7 +1606,7 @@ function workDaysFrom(d) {
   let c=0,x=new Date(today); while(x<target){x.setDate(x.getDate()+1);if(isWorkingDay(x))c++;} return c;
 }
 
-function stageClass(s) { return {Proposal:'pill-proposal',Active:'pill-active',Delivered:'pill-delivered',Closed:'pill-closed'}[s]||'pill-proposal'; }
+function stageClass(s) { return {Proposal:'pill-proposal',Active:'pill-active',Delivered:'pill-delivered',Closed:'pill-closed','Closed - Lost':'pill-closed-lost'}[s]||'pill-proposal'; }
 function stageColor(s) { return {Proposal:'var(--purple)',Active:'var(--green)',Delivered:'var(--amber)',Closed:'#aaa'}[s]||'#aaa'; }
 function statusOpts(c) { return ['Not started','In progress','Delivered','N/A'].map(s=>`<option ${c===s?'selected':''}>${s}</option>`).join(''); }
 function stageOpts(c) { return ['Proposal','Active','Delivered','Closed'].map(s=>`<option ${c===s?'selected':''}>${s}</option>`).join(''); }
@@ -1625,6 +1627,10 @@ function chkSc(id,idx,field,val,label) {
 function chkExp(id,idx,field,val,label) {
   const on=val===true||val==='TRUE'||val==='true';
   return `<label class="check ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="updateExp(${id},${idx},'${field}',this.checked);reRender(${id})">${label}</label>`;
+}
+function chkRr(id,field,val,label) {
+  const on=val===true||val==='TRUE'||val==='true';
+  return `<label class="check ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="uf(${id},'${field}',this.checked);reRender(${id})">${label}</label>`;
 }
 
 function currencyOpts(selected) {
@@ -1797,6 +1803,26 @@ function renderCard(p) {
         <div class="field"><label>STAGE</label><select onchange="uf(${p.id},'stage',this.value);reRender(${p.id})">${stageOpts(p.stage)}</select></div>
       </div>
       <div class="field"><label>CLIENT LAST CONTACTED</label><input type="date" value="${(p.clientLastContact||'').toString().slice(0,10)}" onchange="uf(${p.id},'clientLastContact',this.value)" style="max-width:220px"></div>
+    </div>
+    <div class="sec">
+      <div class="sec-label">BD ATTRIBUTION</div>
+      <div style="background:var(--navy-light);border:1px solid var(--navy-mid);border-radius:10px;padding:14px">
+        <div class="fg fg-2" style="margin-bottom:12px">
+          <div class="field"><label>ESTIMATED FEE (USD)</label><input type="number" value="${p.estimatedFeeUSD||''}" placeholder="0" min="0" onchange="uf(${p.id},'estimatedFeeUSD',this.value)"></div>
+          <div class="field"><label>CONFIRMED FEE (USD)</label><input type="number" value="${p.bdConfirmedFeeUSD||''}" placeholder="Override when active" min="0" onchange="uf(${p.id},'bdConfirmedFeeUSD',this.value)"></div>
+        </div>
+        <div class="checks" style="margin-bottom:${p.isSLOwner?'0':'12px'}">${chkRr(p.id,'isSLOwner',p.isSLOwner,'I am the SL owner (captured in CRM)')}</div>
+        ${!p.isSLOwner ? `
+        <div class="checks" style="margin-bottom:${p.bdDraftedProposal?'12px':'0'}">${chkRr(p.id,'bdDraftedProposal',p.bdDraftedProposal,'I drafted this proposal')}</div>
+        ${p.bdDraftedProposal ? `
+        <div class="fg fg-2" style="margin-bottom:8px">
+          <div class="field"><label>OFFICIAL SL OWNER</label><input value="${p.bdSLOwnerName||''}" placeholder="Name" onchange="uf(${p.id},'bdSLOwnerName',this.value)"></div>
+          <div class="field"><label>QUOTED FEE (USD)</label><input type="number" value="${p.bdQuotedFeeUSD||''}" placeholder="0" min="0" onchange="uf(${p.id},'bdQuotedFeeUSD',this.value)"></div>
+        </div>
+        <div class="field"><label>NATURE OF CONTRIBUTION</label><input value="${p.bdContributionNote||''}" placeholder="e.g. Led BI workstream, cross-sold from Disputes practice" onchange="uf(${p.id},'bdContributionNote',this.value)"></div>
+        ` : ''}
+        ` : ''}
+      </div>
     </div>` : `
     <div class="sec">
       <div class="sec-label">PROJECT DETAILS</div>
@@ -2011,7 +2037,7 @@ function initEditingTab() {
   const sel = document.getElementById('erEngSelect');
   const current = sel.value;
   while (sel.options.length > 2) sel.remove(2);
-  projects.filter(p=>p.stage!=='Closed'&&p.stage!=='Proposal').forEach(p=>{
+  projects.filter(p=>p.stage!=='Closed'&&p.stage!=='Closed - Lost'&&p.stage!=='Proposal').forEach(p=>{
     const opt = document.createElement('option');
     opt.value = p.id;
     opt.textContent = (p.name||'Untitled') + (p.projectCode?' ['+p.projectCode+']':'');
@@ -2303,7 +2329,7 @@ function initExpenses() {
 
 function expRefreshProjectDropdowns() {
   const opts = projects
-    .filter(p => p.stage !== 'Closed' && p.stage !== 'Proposal')
+    .filter(p => p.stage !== 'Closed' && p.stage !== 'Closed - Lost' && p.stage !== 'Proposal')
     .sort((a,b) => { const na=a.name||'', nb=b.name||''; return na.localeCompare(nb); })
     .map(p => {
       const label = [p.name||'Untitled', p.projectCode||p.slCode||''].filter(Boolean).join(' — ');
@@ -2631,7 +2657,7 @@ function toggleShowHidden() {
 
 /* ── DASHBOARD ── */
 function renderDashboard() {
-  const active = projects.filter(p => p.stage !== 'Closed');
+  const active = projects.filter(p => p.stage !== 'Closed' && p.stage !== 'Closed - Lost');
   const counts = {Proposal:0,Active:0,Delivered:0,Closed:0};
   projects.forEach(p=>{if(counts[p.stage]!==undefined)counts[p.stage]++;});
   const max = Math.max(...Object.values(counts),1);
@@ -2721,9 +2747,131 @@ function renderDashboard() {
             </div>
           </div>
         `).join('')}</div>`) +
+    `</div>` +
+    `<div class="dash-card full">` +
+      `<div class="dash-card-title">BD ATTRIBUTION</div>` +
+      renderBDAttribution() +
     `</div>`;
 
   initDragDrop();
+}
+
+/* ── BD ATTRIBUTION ── */
+function bdEffectiveFee(p) {
+  // Confirmed fee overrides everything if present
+  if (p.bdConfirmedFeeUSD && parseFloat(p.bdConfirmedFeeUSD) > 0) return parseFloat(p.bdConfirmedFeeUSD);
+  // If now Active/Delivered/Closed, use project fee converted to USD if available
+  if (p.stage !== 'Proposal' && p.stage !== 'Closed - Lost') {
+    const fee = parseFloat(p.projectFee);
+    if (fee > 0) {
+      // Rough conversion if not USD — use as-is for now, user can set confirmed fee to override
+      return fee;
+    }
+  }
+  // Fall back to estimated or quoted fee
+  if (p.isSLOwner) return parseFloat(p.estimatedFeeUSD)||0;
+  return parseFloat(p.bdQuotedFeeUSD)||parseFloat(p.estimatedFeeUSD)||0;
+}
+
+function bdYear(p) {
+  const d = p.lastModified || p.interimDeadline || p.finalDeadline || '';
+  if (!d) return new Date().getFullYear();
+  return new Date(d.toString().slice(0,10)).getFullYear();
+}
+
+function renderBDAttribution() {
+  // Collect all BD-attributed proposals
+  const bdProjects = projects.filter(p => {
+    if (p.stage === 'Active' || p.stage === 'Delivered' || p.stage === 'Closed' || p.stage === 'Closed - Lost') {
+      // Include if they were once a proposal with BD data
+      return p.isSLOwner || p.bdDraftedProposal;
+    }
+    if (p.stage === 'Proposal') return p.isSLOwner || p.bdDraftedProposal;
+    return false;
+  });
+
+  if (!bdProjects.length) {
+    return `<div class="empty" style="padding:1rem;font-size:11px;border:none">No BD attribution data recorded. Add via the BD Attribution section in any Proposal card.</div>`;
+  }
+
+  // Group by year
+  const byYear = {};
+  bdProjects.forEach(p => {
+    const yr = bdYear(p);
+    if (!byYear[yr]) byYear[yr] = [];
+    byYear[yr].push(p);
+  });
+
+  const currentYear = new Date().getFullYear();
+  const years = Object.keys(byYear).map(Number).sort((a,b)=>b-a);
+
+  let html = '';
+
+  years.forEach(yr => {
+    const ps = byYear[yr];
+    const slOwner = ps.filter(p=>p.isSLOwner);
+    const drafted = ps.filter(p=>!p.isSLOwner&&p.bdDraftedProposal);
+    const totalSL = slOwner.reduce((s,p)=>s+bdEffectiveFee(p),0);
+    const totalDraft = drafted.reduce((s,p)=>s+bdEffectiveFee(p),0);
+    const total = totalSL + totalDraft;
+
+    // Conversion rate — proposals that became Active/Delivered/Closed (not Lost)
+    const allDrafted = ps.filter(p=>p.isSLOwner||p.bdDraftedProposal);
+    const converted = allDrafted.filter(p=>p.stage==='Active'||p.stage==='Delivered'||p.stage==='Closed').length;
+    const convRate = allDrafted.length ? Math.round(converted/allDrafted.length*100) : 0;
+
+    html += `<div style="margin-bottom:20px">`;
+    html += `<div style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--navy);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--navy-mid)">${yr}${yr===currentYear?' (current)':''}</div>`;
+
+    // Summary row
+    html += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">`;
+    html += `<div style="background:var(--navy-light);border:1px solid var(--navy-mid);border-radius:8px;padding:10px 14px;min-width:140px">`;
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--navy3);letter-spacing:0.08em;margin-bottom:4px">TOTAL BD VALUE</div>`;
+    html += `<div style="font-size:18px;font-weight:700;color:var(--navy);font-family:var(--mono)">USD ${total.toLocaleString()}</div>`;
+    html += `</div>`;
+    html += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:120px">`;
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.08em;margin-bottom:4px">AS SL OWNER</div>`;
+    html += `<div style="font-size:15px;font-weight:600;color:var(--text);font-family:var(--mono)">USD ${totalSL.toLocaleString()}</div>`;
+    html += `</div>`;
+    html += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:120px">`;
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.08em;margin-bottom:4px">DRAFTED (NOT SL OWNER)</div>`;
+    html += `<div style="font-size:15px;font-weight:600;color:var(--text);font-family:var(--mono)">USD ${totalDraft.toLocaleString()}</div>`;
+    html += `</div>`;
+    html += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:100px">`;
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.08em;margin-bottom:4px">WIN RATE</div>`;
+    html += `<div style="font-size:15px;font-weight:600;color:${convRate>=50?'var(--green)':'var(--amber)'};font-family:var(--mono)">${convRate}% <span style="font-size:11px;color:var(--text3)">(${converted}/${allDrafted.length})</span></div>`;
+    html += `</div>`;
+    html += `</div>`;
+
+    // Project list
+    html += `<div style="display:flex;flex-direction:column;gap:6px">`;
+    ps.sort((a,b)=>bdEffectiveFee(b)-bdEffectiveFee(a)).forEach(p=>{
+      const fee = bdEffectiveFee(p);
+      const isLost = p.stage==='Closed - Lost';
+      const stageLabel = p.stage;
+      const stageDot = p.stage==='Active'||p.stage==='Delivered'||p.stage==='Closed' ? 'var(--green)' : isLost ? '#c0392b' : 'var(--purple)';
+      html += `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap">`;
+      html += `<div style="flex:1;min-width:0">`;
+      html += `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px">`;
+      html += `<span style="width:7px;height:7px;border-radius:50%;background:${stageDot};flex-shrink:0;display:inline-block"></span>`;
+      html += `<span style="font-size:13px;font-weight:500;color:var(--text)">${p.name||'Untitled'}</span>`;
+      html += `<span style="font-family:var(--mono);font-size:9px;color:var(--text3)">${stageLabel}</span>`;
+      if (p.isSLOwner) html += `<span style="font-family:var(--mono);font-size:9px;background:var(--navy-light);color:var(--navy3);padding:1px 6px;border-radius:4px">SL OWNER</span>`;
+      html += `</div>`;
+      if (!p.isSLOwner&&p.bdSLOwnerName) html += `<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">SL owner: ${p.bdSLOwnerName}</div>`;
+      if (!p.isSLOwner&&p.bdContributionNote) html += `<div style="font-size:11px;color:var(--text2);margin-top:2px">${p.bdContributionNote}</div>`;
+      html += `</div>`;
+      html += `<div style="text-align:right;white-space:nowrap">`;
+      html += `<div style="font-family:var(--mono);font-size:14px;font-weight:600;color:${isLost?'var(--text3)':'var(--navy)'}${isLost?';text-decoration:line-through':''}">${fee?'USD '+fee.toLocaleString():'—'}</div>`;
+      if (p.bdConfirmedFeeUSD&&parseFloat(p.bdConfirmedFeeUSD)>0) html += `<div style="font-family:var(--mono);font-size:9px;color:var(--green)">confirmed</div>`;
+      else if (fee>0) html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text4)">estimated</div>`;
+      html += `</div>`;
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  return html;
 }
 
 /* ── DRAG AND DROP ── */
@@ -2826,7 +2974,7 @@ function renderCalendar() {
   document.getElementById('calMonth').textContent=new Date(y,m,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
 
   const events={};
-  projects.filter(p=>p.stage!=='Closed').forEach(p=>{
+  projects.filter(p=>p.stage!=='Closed'&&p.stage!=='Closed - Lost').forEach(p=>{
     const add=(dateStr,type,label,meta)=>{
       if(!dateStr)return;
       const key=dateStr.toString().slice(0,10);
@@ -2881,7 +3029,7 @@ function renderCalendar() {
     // Travel OPE for this day
     const travelByJuris = {};
     if (isCurrentMonth) {
-      projects.filter(p=>p.allowTravel&&p.kickoffDate&&p.finalDeadline&&p.stage!=='Closed'&&p.stage!=='Proposal').forEach(p=>{
+      projects.filter(p=>p.allowTravel&&p.kickoffDate&&p.finalDeadline&&p.stage!=='Closed'&&p.stage!=='Closed - Lost'&&p.stage!=='Proposal').forEach(p=>{
         if (!isActiveOnDate(p, dateObj)) return;
         const avail = calcOPEAvailable(p);
         if (avail <= 0) return;
@@ -2967,7 +3115,7 @@ function showCalTooltip(e,el) {
 }
 
 function renderTravelMatrix() {
-  const travelProjects = projects.filter(p=>p.allowTravel&&p.kickoffDate&&p.finalDeadline&&p.stage!=='Closed'&&p.stage!=='Proposal'&&p.projectFee);
+  const travelProjects = projects.filter(p=>p.allowTravel&&p.kickoffDate&&p.finalDeadline&&p.stage!=='Closed'&&p.stage!=='Closed - Lost'&&p.stage!=='Proposal'&&p.projectFee);
   if (!travelProjects.length) {
     document.getElementById('travelMatrix').innerHTML=`<div class="empty" style="font-size:12px">No projects with travel enabled. Add kick-off date, project fee, and tick "Allow travel" on active projects.</div>`;
     return;
